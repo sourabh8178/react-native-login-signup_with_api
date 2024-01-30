@@ -1,15 +1,19 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { BASE_URL } from "./Config";
 import axios from 'axios';
+import BlogView from './BlogView'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 	const [userInfo, setUserInfo] = useState({});
+	const [blogInfo, setBlogInfo] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [splashLoading, setSplashLoading] = useState(false);
 
+	
   const register = (name, email, password) => {
   	setIsLoading(true);
     axios.post(`${BASE_URL}/users/sign_up`, {
@@ -83,12 +87,42 @@ export const AuthProvider = ({ children }) => {
   	}
   };
 
+  const createBlog = (title, body, userInfo) => {
+		const navigation = useNavigation();
+
+  	setIsLoading(true);
+    axios.post(`${BASE_URL}/blogs`, {
+	      title, body
+	    },
+	    { headers:
+	      {Authorization: `Bearer ${userInfo.data.authentication_token}`},
+	    }
+    )
+      .then(res => {
+        let blogInfo = res.data;
+        setBlogInfo(blogInfo);
+	      AsyncStorage.setItem('blogInfo', JSON.stringify(blogInfo));
+	      setIsLoading(false);
+        console.log(blogInfo);
+        handleBlogView(blogInfo.id);
+      })
+      .catch(e => {
+        console.log(`register error ${e}`);
+        setIsLoading(false);
+    });
+  };
+
+  const handleBlogView = (blogId) => {
+  	navigation.navigate('BlogView', {
+		    id: blogId 
+		});
+  };
+
   useEffect(() => {
   	isLoggedIn();
   }, []);
 
-
   return (
-    <AuthContext.Provider value={{login, splashLoading, register, isLoading, userInfo, logout}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{login, splashLoading, register, isLoading, userInfo, logout, createBlog}}>{children}</AuthContext.Provider>
   );
 };
