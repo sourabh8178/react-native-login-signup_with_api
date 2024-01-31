@@ -4,6 +4,7 @@ import HomeScreen from "./HomeScreen"
 import LoginScreen from "./LoginScreen"
 import Blog from "./Blog"
 import BlogView from "./BlogView"
+import ProfileScreen from "./ProfileScreen"
 import RegistrationScreen from "./RegistrationScreen"
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -51,6 +52,7 @@ const Navigation = () => {
           />
           <Stack.Screen name="Blog" component={Blog} />
           <Stack.Screen name="BlogView" component={BlogView} />
+          <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
           </>
           ) : (
           <>

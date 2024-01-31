@@ -5,6 +5,7 @@ import { AuthContext } from './AuthContext';
 import { BASE_URL } from './Config';
 import axios from 'axios';
 import Blog from './Blog';
+import ProfileScreen from "./ProfileScreen"
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './BlogView';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -34,10 +35,6 @@ const HomeScreen = (props) => {
     getAPIData();
   }, []);
 
-  const handleReload = () => {
-    getAPIData();
-  };
-
   const handleBlogView = (blogId) => {
     navigation.navigate('BlogView', {
       id: blogId,
@@ -45,7 +42,7 @@ const HomeScreen = (props) => {
   };
 
   const handleProfileView = (profileId) => {
-    navigation.navigate('ProfileScreen', {
+    navigation.navigate("ProfileScreen", {
       id: profileId,
     });
   };
@@ -57,23 +54,7 @@ const HomeScreen = (props) => {
     logout(headers);
   };
 
-  const renderGridItem = ({ item }) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.gridItem}
-      onPress={() => handleBlogView(item.id)}
-    >
-      <Image
-        source={{ uri: item.image }} // Assuming item.image is a URL
-        style={styles.blogImage}
-      />
-      <View style={styles.gridTextContainer}>
-        <Text style={styles.gridText}>Title: {item.title}</Text>
-        <Text style={styles.gridText}>Body: {item.body}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
+  
   return (
     <ScrollView>
     	<View style={styles.inputPost}>
@@ -92,7 +73,7 @@ const HomeScreen = (props) => {
 							  style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 15, borderTopColor: '#ccc', borderTopWidth: 5, marginTop: 15 }}
 							  onPress={() => handleProfileView(post.profile.id)}
 							>
-							<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
 							    <Text>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
 							    <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
