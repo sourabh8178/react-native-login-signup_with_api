@@ -5,7 +5,7 @@ import { AuthContext } from './AuthContext';
 import { BASE_URL } from './Config';
 import axios from 'axios';
 import Blog from './Blog';
-import ProfileScreen from "./ProfileScreen"
+import UserProfile from "./UserProfile"
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './BlogView';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -42,7 +42,7 @@ const HomeScreen = (props) => {
   };
 
   const handleProfileView = (profileId) => {
-    navigation.navigate("ProfileScreen", {
+    navigation.navigate("UserProfile", {
       id: profileId,
     });
   };
@@ -59,7 +59,7 @@ const HomeScreen = (props) => {
     <ScrollView>
     	<View style={styles.inputPost}>
       	<FontAwesomeIcon icon={faCamera} size={20} color="black" style={{marginRight: "5%", marginLeft: "10%"}} />
-      	<TouchableOpacity onPress={() => navigation.navigate('Search')}>
+      	<TouchableOpacity onPress={() => navigation.navigate('Blog')}>
           <Text style={{ fontSize: 20 }}>Write a post</Text>
         </TouchableOpacity>
       </View>

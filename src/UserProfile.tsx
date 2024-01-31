@@ -7,8 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHeart, faLocation, faShare, faFacebook, faLinkedin, faYoutube } from '@fortawesome/free-solid-svg-icons';
 
 
-const ProfileScreen = () => {
-  
+const UserProfile = ({ route }) => {
+  const { id } = route.params;
   const [profileDetail, setprofileDetail] = useState(null);
   const {userInfo, isLoading} = useContext(AuthContext);
 
@@ -18,7 +18,7 @@ const ProfileScreen = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
+      const response = await axios.get(`${BASE_URL}/profile/${id}`, { headers });
       setprofileDetail(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -124,4 +124,4 @@ const styles = StyleSheet.create({
     padding: 10
   },
 });
-export default ProfileScreen;
+export default UserProfile;
