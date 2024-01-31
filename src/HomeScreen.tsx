@@ -1,15 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  Image,
-  TextInput,
-} from 'react-native';
+import {View, Text, StyleSheet, Button, TouchableOpacity, ScrollView, FlatList, Image, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './AuthContext';
 import { BASE_URL } from './Config';
@@ -54,6 +44,12 @@ const HomeScreen = (props) => {
     });
   };
 
+  const handleProfileView = (profileId) => {
+    navigation.navigate('ProfileScreen', {
+      id: profileId,
+    });
+  };
+
   const handleLogout = () => {
     const headers = {
       Authorization: `Bearer ${userInfo.data.authentication_token}`,
@@ -85,35 +81,38 @@ const HomeScreen = (props) => {
       	<TouchableOpacity onPress={() => navigation.navigate('Search')}>
           <Text style={{ fontSize: 20 }}>Write a post</Text>
         </TouchableOpacity>
-		      
       </View>
-					<View style={styles.horizontalLine} />
+			<View style={styles.horizontalLine} />
       {viewType === 'list' ? (
         <>
           {data ? (
             data.data.map((post) => (
-
-              <TouchableOpacity
-							  key={post.id}
-							  style={{ padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 1, marginTop: 15 }}
-							  onPress={() => handleBlogView(post.id)}
+            	<React.Fragment key={post.id}>
+            	<TouchableOpacity
+							  style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 15, borderTopColor: '#ccc', borderTopWidth: 5, marginTop: 15 }}
+							  onPress={() => handleProfileView(post.profile.id)}
 							>
-							  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+							<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
-							    <Text>{post.profile.name}</Text>
+							    <Text>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
 							    <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
 							  </View>
-
-							  <Text> {post.title}</Text>
+							</TouchableOpacity>
+              <TouchableOpacity
+							  style={{ borderBottomLeftRadius: 30, borderBottomRightRadius: 30, padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 5, marginTop: "auto" }}
+							  onPress={() => handleBlogView(post.id)}
+							>
+							  <Text> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
 							  <Text> {post.body}</Text>
 							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-							<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-							<FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
-						  <FontAwesomeIcon icon={faComment} size={20} color="black" style={styles.icon} />
-						  <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.icon} />
-						  <FontAwesomeIcon icon={faBookmark} size={20}  style={{marginLeft: 'auto'}} />
-						  </View>
+								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+									<FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
+								  <FontAwesomeIcon icon={faComment} size={20} color="black" style={styles.icon} />
+								  <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.icon} />
+								  <FontAwesomeIcon icon={faBookmark} size={20}  style={{marginLeft: 'auto'}} />
+							  </View>
 							</TouchableOpacity>
+							</React.Fragment>
             ))
           ) : (
             null
