@@ -8,6 +8,7 @@ import {
   ScrollView,
   FlatList,
   Image,
+  TextInput,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './AuthContext';
@@ -16,12 +17,15 @@ import axios from 'axios';
 import Blog from './Blog';
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './BlogView';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faEllipsisV, faCamera,faHeart, faComment, faShare, faBookmark } from '@fortawesome/free-solid-svg-icons';
 
 const HomeScreen = (props) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const [data, setData] = useState(undefined);
   const navigation = useNavigation();
   const [viewType, setViewType] = useState('list');
+  const [body, setBody] = useState(null);
 
   const getAPIData = async () => {
     try {
@@ -50,6 +54,13 @@ const HomeScreen = (props) => {
     });
   };
 
+  const handleLogout = () => {
+    const headers = {
+      Authorization: `Bearer ${userInfo.data.authentication_token}`,
+    };
+    logout(headers);
+  };
+
   const renderGridItem = ({ item }) => (
     <TouchableOpacity
       key={item.id}
@@ -69,21 +80,40 @@ const HomeScreen = (props) => {
 
   return (
     <ScrollView>
+    	<View style={styles.inputPost}>
+      	<FontAwesomeIcon icon={faCamera} size={20} color="black" style={{marginRight: "5%", marginLeft: "10%"}} />
+      	<TouchableOpacity onPress={() => navigation.navigate('Search')}>
+          <Text style={{ fontSize: 20 }}>Write a post</Text>
+        </TouchableOpacity>
+		      
+      </View>
+					<View style={styles.horizontalLine} />
       {viewType === 'list' ? (
         <>
-          <Text>List with API Call</Text>
           {data ? (
             data.data.map((post) => (
+
               <TouchableOpacity
-                key={post.id}
-                style={{ padding: 10, borderBottomColor: '#ccc', borderBottomWidth: 1 }}
-                onPress={() => handleBlogView(post.id)}
-              >
-                <Text style={{ backgroundColor: '#ddd' }}> ID: {post.id}</Text>
-                <Text> Title: {post.title}</Text>
-                <Text> Body: {post.body}</Text>
-                <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-              </TouchableOpacity>
+							  key={post.id}
+							  style={{ padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 1, marginTop: 15 }}
+							  onPress={() => handleBlogView(post.id)}
+							>
+							  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
+							    <Text>{post.profile.name}</Text>
+							    <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
+							  </View>
+
+							  <Text> {post.title}</Text>
+							  <Text> {post.body}</Text>
+							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+							<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+							<FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
+						  <FontAwesomeIcon icon={faComment} size={20} color="black" style={styles.icon} />
+						  <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.icon} />
+						  <FontAwesomeIcon icon={faBookmark} size={20}  style={{marginLeft: 'auto'}} />
+						  </View>
+							</TouchableOpacity>
             ))
           ) : (
             null
@@ -94,15 +124,14 @@ const HomeScreen = (props) => {
           data={data ? data.blogs : []}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderGridItem}
-          numColumns={2} // Adjust the number of columns as needed
+          numColumns={2}
         />
       )}
       <View style={styles.container}>
         <Spinner visible={isLoading} />
         {userInfo ? (
           <>
-            <Text style={styles.welcome}>Welcome </Text>
-            <Button title="Logout" color="red" onPress={logout} />
+            <Button title="Logout" color="red" onPress={handleLogout} />
             <TouchableOpacity onPress={() => props.navigation.navigate(Blog)}>
               <Text style={{ color: 'blue' }}>Create blog</Text>
             </TouchableOpacity>
@@ -121,16 +150,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
+  icon:{
+  	marginLeft: 10,
+  },
   wraper: {
     fontSize: 18,
     marginBottom: 8,
   },
   input: {
     marginBottom: 12,
-    borderWidth: 1,
     borderColor: '#bbb',
-    borderRadius: 5,
+    borderRadius: 10,
     paddingHorizontal: 14,
+    borderWidth:2,
+    borderColor: "#fff",
+    marginRight: "5%",
+    marginTop: "4%",
+    marginLeft: "5%",
+    width: "85%",
+    backgroundColor: "#e1e2e3"
   },
   link: {
     color: 'blue',
@@ -153,6 +192,21 @@ const styles = StyleSheet.create({
   },
   gridText: {
     fontSize: 14,
+  },
+  inputPost: {
+   flexDirection: 'row', 
+   alignItems: 'center',
+   width: "90%",
+   marginLeft: "5%",
+   marginTop: "2%",
+   borderRadius: 30,
+   height: "5%",
+   backgroundColor: "#d1cbcb"
+  },
+	horizontalLine: {
+    borderBottomColor: 'grey',
+    borderBottomWidth: 1,
+    marginVertical: 10, // Adjust the margin as needed
   },
 });
 

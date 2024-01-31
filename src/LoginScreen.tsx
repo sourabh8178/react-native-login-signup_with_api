@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 		marginTop: "50%",
 		borderTopLeftRadius: 60,
 		borderTopRightRadius: 60,
-
+		height: "100%"
 	},
 	wraper:{
 		width: "80%"
