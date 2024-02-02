@@ -19,6 +19,8 @@ import More from './More';
 import UserProfile from './UserProfile';
 import { AuthContext } from './AuthContext';
 import SplashScreen from './SplashScreen';
+import ProfileSetting from './ProfileSetting';
+import EditMyProfile from './EditMyProfile';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,6 +73,8 @@ const HomeStack = () => (
     <Stack.Screen name="BlogView" component={BlogView} />
     <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
+    <Stack.Screen name="ProfileSetting" component={ProfileSetting} />
+    <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
   </Stack.Navigator>
 );
 

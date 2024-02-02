@@ -1,8 +1,10 @@
 import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import ProfileSetting from './ProfileSetting';
 import { BASE_URL } from "./Config";
 import { AuthContext } from "./AuthContext"
+import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHeart, faLocation, faShare, faFacebook, faLinkedin, faYoutube } from '@fortawesome/free-solid-svg-icons';
 
@@ -11,6 +13,7 @@ const ProfileScreen = () => {
   
   const [profileDetail, setprofileDetail] = useState(null);
   const {userInfo, isLoading} = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const getAPIData = async () => {
     try {
@@ -45,7 +48,7 @@ const ProfileScreen = () => {
         <Text style={{marginTop: 10}}>@{profileDetail.data.user_name}</Text>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
         <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+          <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
             <Text style={styles.setting}>Setting</Text>
           </TouchableOpacity>
           <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.shareIcon} />

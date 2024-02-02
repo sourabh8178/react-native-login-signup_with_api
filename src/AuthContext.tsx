@@ -10,8 +10,10 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
 	const [userInfo, setUserInfo] = useState({});
 	const [blogInfo, setBlogInfo] = useState({});
+  const [profileInfo, setProfileInfo] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [splashLoading, setSplashLoading] = useState(false);
+
 
 	
   const register = (name, email, password) => {
@@ -88,7 +90,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const createBlog = (title, body, userInfo) => {
-		const navigation = useNavigation();
+  const navigation = useNavigation();
 
   	setIsLoading(true);
     axios.post(`${BASE_URL}/blogs`, {
@@ -118,11 +120,34 @@ export const AuthProvider = ({ children }) => {
 		});
   };
 
+  const updateProfile = (userInfo, editedData) => {
+    setIsLoading(true);
+    axios.put(`${BASE_URL}/update_profile`, {
+        editedData
+      },
+      { headers:
+        {Authorization: `Bearer ${userInfo.data.authentication_token}`},
+      }
+    )
+      .then(res => {
+        let profileInfo = res.data;
+        setBlogInfo(profileInfo);
+        AsyncStorage.setItem('profileInfo', JSON.stringify(profileInfo));
+        setIsLoading(false);
+        console.log(profileInfo);
+        // handleBlogView(profileInfo.id);
+      })
+      .catch(e => {
+        console.log(`register error ${e}`);
+        setIsLoading(false);
+    });
+  };
+
   useEffect(() => {
   	isLoggedIn();
   }, []);
 
   return (
-    <AuthContext.Provider value={{login, splashLoading, register, isLoading, userInfo, logout, createBlog}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{login, updateProfile, splashLoading, register, isLoading, userInfo, logout, createBlog}}>{children}</AuthContext.Provider>
   );
 };
