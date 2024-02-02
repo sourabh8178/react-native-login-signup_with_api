@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Button, TouchableOpacity, ScrollView, FlatList, Image, TextInput } from 'react-native';
+import {View, Text, StyleSheet, Button, TouchableOpacity,TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './AuthContext';
 import { BASE_URL } from './Config';
@@ -57,12 +57,14 @@ const HomeScreen = (props) => {
   
   return (
     <ScrollView>
-    	<View style={styles.inputPost}>
-      	<FontAwesomeIcon icon={faCamera} size={20} color="black" style={{marginRight: "5%", marginLeft: "10%"}} />
-      	<TouchableOpacity onPress={() => navigation.navigate('Blog')}>
-          <Text style={{ fontSize: 20 }}>Write a post</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
+      	<View style={styles.inputPost}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
+              <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
+              <Text style={{ fontSize: 20 }}>Write a post</Text>
+            </View>
+        </View>
+      </TouchableWithoutFeedback>
 			<View style={styles.horizontalLine} />
       {viewType === 'list' ? (
         <>

@@ -89,37 +89,6 @@ export const AuthProvider = ({ children }) => {
   	}
   };
 
-  const createBlog = (title, body, userInfo) => {
-  const navigation = useNavigation();
-
-  	setIsLoading(true);
-    axios.post(`${BASE_URL}/blogs`, {
-	      title, body
-	    },
-	    { headers:
-	      {Authorization: `Bearer ${userInfo.data.authentication_token}`},
-	    }
-    )
-      .then(res => {
-        let blogInfo = res.data;
-        setBlogInfo(blogInfo);
-	      AsyncStorage.setItem('blogInfo', JSON.stringify(blogInfo));
-	      setIsLoading(false);
-        console.log(blogInfo);
-        handleBlogView(blogInfo.id);
-      })
-      .catch(e => {
-        console.log(`register error ${e}`);
-        setIsLoading(false);
-    });
-  };
-
-  const handleBlogView = (blogId) => {
-  	navigation.navigate('BlogView', {
-		    id: blogId 
-		});
-  };
-
   const updateProfile = (userInfo, editedData) => {
     setIsLoading(true);
     axios.put(`${BASE_URL}/update_profile`, {
