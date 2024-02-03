@@ -77,7 +77,7 @@ const HomeScreen = (props) => {
 							>
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
-							    <Text>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+							    <Text style={{color: 'black'}}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
 							    <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
 							  </View>
 							</TouchableOpacity>
@@ -85,8 +85,8 @@ const HomeScreen = (props) => {
 							  style={{ borderBottomLeftRadius: 30, borderBottomRightRadius: 30, padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 5, marginTop: "auto" }}
 							  onPress={() => handleBlogView(post.id)}
 							>
-							  <Text> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-							  <Text> {post.body}</Text>
+							  <Text  style={{color: 'black'}}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
+							  <Text style={{color: 'black'}}> {post.body}</Text>
 							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 									<FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
    marginLeft: "5%",
    marginTop: "2%",
    borderRadius: 30,
-   height: "5%",
+   height: "3%",
    backgroundColor: "#d1cbcb"
   },
 	horizontalLine: {

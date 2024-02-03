@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { BASE_URL } from "./Config";
 import { AuthContext } from "./AuthContext"
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBookmark, faUsers, faClipboard, faWallet, faUserFriends, faShoppingBag, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 const More = () => {
 	const [profileDetail, setprofileDetail] = useState(null);
@@ -51,40 +53,39 @@ const More = () => {
 		        <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
 	          <Text style={styles.userName}>@{profileDetail.data.user_name}</Text>
 		      </View>
-		        <Text style={styles.share}>share</Text>
         </View>
       </View>
       <View style={styles.menu}>
       	<TouchableOpacity  style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Dashboard</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faClipboard} size={25} color="black" />   Dashboard</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >My Posts</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUserFriends} size={25} color="black" style={{padding: 2}} />   My Posts</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Bookmarks</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faBookmark} size={25} color="black" />   Bookmarks</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Wallet:$2.3</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faWallet} size={25} color="black" />   Wallet:$2.3</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Followers</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Followers</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Following</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Following</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-          <Text style={{ fontSize: 22 }} >Purchesd</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faClipboard} size={25} color="black" />   Purchesd</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
         <TouchableOpacity style={styles.subMenu} onPress={handleLogout}>
-          <Text style={{ fontSize: 22 }} >Logout</Text>
+          <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faSignOutAlt} size={25} color="black" />   Logout</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -97,10 +98,11 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     marginTop: 5,
-    padding: 10
+    padding: 15
   },
   profileContainer: {
     alignItems: 'left',
+    // paddingTop: 10,
     marginTop: 20,
     marginLeft: 30
   },
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
   },
   menu: {
   	paddingLeft: "6%",
-  	paddingTop: -10
+  	paddingTop: 25
   },
   subMenu: {
   	fontSize: 10,

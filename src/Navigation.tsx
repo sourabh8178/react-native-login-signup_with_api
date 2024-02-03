@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComment, faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faSearch, faBell, faArrowLeft, faHome, faCompass, faEnvelope, faUser, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 
 import HomeScreen from './HomeScreen';
 import LoginScreen from './LoginScreen';
@@ -29,10 +29,10 @@ const CustomHeader = ({ title, navigation }) => {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
       <TouchableOpacity onPress={() => navigation.navigate('Search')}>
-        <Icon name="rocket" size={30} color="#900" />
+        <FontAwesomeIcon icon={faSearch} size={25} color="black" />
       </TouchableOpacity>
-      <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{title}</Text>
-      <TouchableOpacity style={{ marginRight: -50 }} onPress={() => navigation.navigate('Notification')}>
+      <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black' }}>{title}</Text>
+      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
         <FontAwesomeIcon icon={faBell} size={25} color="black" />
       </TouchableOpacity>
     </View>
@@ -44,11 +44,12 @@ const BlogHeader = ({ title, navigation }) => {
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
       {/* You can customize the icon and onPress event for the back button */}
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon name="arrow-left" size={30} color="#900" />
+        <FontAwesomeIcon icon={faArrowLeft} size={25} color="black" />
+        {/*<Icon name="arrow-left" size={30} color="#900" />*/}
       </TouchableOpacity>
-      <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{title}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-        {/* Add any icon for the right button */}
+      <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', alignItems: 'center' }}>{title}</Text>
+      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
+        <FontAwesomeIcon icon={faBell} size={25} color="black" />
       </TouchableOpacity>
     </View>
   );
@@ -80,11 +81,43 @@ const HomeStack = () => (
 
 const AuthenticatedTabs = () => (
   <Tab.Navigator>
-    <Tab.Screen name="Home" component={HomeStack} options={{headerShown: false}}/>
-    <Tab.Screen name="Explore" component={Explore} />
-    <Tab.Screen name="Message" component={Message} />
-    <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-    <Tab.Screen name="More" component={More} />
+    <Tab.Screen name="Home" component={HomeStack} options={{
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => (
+          <FontAwesomeIcon icon={faHome} color={color} size={size + 3} />
+        ),
+        tabBarLabelStyle: { fontSize: 16 },
+      }}
+    />
+    <Tab.Screen name="Explore" component={Explore} options={{
+        tabBarIcon: ({ color, size }) => (
+          <FontAwesomeIcon icon={faCompass} color={color} size={size + 2} />
+        ),
+        tabBarLabelStyle: { fontSize: 15 },
+      }}
+    />
+    <Tab.Screen name="Message" component={Message} options={{
+        tabBarIcon: ({ color, size }) => (
+         <FontAwesomeIcon icon={faEnvelope} color={color} size={size + 3} />
+        ),
+        tabBarLabelStyle: { fontSize: 15 },
+      }}
+    />
+      <Tab.Screen name="ProfileScreen" component={ProfileScreen}options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesomeIcon icon={faUser} color={color} size={size + 3} />
+          ),
+          tabBarLabelStyle: { fontSize: 15 },
+        }}
+     />
+    <Tab.Screen name="More" component={More} 
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <FontAwesomeIcon icon={faEllipsisH} color={color} size={size + 3} />
+        ),
+        tabBarLabelStyle: { fontSize: 15 },
+      }}
+    />
   </Tab.Navigator>
 );
 
