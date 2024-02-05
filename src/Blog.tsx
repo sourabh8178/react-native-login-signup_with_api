@@ -7,6 +7,7 @@ import HomeScreen from './HomeScreen'
 import { BASE_URL } from "./Config";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Picker} from '@react-native-picker/picker';
 
 const options ={
 	title: 'Select Image',
@@ -22,6 +23,7 @@ const Blog = (props) => {
   const [title, setTitle] = useState(null);
   const [body, setBody] = useState(null);
   const [image, setImage] = useState(null);
+  const [postType, setPostType] = useState(null);
   const [blogInfo, setBlogInfo] = useState({});
   const [profileDetail, setprofileDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +126,17 @@ const Blog = (props) => {
       </View>
       <View style={styles.inputContainer}>
         {/*<Text style={styles.logins}>Create Blog</Text>*/}
+          <Text>Select Post type:</Text>
+          <Picker
+            selectedValue={postType}
+            onValueChange={(itemValue, itemIndex) =>
+              setPostType(itemValue)
+            }>
+            <Picker.Item label="select post type" value="" />
+            <Picker.Item label="Reels" value="Reels" />
+            <Picker.Item label="Imgae" value="post" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
           <TextInput
             value={title}
             style={[styles.input, { borderTopWidth: 0, borderLeftWidth:0, borderRightWidth:0 }]}

@@ -109,19 +109,6 @@ const HomeScreen = (props) => {
           numColumns={2}
         />
       )}
-      <View style={styles.container}>
-        <Spinner visible={isLoading} />
-        {userInfo ? (
-          <>
-            <Button title="Logout" color="red" onPress={handleLogout} />
-            <TouchableOpacity onPress={() => props.navigation.navigate(Blog)}>
-              <Text style={{ color: 'blue' }}>Create blog</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <Text style={styles.welcome}>Welcome</Text>
-        )}
-      </View>
     </ScrollView>
   );
 };

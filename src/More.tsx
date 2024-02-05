@@ -2,6 +2,7 @@ import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import Followers from './Followers';
 import { BASE_URL } from "./Config";
 import { AuthContext } from "./AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -72,11 +73,11 @@ const More = () => {
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faWallet} size={25} color="black" />   Wallet:$2.3</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
-        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
+        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Followers')}>
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Followers</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
-        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
+        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Followers')}>
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Following</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
