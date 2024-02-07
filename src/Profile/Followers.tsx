@@ -1,27 +1,53 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../Auth/AuthContext';
+import { BASE_URL } from '../Auth/Config';
+import axios from 'axios';
 
 const Followers = () => {
+  const { userInfo, logout, isLoading } = useContext(AuthContext);
   const navigation = useNavigation();
+  const [data, setData] = useState(undefined);
+
   // Dummy data for followers
-  const followersData = [
-    { id: '1', name: 'Follower 1', username: '@follower1', image: require("./assest/background.jpg") },
-    { id: '2', name: 'Follower 2', username: '@follower2', image: require("./assest/background.jpg") },
-    // Add more followers as needed
-  ];
-  const handleUnfollow = (followerId) => {
-    const updatedFollowers = followersData.filter((follower) => follower.id !== followerId);
-    setFollowersData(updatedFollowers);
+  const getAPIData = async () => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await axios.get(`${BASE_URL}/follower_lists`, { headers });
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
-  // Render item for FlatList
+
+  useEffect(() => {
+    getAPIData();
+  }, []);
+  
+  const handleUnfollow = (followerId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = axios.get(`${BASE_URL}/unfollow_user/${followerId}`, { headers });
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+    }
+  };
   const renderFollowerItem = ({ item }) => (
     <View style={styles.followerItem}>
-      <Image source={item.image} style={styles.followerImage} />
+      <Image source={{ uri: item.profile_image.url }} style={styles.followerImage} />
       <View style={styles.followerDetails}>
         <Text style={styles.followerName}>{item.name}</Text>
-        <Text style={styles.followerUsername}>{item.username}</Text>
+        <Text style={styles.followerUsername}>{item.user_name}</Text>
       </View>
-      <TouchableOpacity onPress={() => handleUnfollow(item.id)} style={styles.unfollowButton}>
+      <TouchableOpacity onPress={() => handleUnfollow(item.user_id)} style={styles.unfollowButton}>
         <Text style={styles.unfollowButtonText}>Unfollow</Text>
       </TouchableOpacity>
     </View>
@@ -30,7 +56,7 @@ const Followers = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={followersData}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={renderFollowerItem}
         contentContainerStyle={styles.listContainer}

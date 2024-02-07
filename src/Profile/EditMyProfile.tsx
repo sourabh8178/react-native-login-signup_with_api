@@ -1,9 +1,10 @@
 import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-
-import { AuthContext } from "./AuthContext"
-import { BASE_URL } from "./Config";
+import {launchImageLibrary} from 'react-native-image-picker';
+import { AuthContext } from "../Auth/AuthContext"
+import { BASE_URL } from "../Auth/Config";
 import axios from 'axios';
+import {Picker} from '@react-native-picker/picker';
 
 const EditMyProfile = () => {
 	const [name, setName] = useState(null);
@@ -20,6 +21,8 @@ const EditMyProfile = () => {
 	const [youtubUrl, setYoutubUrl] = useState(null);
 	const [linkedinUrl, setLinkedinUrl] = useState(null);
   const [profileDetail, setprofileDetail] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [profileBackgroundImage, setProfileBackgroundImage] = useState(null);
   const [editedData, setEditedData] = useState({});
   const {userInfo, updateProfile, isLoading} = useContext(AuthContext);
 
@@ -68,7 +71,37 @@ const EditMyProfile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
     }
-  };	
+  };
+  const handleImagePicker = async () => {
+    try {
+    	const images = await launchImageLibrary(options);
+      console.log(images.assets);
+
+      setProfileImage(images);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err))
+        console.log("User canceled the upload", err);
+      else
+        console.log(err);
+    }
+  };
+  const handleImagePickerBack = async () => {
+    try {
+    	const images = await launchImageLibrary(options);
+      console.log(images.assets);
+
+      setProfileImage(images);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err))
+        console.log("User canceled the upload", err);
+      else
+        console.log(err);
+    }
+  };
+  const handleGenderChange = (gender) => {
+    setGender(gender);
+  };
+
   if(profileDetail === null) {
     return (
       <View style={styles.loadingContainer}>
@@ -78,15 +111,14 @@ const EditMyProfile = () => {
   }
 	return (
 		<ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
-      <TouchableOpacity style={styles.backProfile} onPress={() => handleImagePicker('profile_image')}>
-          <Text style={styles.backText}>Change cover</Text>
+			<TouchableOpacity onPress={handleImagePickerBack}>
+      	<Image source={{ uri: profileImage?.assets[0].uri || profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
       </TouchableOpacity>
       <View style={styles.profileContainer}>
-        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-     		<TouchableOpacity style={styles.changeProfile} onPress={() => handleImagePicker('profile_image')}>
-          <Text style={styles.buttonText}>Change profile</Text>
-        </TouchableOpacity>
+     		<TouchableOpacity onPress={handleImagePicker}>
+				  <Image source={{ uri: profileImage?.assets[0].uri || profileDetail.data.profile_image.url }} style={styles.profileImage} />
+				  <Text>Change profile</Text>
+				</TouchableOpacity>
       </View>
       <View style={[styles.inputs, { marginTop: 70 }]}>
       	<Text style={styles.inputHeader}>Full name</Text>
@@ -117,6 +149,18 @@ const EditMyProfile = () => {
           placeholder="Gender"
           onChangeText={(text) => setEditedData({ ...editedData, gender: text })}
         />
+        <Text>Select Gender:</Text>
+        <Picker
+					  selectedValue={gender}
+					  onValueChange={(itemValue, itemIndex) =>
+					    setGender(itemValue)
+					  }>
+					  <Picker.Item label="select gender" value="" />
+					  <Picker.Item label="Male" value="male" />
+					  <Picker.Item label="Female" value="female" />
+					  <Picker.Item label="Other" value="other" />
+					</Picker>
+	      <Text>Selected Gender: {gender}</Text>
       </View>
       <View style={styles.horizontalLine} />
       <View style={styles.inputs}>

@@ -6,8 +6,8 @@ import Login from './LoginScreen'
 const PreHomeScreen = (props) => {
 	return (
 			<View style={styles.container}>
-	      <Image source={require("./assest/background.jpg")} style={styles.backgroundImage} />
-	      <Image source={require("./assest/app.png")} style={styles.imageUpper} />
+	      <Image source={require("../assest/background.jpg")} style={styles.backgroundImage} />
+	      <Image source={require("../assest/app.png")} style={styles.imageUpper} />
 		      <TouchableOpacity style={styles.loginButton} onPress={() => props.navigation.navigate("Login")}>
 		        <Text style={styles.buttonText}>Login</Text>
 		      </TouchableOpacity>

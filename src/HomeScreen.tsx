@@ -1,13 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {View, Text, StyleSheet, Button, TouchableOpacity,TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { AuthContext } from './AuthContext';
-import { BASE_URL } from './Config';
+import { AuthContext } from './Auth/AuthContext';
+import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
-import Blog from './Blog';
-import UserProfile from "./UserProfile"
+import Blog from './Blog/Blog';
+import UserProfile from "./Profile/UserProfile"
 import { useNavigation } from '@react-navigation/native';
-import BlogView from './BlogView';
+import BlogView from './Blog/BlogView';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsisV, faCamera,faHeart, faComment, faShare, faBookmark } from '@fortawesome/free-solid-svg-icons';
 
@@ -57,6 +57,7 @@ const HomeScreen = (props) => {
   
   return (
     <ScrollView>
+    <View style={styles.horizontalLine} />
       <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
       	<View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
@@ -173,9 +174,10 @@ const styles = StyleSheet.create({
    backgroundColor: "#d1cbcb"
   },
 	horizontalLine: {
-    borderBottomColor: 'grey',
-    borderBottomWidth: 1,
-    marginVertical: 10, // Adjust the margin as needed
+    borderBottomColor: 'black',
+    borderBottomWidth: 3,
+    marginVertical: 10,
+    marginBottom: -3
   },
 });
 

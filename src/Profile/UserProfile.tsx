@@ -1,8 +1,8 @@
 import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { BASE_URL } from "./Config";
-import { AuthContext } from "./AuthContext"
+import { BASE_URL } from "../Auth/Config";
+import { AuthContext } from "../Auth/AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHeart, faLocation, faShare, faFacebook, faLinkedin, faYoutube } from '@fortawesome/free-solid-svg-icons';
 

@@ -8,26 +8,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComment, faSearch, faBell, faArrowLeft, faHome, faCompass, faEnvelope, faUser, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 
 import HomeScreen from './HomeScreen';
-import LoginScreen from './LoginScreen';
-import Blog from './Blog';
-import Followers from './Followers';
-import BlogView from './BlogView';
+import LoginScreen from './Auth/LoginScreen';
+import ForgotPassword from './Auth/ForgotPassword'
+import Blog from './Blog/Blog';
+import Followers from './Profile/Followers';
+import Following from './Profile/Following';
+import BlogView from './Blog/BlogView';
 import ChatScreen from './ChatScreen';
-import Profile from './Profile';
-import RegistrationScreen from './RegistrationScreen';
+import Profile from './Profile/Profile';
+import RegistrationScreen from './Auth/RegistrationScreen';
 import Explore from './Explore';
 import Message from './Message';
 import More from './More';
 import VideosScreen from './VideosScreen';
 import MusicScreen from './MusicScreen';
 // import PostsScreen from './PostsScreen';
-import ProfileTabsNavigator from './ProfileTabsNavigator';
-import UserProfile from './UserProfile';
-import { AuthContext } from './AuthContext';
+// import ProfileTabsNavigator from './Profile/ProfileTabsNavigator';
+import UserProfile from './Profile/UserProfile';
+import { AuthContext } from './Auth/AuthContext';
 import SplashScreen from './SplashScreen';
-import ProfileSetting from './ProfileSetting';
-import EditMyProfile from './EditMyProfile';
-import PreHomeScreen from './PreHomeScreen';
+import ProfileSetting from './Profile/ProfileSetting';
+import EditMyProfile from './Profile/EditMyProfile';
+import PreHomeScreen from './Auth/PreHomeScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -103,21 +105,23 @@ const HomeStack = () => (
       name="ChatScreen"
       component={ChatScreen}
       options={{
-        headerShown: false, // Hide the header in ChatScreen
-        bottomShown: false, // Hide the bottom tab bar in ChatScreen
+        headerShown: false,
+        bottomShown: false,
       }}
     />
     <Stack.Screen name="BlogView" component={BlogView} />
     <Stack.Screen name="Followers" component={Followers} />
+    <Stack.Screen name="Following" component={Following} />
     {/*<Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false, tabBarVisible: false }} />*/}
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
+    <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="ProfileSetting" component={ProfileSetting} />
     <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
   </Stack.Navigator>
 );
 
-const AuthenticatedTabs = ({navigation}) => (
+const AuthenticatedTabs = ({navigation, route}) => (
 
   <Tab.Navigator>
     <Tab.Screen name="Home" component={HomeStack} options={{
@@ -173,7 +177,7 @@ const Navigation = () => {
         <Stack.Navigator>
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
-      ) : userInfo.data ? (
+      ) : userInfo.data  ? (
         <AuthenticatedTabs />
       ) : (
         <Stack.Navigator>

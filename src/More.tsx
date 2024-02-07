@@ -2,9 +2,10 @@ import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import Followers from './Followers';
-import { BASE_URL } from "./Config";
-import { AuthContext } from "./AuthContext"
+import Followers from './Profile/Followers';
+import Following from './Profile/Following'
+import { BASE_URL } from "./Auth/Config";
+import { AuthContext } from "./Auth/AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBookmark, faUsers, faClipboard, faWallet, faUserFriends, faShoppingBag, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -77,7 +78,7 @@ const More = () => {
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Followers</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />
-        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Followers')}>
+        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Following')}>
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faUsers} size={25} color="black" />   Following</Text>
         </TouchableOpacity>
         <View style={styles.horizontalLine} />

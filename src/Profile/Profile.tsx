@@ -1,10 +1,10 @@
 import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import Blog from './Blog';
+import Blog from '../Blog/Blog';
 import ProfileSetting from './ProfileSetting';
-import { BASE_URL } from "./Config";
-import { AuthContext } from "./AuthContext"
+import { BASE_URL } from "../Auth/Config";
+import { AuthContext } from "../Auth/AuthContext"
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsisV, faComment, faBookmark, faHeart, faUsers, faLocation, faShare,  faUserFriends, faCog, faPen, faMusic, faVideo, faFilm, faCamera, faImage } from '@fortawesome/free-solid-svg-icons';

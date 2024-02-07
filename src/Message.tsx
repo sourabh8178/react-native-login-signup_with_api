@@ -1,34 +1,42 @@
-import React from 'react';
+import React,{useContext,useState, useEffect} from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
-import ChatScreen from './ChatScreen'
+import ChatScreen from '../ChatScreen'
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from './Auth/AuthContext';
+import { BASE_URL } from './Auth/Config';
+import axios from 'axios';
 
-const users = [
-  {
-    id: '1',
-    name: 'John Doe',
-    profileImage: "./assest/app.png", // Replace with actual image URLs
-    lastMessage: 'Hello, how are you?',
-    timestamp: '3h ago',
-  },
-  {
-    id: '2',
-    name: 'Alice Smith',
-    profileImage: "./assest/download.jpeg",
-    lastMessage: 'Sure, lets meet at 5 PM.',
-    timestamp: '1d ago',
-  },
-  // Add more users as needed
-];
+
 
 const Message = ({ proc }) => {
-	const navigation = useNavigation();
+  const { userInfo, logout, isLoading } = useContext(AuthContext);
+  const navigation = useNavigation();
+  const [data, setData] = useState(undefined);
+
+  // Dummy data for followers
+  const getAPIData = async () => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await axios.get(`${BASE_URL}/following_lists`, { headers });
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getAPIData();
+  }, []);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.userItem}
       onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name })}
     >
-      <Image source={require("./assest/download.jpeg")} style={styles.profileImage} />
+      <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
       <View style={styles.userInfo}>
         <Text style={styles.userName}>{item.name}</Text>
         <Text style={styles.lastMessage}>{item.lastMessage}</Text>
@@ -40,7 +48,7 @@ const Message = ({ proc }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={users}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />

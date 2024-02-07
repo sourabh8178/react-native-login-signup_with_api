@@ -1,6 +1,7 @@
 import React, {useState,useContext,useEffect }from 'react'
 import {View, Text, TextInput, Button, TouchableOpacity, StyleSheet} from 'react-native'
 import Registration from './RegistrationScreen'
+import ForgotPassword from './ForgotPassword'
 import {AuthContext} from "./AuthContext"
 import Spinner from "react-native-loading-spinner-overlay"
 
@@ -34,6 +35,12 @@ const LoginScreen = (props) => {
 							<Text>Don't have an account ?</Text>
 							<TouchableOpacity onPress={() => props.navigation.navigate("Registration")} >
 								<Text style={styles.link} >Signup</Text>
+							</TouchableOpacity>
+					</View>
+					<View style={{ flexDirection: 'row', marginTop: 20 }} >
+							<Text>Don't have an account ?</Text>
+							<TouchableOpacity onPress={() => props.navigation.navigate("ForgotPassword")} >
+								<Text style={styles.link} >forgot password?</Text>
 							</TouchableOpacity>
 					</View>
 				</View>

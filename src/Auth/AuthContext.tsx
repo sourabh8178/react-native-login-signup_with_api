@@ -4,17 +4,17 @@ import axios from 'axios';
 import BlogView from './BlogView'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { showMessage } from "react-native-flash-message";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 	const [userInfo, setUserInfo] = useState({});
 	const [blogInfo, setBlogInfo] = useState({});
+  const [userError, setUserError] = useState({});
   const [profileInfo, setProfileInfo] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [splashLoading, setSplashLoading] = useState(false);
-
-
 	
   const register = (name, email, password) => {
   	setIsLoading(true);
@@ -41,14 +41,28 @@ export const AuthProvider = ({ children }) => {
       email, password
     })
     .then(res => {
+      // console.warn(JSON.stringify(res.response.data));
       let userInfo = res.data;
       console.log(userInfo);
       setUserInfo(userInfo);
       AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
+      showMessage({
+        message: "SUCCESS!",
+        description: "Login Successfully.",
+        type: "success",
+        duration: 2000,
+      });
       setIsLoading(false);
     })
-    .catch(e => {
-      console.log(`Login error ${e}`);
+    .catch(res => {
+      let userError = res.response.data;
+      showMessage({
+        message: "FAILED!",
+        description: userError.errors,
+        type: "danger",
+        duration: 9000,
+      });
+      console.log(`Login error ${res.response}`);
       setIsLoading(false);
     });
   };
@@ -58,7 +72,7 @@ export const AuthProvider = ({ children }) => {
   	axios
   	.post(`${BASE_URL}/users/logout`, {
       },
-      {headers:  {Authorization: `Bearer ${userInfo.authentication_token}`},
+      {headers:  {Authorization: `Bearer ${userInfo.data.authentication_token}`},
       },
       )
     .then(res => {

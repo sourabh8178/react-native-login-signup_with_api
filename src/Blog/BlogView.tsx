@@ -1,9 +1,9 @@
 import React, {useState, useContext, useEffect }from 'react'
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 import axios from 'axios';
-import { BASE_URL } from "./Config";
+import { BASE_URL } from "../Auth/Config";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from "./AuthContext"
+import { AuthContext } from "../Auth/AuthContext"
 
 const BlogView = ({ route }) => {
   const { id } = route.params;

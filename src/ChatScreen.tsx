@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Message from './Message'
 import { Menu, MenuOptions, MenuOption, MenuTrigger,MenuProvider } from 'react-native-popup-menu';
 
+
 const messages = [
   { id: '1', sender: 'John', text: 'Hello!', timestamp: '10:00 AM' },
   { id: '2', sender: 'Alice', text: 'Hi there!', timestamp: '10:05 AM' },

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, Button, ScrollView, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../Auth/AuthContext';
 import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
-import HomeScreen from './HomeScreen'
-import { BASE_URL } from "./Config";
+import HomeScreen from '../HomeScreen'
+import { BASE_URL } from "../Auth/Config";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Picker} from '@react-native-picker/picker';
