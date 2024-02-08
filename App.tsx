@@ -1,7 +1,7 @@
 import React from 'react'
 import {View, Text, StatusBar} from 'react-native'
 import Navigation from "./src/Navigation"
-import { AuthProvider } from "./src/AuthContext"
+import { AuthProvider } from "./src/Auth/AuthContext"
 
 const App = () => {
   return (
