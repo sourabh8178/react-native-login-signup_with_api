@@ -57,7 +57,7 @@ const HomeScreen = (props) => {
   
   return (
     <ScrollView>
-    <View style={styles.horizontalLine} />
+    {/*<View style={styles.horizontalLine} />*/}
       <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
       	<View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
@@ -66,7 +66,7 @@ const HomeScreen = (props) => {
             </View>
         </View>
       </TouchableWithoutFeedback>
-			<View style={styles.horizontalLine} />
+			{/*<View style={styles.horizontalLine} />*/}
       {viewType === 'list' ? (
         <>
           {data ? (

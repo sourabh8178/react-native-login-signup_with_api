@@ -60,8 +60,12 @@ const Profile = () => {
   return (
     
     <ScrollView contentContainerStyle={styles.container}>
-      {/*<Text>{console.warn(blogData)}</Text>*/}
-      <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
+      {/*<Text>{console.warn(profileDetail)}</Text>*/}
+      {profileDetail.data.profile_background_image ? (
+       <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
+        ) : (
+        <Image source={require("../assest/app.png")} style={styles.backgroundImage} />
+        )}
       <View style={styles.profileContainer}>
         <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
         <Text style={{marginTop: 10}}>@{profileDetail.data.user_name}</Text>
@@ -107,7 +111,7 @@ const Profile = () => {
             </View>
         </View>
       </TouchableWithoutFeedback>
-      <View style={styles.horizontalLine} />
+      {/*<View style={styles.horizontalLine} />*/}
         {viewType === 'list' ? (
         <>
           {blogData ? (

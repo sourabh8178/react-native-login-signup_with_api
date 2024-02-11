@@ -7,7 +7,6 @@ import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
 
 
-
 const Message = ({ proc }) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const navigation = useNavigation();
@@ -34,12 +33,14 @@ const Message = ({ proc }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.userItem}
-      onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name })}
+      onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}
     >
+    <Text>{console.warn(item)}</Text>
       <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
       <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.name}</Text>
-        <Text style={styles.lastMessage}>{item.lastMessage}</Text>
+      {/*<Text>{console.warn(item)}</Text>*/}
+        <Text style={styles.userName}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
+        <Text style={styles.lastMessage}>{item.user_name}</Text>
       </View>
       <Text style={styles.timestamp}>{item.timestamp}</Text>
     </TouchableOpacity>

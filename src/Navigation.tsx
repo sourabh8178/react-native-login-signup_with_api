@@ -101,18 +101,18 @@ const HomeStack = () => (
         header: () => <ProfileHeader title="Your Custom Profile Title" navigation={navigation} />,
       })}
     />
-    <Stack.Screen
+    {/*<Stack.Screen
       name="ChatScreen"
       component={ChatScreen}
       options={{
         headerShown: false,
         bottomShown: false,
       }}
-    />
+    />*/}
     <Stack.Screen name="BlogView" component={BlogView} />
     <Stack.Screen name="Followers" component={Followers} />
     <Stack.Screen name="Following" component={Following} />
-    {/*<Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false, tabBarVisible: false }} />*/}
+    <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false, tabBarVisible: false }} />
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
@@ -170,7 +170,6 @@ const AuthenticatedTabs = ({navigation, route}) => (
 
 const Navigation = () => {
   const { userInfo, splashLoading } = useContext(AuthContext);
-
   return (
     <NavigationContainer>
       {splashLoading ? (
