@@ -48,7 +48,7 @@ const Following = () => {
         <Text style={styles.followerUsername}>{item.user_name}</Text>
       </View>
       <TouchableOpacity onPress={() => handleUnfollow(item.user_id)} style={styles.unfollowButton}>
-        <Text style={styles.unfollowButtonText}>remove</Text>
+        <Text style={styles.unfollowButtonText}>Following</Text>
       </TouchableOpacity>
     </View>
   );
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   unfollowButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#bfbaba',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,

@@ -5,10 +5,11 @@ import { BASE_URL } from "../Auth/Config";
 import { AuthContext } from "../Auth/AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHeart, faLocation, faShare, faFacebook, faLinkedin, faYoutube } from '@fortawesome/free-solid-svg-icons';
-
+import { useNavigation } from '@react-navigation/native';
 
 const UserProfile = ({ route }) => {
   const { id } = route.params;
+  const navigation = useNavigation();
   const [profileDetail, setprofileDetail] = useState(null);
   const {userInfo, isLoading} = useContext(AuthContext);
 
@@ -24,11 +25,36 @@ const UserProfile = ({ route }) => {
       console.error('Error fetching data:', error);
     }
   };
-
    useEffect(() => {
     getAPIData();
   }, []);
   
+  const follow = (id) => {
+    try {
+        const token = userInfo.data.authentication_token;
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const response = axios.get(`${BASE_URL}/follow_user/${id}`, { headers });
+        setProfileDetail(prevProfile => ({ ...prevProfile, follow: true }));
+      } catch (error) {
+        console.error('Error following user:', error);
+    }
+  };
+
+  const unfollow = (id) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = axios.get(`${BASE_URL}/unfollow_user/${id}`, { headers });
+      setProfileDetail(prevProfile => ({ ...prevProfile, follow: false }));
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+    }
+  };
+
   if (profileDetail === null) {
     return (
       <View style={styles.loadingContainer}>
@@ -39,28 +65,40 @@ const UserProfile = ({ route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
       <View style={styles.profileContainer}>
-        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-        <Text style={{marginTop: 10}}>@{profileDetail.data.user_name}</Text>
+      {profileDetail.profile_background_image ? (
+       <Image source={{ uri: profileDetail.profile_background_image.url }} style={styles.backgroundImage} />
+        ) : (
+        <Image source={require("../assest/app.png")} style={styles.backgroundImage} />
+        )}
+        <Image source={{ uri: profileDetail.profile_image.url }} style={styles.profileImage} />
+        <Text style={{marginTop: 10}}>@{profileDetail.user_name}</Text>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-        <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
-            <Text style={styles.setting}>Setting</Text>
-          </TouchableOpacity>
+        <Text style={styles.name}>{profileDetail.name.charAt(0).toUpperCase() + profileDetail.name.slice(1)}</Text>
+          <Text>{console.warn(profileDetail)}</Text>
+          {profileDetail.follow ? (
+            <TouchableOpacity onPress={() => unfollow(profileDetail.user_id)}>
+              <Text style={styles.setting}>Unfollow</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => follow(profileDetail.user_id)}>
+              <Text style={styles.setting}>Follow</Text>
+            </TouchableOpacity>
+          )}
+          
           <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.shareIcon} />
         </View>
-        <Text style={{marginTop: 10}}>Memner since {profileDetail.data.created_at}</Text>
+        <Text style={{marginTop: 10}}>Memner since {profileDetail.created_at}</Text>
         <Text style={{marginTop: 10}}>19K Followers</Text>
         <Text style={{marginTop: 10}}>1,5K Likes</Text>
-        <Text style={{marginTop: 10}}>{profileDetail.data.location}</Text>
-        <Text style={{marginTop: 10}}>{profileDetail.data.about}</Text>
+        <Text style={{marginTop: 10}}>{profileDetail.location}</Text>
+        <Text style={{marginTop: 10}}>{profileDetail.about}</Text>
       </View>
 
       <View style={styles.socialLinks}>
-        <Text style={styles.link}>{profileDetail.data.youtub_url}</Text>
-        <Text style={styles.link}>{profileDetail.data.instagram_url}</Text>
-        <Text style={styles.link}>{profileDetail.data.linkedin_url}</Text>
+        <Text style={styles.link}>{profileDetail.youtub_url}</Text>
+        <Text style={styles.link}>{profileDetail.instagram_url}</Text>
+        <Text style={styles.link}>{profileDetail.linkedin_url}</Text>
       </View>
     </ScrollView>
   )

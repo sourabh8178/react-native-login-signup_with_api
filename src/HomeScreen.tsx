@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Button, TouchableOpacity,TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput } from 'react-native';
+import {View, Text, StyleSheet, Button, TouchableOpacity,TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
@@ -10,16 +10,19 @@ import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsisV, faCamera,faHeart, faComment, faShare, faBookmark } from '@fortawesome/free-solid-svg-icons';
+import { showMessage } from "react-native-flash-message";
 
 const HomeScreen = (props) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const [data, setData] = useState(undefined);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const [viewType, setViewType] = useState('list');
   const [body, setBody] = useState(null);
 
   const getAPIData = async () => {
     try {
+      setIsRefreshing(true);
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -27,7 +30,16 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // let userError = res.response.data;
+      showMessage({
+        message: "FAILED!",
+        description: error,
+        type: "danger",
+        duration: 9000,
+      });
+      // console.error('Error fetching data:', error);
+    } finally {
+      setIsRefreshing(false); // Stop the refreshing indicator
     }
   };
 
@@ -54,21 +66,32 @@ const HomeScreen = (props) => {
     logout(headers);
   };
 
+  const onRefresh = () => {
+    getAPIData();
+  };
   
   return (
-    <ScrollView>
+    <ScrollView 
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
+      }
+    >
     {/*<View style={styles.horizontalLine} />*/}
-      <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
-      	<View style={styles.inputPost}>
+      
+			{/*<View style={styles.horizontalLine} />*/}
+      {viewType === 'list' ? (
+        <>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
+        <View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
               <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
               <Text style={{ fontSize: 20 }}>Write a post</Text>
             </View>
         </View>
       </TouchableWithoutFeedback>
-			{/*<View style={styles.horizontalLine} />*/}
-      {viewType === 'list' ? (
-        <>
           {data ? (
             data.data.map((post) => (
             	<React.Fragment key={post.id}>

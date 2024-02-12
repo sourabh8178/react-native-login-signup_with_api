@@ -48,7 +48,7 @@ const Followers = () => {
         <Text style={styles.followerUsername}>{item.user_name}</Text>
       </View>
       <TouchableOpacity onPress={() => handleUnfollow(item.user_id)} style={styles.unfollowButton}>
-        <Text style={styles.unfollowButtonText}>Unfollow</Text>
+        <Text style={styles.unfollowButtonText}>remove</Text>
       </TouchableOpacity>
     </View>
   );
