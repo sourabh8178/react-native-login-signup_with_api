@@ -7,9 +7,9 @@ import FlashMessage from "react-native-flash-message";
 const App = () => {
   return (
     <AuthProvider>
-    <StatusBar backgroundColor="#06bcee"/>
-    <FlashMessage position="top" /> 
-     <Navigation/>
+      <StatusBar backgroundColor="#06bcee"/>
+        <FlashMessage position="top" />
+       <Navigation/>
     </AuthProvider>
   );
 };
