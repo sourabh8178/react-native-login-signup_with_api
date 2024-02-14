@@ -29,11 +29,13 @@ const HomeScreen = (props) => {
       };
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
+      // console.warn(response.data);
     } catch (error) {
-      // let userError = res.response.data;
+      // console.warn(error.response.data)
+      let userError = res.response.data;
       showMessage({
         message: "FAILED!",
-        description: error,
+        description: userError,
         type: "danger",
         duration: 9000,
       });
@@ -79,9 +81,7 @@ const HomeScreen = (props) => {
         />
       }
     >
-    {/*<View style={styles.horizontalLine} />*/}
-      
-			{/*<View style={styles.horizontalLine} />*/}
+    
       {viewType === 'list' ? (
         <>
         <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
@@ -122,7 +122,25 @@ const HomeScreen = (props) => {
 							</React.Fragment>
             ))
           ) : (
-            null
+            <View style={styles.noData}>
+              <Text style={{fontSize: 30}}>No data avalable</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  marginTop:30,
+                  borderRadius: 20,
+                  borderWidth: 2,
+                  height: 50,
+                  width: 200,
+                  backgroundColor: "#66d4f2",
+                  justifyContent: 'center',
+                  borderColor: '#98dbed'
+                }}
+                onPress={() => navigation.navigate('Blog')}
+              >
+                <Text style={{color: 'white'}}>Create your own post</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </>
       ) : (
@@ -138,6 +156,12 @@ const HomeScreen = (props) => {
 };
 
 const styles = StyleSheet.create({
+  noData:{
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: "50%"
+  },
   container: {
     flex: 1,
     alignItems: 'center',
