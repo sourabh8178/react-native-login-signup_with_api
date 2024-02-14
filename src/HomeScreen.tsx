@@ -81,17 +81,20 @@ const HomeScreen = (props) => {
         />
       }
     >
-    
       {viewType === 'list' ? (
         <>
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
-        <View style={styles.inputPost}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
-              <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
-              <Text style={{ fontSize: 20 }}>Write a post</Text>
+        {data ? (
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
+            <View style={styles.inputPost}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
+                  <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
+                  <Text style={{ fontSize: 20 }}>Write a post</Text>
+                </View>
             </View>
-        </View>
-      </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>
+          ) : (
+          null
+          )}
           {data ? (
             data.data.map((post) => (
             	<React.Fragment key={post.id}>

@@ -7,7 +7,8 @@ import HomeScreen from '../HomeScreen'
 import { BASE_URL } from "../Auth/Config";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Picker} from '@react-native-picker/picker';
+import RNPickerSelect from 'react-native-picker-select';
+import { RNCamera } from 'react-native-camera';
 
 const options ={
 	title: 'Select Image',
@@ -39,7 +40,8 @@ const Blog = (props) => {
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
       setprofileDetail(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // console.warn(error.response.data)
+      console.error('Error fetching data:', error.response.data);
     }
   };
 
@@ -47,21 +49,20 @@ const Blog = (props) => {
     getAPIData();
   }, []);
 
-  if (profileDetail === null) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
+  const validateInputs = () => {
+    if (!title || !body || !postType || !image) {
+      // You can customize the error handling based on your requirements
+      alert('Please fill in all fields and select an image');
+      return false;
+    }
+    return true;
   };
 
   	// console.log('Request data:', { image });
   const postCreate = (title, body, image, userInfo) => {
-
-  	setIsLoading(true);
-  	// console.warn(image.assets[0]);
-
-  	const formData = new FormData();
+      if (validateInputs()){
+  	     setIsLoading(true);
+  	  const formData = new FormData();
   		formData.append('title', title);
       formData.append('body', body);
 	    formData.append('image', {
@@ -69,7 +70,6 @@ const Blog = (props) => {
 	        type: image.assets[0].type,
 	        name: image.assets[0].fileName,
       });
-
     axios.post(`${BASE_URL}/blogs`, formData, {
 	    headers: {
 	      Authorization: `Bearer ${userInfo.data.authentication_token}`,
@@ -88,6 +88,11 @@ const Blog = (props) => {
         console.log(`register error ${e}`);
         setIsLoading(false);
     });
+
+      }
+  	// console.warn(image.assets[0]);
+
+
   };
 
   const handleBlogView = (blogId) => {
@@ -98,74 +103,90 @@ const Blog = (props) => {
 
   const pickImage = async () => {
     try {
-    	const images = await launchImageLibrary(options);
-      // const doc = await DocumentPicker.pick();
-      console.log(images.assets);
+      const images = await launchImageLibrary(options);
 
-      // Set the selected image
-      setImage(images);
+      if (!images.didCancel) {
+        setImage(images);
+      }
     } catch (err) {
-      if (DocumentPicker.isCancel(err))
-        console.log("User canceled the upload", err);
-      else
-        console.log(err);
+      console.log(err);
     }
   };
 
   return (
-  	<ScrollView contentContainerStyle={styles.container}>
-      <View style={{ flexDirection: 'row' }}>
-        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-        <View style={{ flexDirection: 'row' }}>
-	        <View style={styles.userName}>
-		        <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-	          <Text style={styles.userName1}>@{profileDetail.data.user_name}</Text>
-		        <Text style={styles.share}>Only for Follwer</Text>
-		      </View>
-        </View>
-      </View>
-      <View style={styles.inputContainer}>
-        {/*<Text style={styles.logins}>Create Blog</Text>*/}
-          <Text>Select Post type:</Text>
-          <Picker
-            selectedValue={postType}
-            onValueChange={(itemValue, itemIndex) =>
-              setPostType(itemValue)
-            }>
-            <Picker.Item label="select post type" value="" />
-            <Picker.Item label="Reels" value="Reels" />
-            <Picker.Item label="Imgae" value="post" />
-            <Picker.Item label="Other" value="other" />
-          </Picker>
-          <TextInput
-            value={title}
-            style={[styles.input, { borderTopWidth: 0, borderLeftWidth:0, borderRightWidth:0 }]}
-            placeholder=" Title"
-            onChangeText={(text) => setTitle(text)}
-          />
-          <TextInput
-            value={body}
-            style={[styles.input, styles.multilineInput]}
-            placeholder="Whats in your mind"
-            multiline
-            onChangeText={(text) => setBody(text)}
-          />
-          <TouchableOpacity
-            style={styles.imagePickerButton}
-            onPress={pickImage}
-          >
-          <Text style={styles.imagePickerText}>Add Image</Text>
-          </TouchableOpacity>
-          {image && (
-            <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />
-          )}
 
-          <Button
-            title="Create Post"
-            style={styles.selectedImage}
-            onPress={() => postCreate(title, body, image, userInfo)}
-          />
-      </View>
+  	<ScrollView contentContainerStyle={styles.container}>
+      {profileDetail ? (
+        <>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.userName}>
+                <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
+                <Text style={styles.userName1}>@{profileDetail.data.user_name}</Text>
+                <Text style={styles.share}>Only for Follwer</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.inputContainer}>
+            {/*<Text style={styles.logins}>Create Blog</Text>*/}
+              <Text>Select Post type:</Text>
+              <RNPickerSelect
+                value={postType}
+                onValueChange={(itemValue, itemIndex) => setPostType(itemValue)}
+                items={[
+                  { label: 'Reels', value: 'Reels' },
+                  { label: 'Imgae', value: 'post' },
+                  { label: 'Other', value: 'other' },
+                ]}
+              />
+              <TextInput
+                value={title}
+                style={[styles.input, { borderTopWidth: 0, borderLeftWidth:0, borderRightWidth:0 }]}
+                placeholder=" Title"
+                onChangeText={(text) => setTitle(text)}
+              />
+              <TextInput
+                value={body}
+                style={[styles.input, styles.multilineInput]}
+                placeholder="Whats in your mind"
+                multiline
+                onChangeText={(text) => setBody(text)}
+              />
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={pickImage}
+              >
+              <Text style={styles.imagePickerText}>Add Image</Text>
+              </TouchableOpacity>
+              {image && (
+                <View>
+                  <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />
+                  <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
+                    <Text style={styles.removeImageText}>Remove Image</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              )}
+
+              <Button
+                title="Create Post"
+                style={styles.selectedImage}
+                onPress={() => postCreate(title, body, image, userInfo)}
+              />
+          </View>
+        </>
+      ) : (
+        <View style={styles.noProfileContainer}>
+          <Text style={styles.noProfileText}>Complete your profile details</Text>
+          <TouchableOpacity
+            style={styles.createProfileButton}
+            onPress={() => navigation.navigate('CreateProfile')} // Adjust the navigation route as per your app
+          >
+            <Text style={{color: 'white'}}>Create Profile</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -198,6 +219,7 @@ const styles = StyleSheet.create({
     borderRightWidth:0
   },
   imagePickerButton: {
+    width: 100,
     backgroundColor: '#3498db',
     padding: 10,
     borderRadius: 10,
@@ -206,8 +228,7 @@ const styles = StyleSheet.create({
   },
   imagePickerText: {
     color: '#fff',
-    fontWeight: 'bold',
-    
+    fontWeight: 'bold', 
   },
   selectedImage: {
     width: '30%',
@@ -241,11 +262,22 @@ const styles = StyleSheet.create({
   share: {
   	fontSize: 10,
   },
-  // userName: {
-  //   fontSize: 12,
-  //   color: 'grey',
-  //   marginLeft: 5
-  // },
+  noProfileContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: "50%"
+  },
+  createProfileButton: {
+    alignItems: 'center',
+    marginTop:30,
+    borderRadius: 20,
+    borderWidth: 2,
+    height: 50,
+    width: 200,
+    backgroundColor: "#66d4f2",
+    justifyContent: 'center',
+    borderColor: '#98dbed'
+  }
 });
 
 export default Blog;
