@@ -4,6 +4,7 @@ import { AuthContext } from '../Auth/AuthContext';
 import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import HomeScreen from '../HomeScreen'
+import CreateProfile from "../Profile/CreateProfile";
 import { BASE_URL } from "../Auth/Config";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,10 +39,11 @@ const Blog = (props) => {
         Authorization: `Bearer ${token}`,
       };
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
+      console.log(response.data)
       setprofileDetail(response.data);
     } catch (error) {
       // console.warn(error.response.data)
-      console.error('Error fetching data:', error.response.data);
+      console.log('Error fetching data:', error.response.data);
     }
   };
 
@@ -90,9 +92,6 @@ const Blog = (props) => {
     });
 
       }
-  	// console.warn(image.assets[0]);
-
-
   };
 
   const handleBlogView = (blogId) => {
@@ -114,9 +113,9 @@ const Blog = (props) => {
   };
 
   return (
-
   	<ScrollView contentContainerStyle={styles.container}>
-      {profileDetail ? (
+    {/*<Text>{console.warn(profileDetail)}</Text>*/}
+      {profileDetail  ? (
         <>
           <View style={{ flexDirection: 'row' }}>
             <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
@@ -159,15 +158,16 @@ const Blog = (props) => {
               >
               <Text style={styles.imagePickerText}>Add Image</Text>
               </TouchableOpacity>
-              {image && (
                 <View>
-                  <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />
-                  <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
-                    <Text style={styles.removeImageText}>Remove Image</Text>
-                  </TouchableOpacity>
+                  {image && (
+                    <View>
+                      <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />
+                      <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
+                        <Text style={styles.removeImageText}>Remove Image</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
-              )}
-              )}
 
               <Button
                 title="Create Post"
