@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect }from 'react'
-import { View, Text, Image, StyleSheet, ScrollView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableWithoutFeedback, TouchableOpacity, RefreshControl } from 'react-native';
 import axios from 'axios';
 import Blog from '../Blog/Blog';
 import ProfileSetting from './ProfileSetting';
@@ -13,6 +13,7 @@ import { faFacebook ,faLinkedin, faYoutube, faInstagram} from '@fortawesome/free
 const Profile = () => {
   
   const [profileDetail, setprofileDetail] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [blogData, setBlogData] = useState(null);
   const [viewType, setViewType] = useState('list');
   const {userInfo, isLoading} = useContext(AuthContext);
@@ -20,6 +21,7 @@ const Profile = () => {
 
   const getAPIData = async () => {
     try {
+      setIsRefreshing(true);
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -28,6 +30,8 @@ const Profile = () => {
       setprofileDetail(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setIsRefreshing(false); // Stop the refreshing indicator
     }
   };
 
@@ -37,7 +41,7 @@ const Profile = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await axios.get(`${BASE_URL}/blogs`, { headers });
+      const response = await axios.get(`${BASE_URL}/user_blog`, { headers });
       setBlogData(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -48,18 +52,35 @@ const Profile = () => {
     getAPIData();
     getAPIBlogData();
   }, []);
+
+  const onRefresh = () => {
+    getAPIData();
+    getAPIBlogData();
+  };
   
   if (profileDetail === null) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
+      <View style={styles.noProfileContainer}>
+        <Text style={styles.noProfileText}>Complete your profile details</Text>
+        <TouchableOpacity
+          style={styles.createProfileButton}
+          onPress={() => navigation.navigate('CreateProfile')}
+        >
+          <Text style={{color: 'white'}}>Create Profile</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView 
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
+      }
+    contentContainerStyle={styles.container}>
       {/*<Text>{console.warn(profileDetail)}</Text>*/}
       {profileDetail.data.profile_background_image ? (
        <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
@@ -226,14 +247,19 @@ const styles = StyleSheet.create({
     padding: 10
   },
   inputPost: {
-   flexDirection: 'row', 
-   alignItems: 'center',
-   width: "90%",
-   marginLeft: "5%",
-   marginTop: "2%",
-   borderRadius: 30,
-   height: "2%",
-   backgroundColor: "#d1cbcb"
+   flexDirection: 'row',
+    alignItems: 'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop: "2%",
+    borderRadius: 30,
+    height: 60,  // Set a specific height
+    backgroundColor: "#d1cbcb"
+  },
+  noProfileContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: "50%"
   },
   horizontalLine: {
     borderBottomColor: 'black',
@@ -243,7 +269,7 @@ const styles = StyleSheet.create({
   },
   blogImage: {
     width: '100%',
-    height: 200,
+    height: 300, // Adjust the height
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -255,5 +281,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
+  createProfileButton: {
+    alignItems: 'center',
+    marginTop:30,
+    borderRadius: 20,
+    borderWidth: 2,
+    height: 50,
+    width: 200,
+    backgroundColor: "#66d4f2",
+    justifyContent: 'center',
+    borderColor: '#98dbed'
+  }
 });
 export default Profile;

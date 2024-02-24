@@ -95,9 +95,13 @@ const Blog = (props) => {
   };
 
   const handleBlogView = (blogId) => {
-  	navigation.navigate('HomeScreen', {
+  	navigation.navigate('BlogView', {
 		    id: blogId 
 		});
+  };
+
+  const removeImage = () => {
+    setImage('');
   };
 
   const pickImage = async () => {

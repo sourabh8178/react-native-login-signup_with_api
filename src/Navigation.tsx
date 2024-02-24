@@ -22,8 +22,7 @@ import Message from './Message';
 import More from './More';
 import VideosScreen from './VideosScreen';
 import MusicScreen from './MusicScreen';
-// import PostsScreen from './PostsScreen';
-// import ProfileTabsNavigator from './Profile/ProfileTabsNavigator';
+import CreateProfile from './Profile/CreateProfile'
 import UserProfile from './Profile/UserProfile';
 import { AuthContext } from './Auth/AuthContext';
 import SplashScreen from './SplashScreen';
@@ -91,14 +90,14 @@ const HomeStack = () => (
       name="Blog" 
       component={Blog}
       options={({ navigation, route }) => ({
-          header: () => <BlogHeader title="Create post" navigation={navigation} />,
+          header: () => <BlogHeader title="Create Post" navigation={navigation} />,
         })}
     />
     <Stack.Screen
       name="Profile"
       component={Profile}
       options={({ navigation, route }) => ({
-        header: () => <ProfileHeader title="Your Custom Profile Title" navigation={navigation} />,
+        header: () => <ProfileHeader title="Profile my" navigation={navigation} />,
       })}
     />
     {/*<Stack.Screen
@@ -112,9 +111,9 @@ const HomeStack = () => (
     <Stack.Screen name="BlogView" component={BlogView} />
     <Stack.Screen name="Followers" component={Followers} />
     <Stack.Screen name="Following" component={Following} />
+    <Stack.Screen name="CreateProfile" component={CreateProfile} />
     <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false, tabBarVisible: false }} />
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
-    <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="ProfileSetting" component={ProfileSetting} />
     <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
@@ -151,14 +150,16 @@ const AuthenticatedTabs = ({navigation, route}) => (
           {() => <Message navigation={navigation} />}
     </Tab.Screen>
       <Tab.Screen name="Profile" component={Profile}options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesomeIcon icon={faUser} color={color} size={size + 3} />
           ),
           tabBarLabelStyle: { fontSize: 15 },
         }}
      />
-    <Tab.Screen name="More" component={More} 
+    <Tab.Screen name="More" component={More}
       options={{
+      headerShown: false, 
         tabBarIcon: ({ color, size }) => (
           <FontAwesomeIcon icon={faEllipsisH} color={color} size={size + 3} />
         ),
@@ -176,13 +177,14 @@ const Navigation = () => {
         <Stack.Navigator>
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
-      ) : userInfo.data  ? (
+      ) : userInfo ? (
         <AuthenticatedTabs />
       ) : (
         <Stack.Navigator>
           <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={LoginScreen}  />
+          <Stack.Screen name="Registration" component={RegistrationScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         </Stack.Navigator>
       )}
     </NavigationContainer>

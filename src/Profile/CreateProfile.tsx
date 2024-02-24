@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
 import { AuthContext } from "../Auth/AuthContext"
 import { BASE_URL } from "../Auth/Config";
 import axios from 'axios';
@@ -7,11 +7,16 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { showMessage } from "react-native-flash-message";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateProfile = () => {
+
+	const [date, setDate] = useState('');
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
   const [name, setName] = useState('');
   const [userName, setUserName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [gender, setGender] = useState('');
   const [about, setAbout] = useState('');
   const [country, setCountry] = useState('');
@@ -54,13 +59,11 @@ const CreateProfile = () => {
 
     return true;
   };
-
   const handleCreateProfile = () => {
-
 		const formData = new FormData();
 		formData.append('name', name);
     formData.append('user_name', userName);
-    formData.append('date_birth', dateOfBirth);
+    formData.append('date_birth', date ? date.toLocaleDateString() : '');
     formData.append('gender', gender);
     formData.append('about', about);
     formData.append('country', country);
@@ -94,10 +97,10 @@ const CreateProfile = () => {
 	  })
     .then((res) => {
       console.log(res.data);
-      setUserInfo(res.data);
-      setIsLoading(false);
+      // setUserInfo(res.data);
+      // setIsLoading(false);
       alert('Created Successfully');
-      navigation.navigate('Profile');
+      handleProfileView()
     })
     .catch((error) => {
       // console.log('iiiii', error.response.data.errors);
@@ -109,6 +112,9 @@ const CreateProfile = () => {
 	    console.log(errors);
 	  }
 	};
+	const handleProfileView = () => {
+  	navigation.navigate('Profile');
+  };
   const pickImage = async () => {
     try {
       const options = {
@@ -143,6 +149,22 @@ const CreateProfile = () => {
   const removeBackgroundImage = () => {
     setBackgroundImage('');
   };
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setShow(false);
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  };
+
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -195,12 +217,28 @@ const CreateProfile = () => {
           onChangeText={(text) => setUserName(text)}
         />
         <Text style={styles.inputHeader}>Date Birth</Text>
-        <TextInput
-          value={dateOfBirth}
-          style={[styles.input]}
-          placeholder=" Date of Barth"
-          onChangeText={(text) => setDateOfBirth(text)}
-        />
+	        <TouchableOpacity
+	          style={{ backgroundColor: '#32adcf', padding: 6, borderRadius: 5, alignItems: 'center', marginTop: 0, marginBottom: 10, width: '40%', marginRight: 'auto' }}
+	          onPress={showDatepicker}
+	        >
+	        {date ? (
+				    <Text style={{color: 'white', fontWeight: 'bold'}}> {date.toLocaleDateString()}</Text>
+	        	) : (
+	        		<Text style={{color: 'white', fontWeight: 'bold'}}>--/--/--</Text>
+	        	)}
+				   	<SafeAreaView>
+				      {show && (
+				        <DateTimePicker
+				          // testID="dateTimePicker"
+				          value={dateOfBirth}
+				          mode={mode}
+				          is24Hour={true}
+				          onChange={onChange}
+				        />
+				      )}
+				    </SafeAreaView>
+          </TouchableOpacity>
+        
         <Text style={styles.inputHeader}>Select Gender*</Text>
         <Picker
             selectedValue={gender}
@@ -212,7 +250,6 @@ const CreateProfile = () => {
             <Picker.Item label="Female" value="female" />
             <Picker.Item label="Other" value="other" />
           </Picker>
-        <Text>Selected Gender: {gender}</Text>
       </View>
       <View style={styles.horizontalLine} />
       <View style={styles.inputs}>

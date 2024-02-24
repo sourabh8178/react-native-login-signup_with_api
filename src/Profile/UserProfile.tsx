@@ -4,7 +4,8 @@ import axios from 'axios';
 import { BASE_URL } from "../Auth/Config";
 import { AuthContext } from "../Auth/AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart, faLocation, faShare, faFacebook, faLinkedin, faYoutube } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisV, faComment, faBookmark, faHeart, faUsers, faLocation, faShare,  faUserFriends, faCog, faPen, faMusic, faVideo, faFilm, faCamera, faImage } from '@fortawesome/free-solid-svg-icons';
+import { faFacebook, faLinkedin, faYoutube, faInstagram } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 
 const UserProfile = ({ route }) => {
@@ -75,7 +76,7 @@ const UserProfile = ({ route }) => {
         <Text style={{marginTop: 10}}>@{profileDetail.user_name}</Text>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
         <Text style={styles.name}>{profileDetail.name.charAt(0).toUpperCase() + profileDetail.name.slice(1)}</Text>
-          <Text>{console.warn(profileDetail)}</Text>
+          {/*<Text>{console.warn(profileDetail)}</Text>*/}
           {profileDetail.follow ? (
             <TouchableOpacity onPress={() => unfollow(profileDetail.user_id)}>
               <Text style={styles.setting}>Unfollow</Text>
@@ -96,9 +97,18 @@ const UserProfile = ({ route }) => {
       </View>
 
       <View style={styles.socialLinks}>
-        <Text style={styles.link}>{profileDetail.youtub_url}</Text>
-        <Text style={styles.link}>{profileDetail.instagram_url}</Text>
-        <Text style={styles.link}>{profileDetail.linkedin_url}</Text>
+        <TouchableOpacity onPress={() => openLink('https://www.facebook.com')}>
+          <FontAwesomeIcon icon={faFacebook} size={20} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => openLink(profileDetail.data)}>
+          <FontAwesomeIcon icon={faLinkedin} size={20} color="black" style={{marginLeft: 20}} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => openLink('https://www.youtube.com')}>
+          <FontAwesomeIcon icon={faYoutube} size={20} color="black" style={{marginLeft: 20}} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => openLink('https://www.instagram.com')}>
+          <FontAwesomeIcon icon={faInstagram} size={20} color="black" style={{marginLeft: 20}} />
+        </TouchableOpacity>
       </View>
     </ScrollView>
   )

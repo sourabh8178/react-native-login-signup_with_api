@@ -43,9 +43,8 @@ const LoginScreen = (props) => {
 								<Text style={styles.link} >forgot password?</Text>
 							</TouchableOpacity>
 					<TouchableOpacity onPress={() => {login(email, password)}} style={styles.loginBtn}>
-		        <Text style={{color: "#fff"}}>Login</Text>
+		        <Text style={{color: "#fff", fontSize: 20, fontWeight: 'bold'}}>Login</Text>
 		      </TouchableOpacity>
-					{/*<Button title="Login" onPress={() => {login(email, password)}} />*/}
 					<View style={{ flexDirection: 'row', marginTop: 20 }} >
 							<Text>Don't have an account ?</Text>
 							<TouchableOpacity onPress={() => props.navigation.navigate("Registration")} >
@@ -54,7 +53,7 @@ const LoginScreen = (props) => {
 					</View>
 				</View>
 			</View>
-			<View>
+			<View style={{padding: 30}}>
 				<Text style={{fontSize: 20, color: "black", marginLeft: 180}}>or</Text>
 				<TouchableOpacity onPress={() => props.navigation.navigate("Registration")} style={styles.authG}>
 					<Text style={{fontWeight: 'bold'}}><FontAwesomeIcon icon={faGoogle} size={20} color="black" />Countue with google</Text>
@@ -86,6 +85,8 @@ const styles = StyleSheet.create({
 	},
 	link: {
 		color: "blue",
+		fontSize: 18,
+		fontWeight: 'bold'
 	},
 	backgroundImage: {
     width: '100%',
@@ -97,21 +98,17 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: '#3d6ddb',
 		height: 40,
-		marginLeft: 90,
-		width: 150,
 		borderRadius: 20,
 		marginTop:20,
 	},
 	authG: {
 		justifyContent: 'center',
 		alignItems: 'center',
-		width: 180,
 		borderColor: 'grey',
 		borderWidth: 2,
 		marginTop: 20,
-		marginLeft: 120,
 		borderRadius: 20,
-		height: 40,
+		height: 45,
 	},
 	logoText: {
 		marginTop: -60,

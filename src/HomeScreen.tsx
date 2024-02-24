@@ -32,10 +32,10 @@ const HomeScreen = (props) => {
       // console.warn(response.data);
     } catch (error) {
       // console.warn(error.response.data)
-      let userError = res.response.data;
+      // let userError = res.response.data;
       showMessage({
         message: "FAILED!",
-        description: userError,
+        description: "failed to get",
         type: "danger",
         duration: 9000,
       });
@@ -99,7 +99,14 @@ const HomeScreen = (props) => {
             data.data.map((post) => (
             	<React.Fragment key={post.id}>
             	<TouchableOpacity
-							  style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 15, borderTopColor: '#ccc', borderTopWidth: 5, marginTop: 15 }}
+							  style={{
+                  borderTopLeftRadius: 30,
+                  borderTopRightRadius: 30,
+                  padding: 15,
+                  borderTopColor: '#ccc',
+                  borderTopWidth: 5,
+                  marginTop: 15,
+                }}
 							  onPress={() => handleProfileView(post.profile.id)}
 							>
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
@@ -109,7 +116,14 @@ const HomeScreen = (props) => {
 							  </View>
 							</TouchableOpacity>
               <TouchableOpacity
-							  style={{ borderBottomLeftRadius: 30, borderBottomRightRadius: 30, padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 5, marginTop: "auto" }}
+							  style={{ 
+                  borderBottomLeftRadius: 30,
+                  borderBottomRightRadius: 30, 
+                  padding: 15, 
+                  borderBottomColor: '#ccc', 
+                  borderBottomWidth: 5, 
+                  marginTop: "auto" 
+                }}
 							  onPress={() => handleBlogView(post.id)}
 							>
 							  <Text  style={{color: 'black'}}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
@@ -202,7 +216,7 @@ const styles = StyleSheet.create({
   },
   blogImage: {
     width: '100%',
-    height: 200,
+    height: 300, // Adjust the height
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -214,14 +228,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   inputPost: {
-   flexDirection: 'row', 
-   alignItems: 'center',
-   width: "90%",
-   marginLeft: "5%",
-   marginTop: "2%",
-   borderRadius: 30,
-   height: "3%",
-   backgroundColor: "#d1cbcb"
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop: "2%",
+    borderRadius: 30,
+    height: 60,  // Set a specific height
+    backgroundColor: "#d1cbcb"
   },
 	horizontalLine: {
     borderBottomColor: 'black',
