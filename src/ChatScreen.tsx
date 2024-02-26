@@ -51,16 +51,13 @@ const ChatScreen = () => {
       .add(myMsg);
   }, [userInfo.data.id, route.params.userId]);
 
-  const onInputTextChanged = (text) => {
-    setIsTyping(text.length > 0);
-    // Handle sending typing status to the other user
-  };
-
-  const renderComposer = (props) => {
-    if (props.text.length > 0) {
-      return <Composer {...props} onTextChanged={(text) => onInputTextChanged(text)} />;
-    }
-    return null;
+  const handleTyping = (text) => {
+    setIsTyping(text.length > 0); // Set typing state based on input length
+    // Update Firestore document with typing status
+    firestore()
+      .collection('chats')
+      .doc(chatId)
+      .update({ isTyping: text.length > 0 });
   };
 
   const menuOptionsStyles = {
@@ -105,8 +102,7 @@ const ChatScreen = () => {
           user={{
             _id: userInfo.data.id,
           }}
-          isTyping={isTyping}
-          renderComposer={renderComposer}
+          onInputTextChanged={handleTyping}
         />
       </View>
     </MenuProvider>

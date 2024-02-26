@@ -1,15 +1,15 @@
-import React,{useContext,useState, useEffect} from 'react';
-import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
-import ChatScreen from '../ChatScreen'
+import React, { useContext, useState, useEffect } from 'react';
+import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image, RefreshControl } from 'react-native';
+import ChatScreen from '../ChatScreen';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
 
-
 const Message = ({ proc }) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const navigation = useNavigation();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [data, setData] = useState(undefined);
 
   // Dummy data for followers
@@ -30,15 +30,17 @@ const Message = ({ proc }) => {
     getAPIData();
   }, []);
 
+  const onRefresh = () => {
+    getAPIData();
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.userItem}
       onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}
     >
-    <Text>{console.warn(item)}</Text>
       <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
       <View style={styles.userInfo}>
-      {/*<Text>{console.warn(item)}</Text>*/}
         <Text style={styles.userName}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
         <Text style={styles.lastMessage}>{item.user_name}</Text>
       </View>
@@ -52,6 +54,12 @@ const Message = ({ proc }) => {
         data={data}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+          />
+        }
       />
     </View>
   );
