@@ -7,7 +7,7 @@ import { BASE_URL } from "../Auth/Config";
 import { AuthContext } from "../Auth/AuthContext"
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEllipsisV, faComment, faBookmark, faHeart, faUsers, faLocation, faShare,  faUserFriends, faCog, faPen, faMusic, faVideo, faFilm, faCamera, faImage } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisV, faComment, faBookmark, faHeart, faUsers, faLocation, faShare,  faUserFriends, faCog, faPen, faMusic, faVideo, faFilm, faCamera, faImage, faBell, faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faFacebook ,faLinkedin, faYoutube, faInstagram} from '@fortawesome/free-brands-svg-icons';
 
 const Profile = () => {
@@ -81,6 +81,15 @@ const Profile = () => {
         />
       }
     contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Profile</Text>
+        <View style={styles.headerIcons}>
+          <FontAwesomeIcon icon={faBell} size={20} color="black" />
+          {/* You can add the number of notifications or any other UI for notifications here */}
+          <FontAwesomeIcon icon={faSearch} size={20} color="black" style={styles.headerIcon} />
+          <FontAwesomeIcon icon={faPlus} size={20} color="black" style={styles.headerIcon} />
+        </View>
+      </View>
       {/*<Text>{console.warn(profileDetail)}</Text>*/}
       {profileDetail.data.profile_background_image ? (
        <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
@@ -181,6 +190,25 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    marginLeft: 20,
   },
   backgroundImage: {
     width: '100%',

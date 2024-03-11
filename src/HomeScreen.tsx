@@ -8,9 +8,9 @@ import Blog from './Blog/Blog';
 import UserProfile from "./Profile/UserProfile"
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEllipsisV, faCamera,faHeart, faComment, faShare, faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { showMessage } from "react-native-flash-message";
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const HomeScreen = (props) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
@@ -29,17 +29,14 @@ const HomeScreen = (props) => {
       };
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
-      // console.warn(response.data);
     } catch (error) {
-      // console.warn(error.response.data)
-      // let userError = res.response.data;
       showMessage({
         message: "FAILED!",
         description: "failed to get",
         type: "danger",
         duration: 9000,
       });
-      // console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setIsRefreshing(false); // Stop the refreshing indicator
     }
@@ -87,7 +84,7 @@ const HomeScreen = (props) => {
           <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
             <View style={styles.inputPost}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
-                  <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
+                  <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
                   <Text style={{ fontSize: 20 }}>Write a post</Text>
                 </View>
             </View>
@@ -112,7 +109,7 @@ const HomeScreen = (props) => {
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
 							    <Text style={{color: 'black'}}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-							    <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
+                  <Icon name="ellipsis-v" size={20} color="black" style={{marginLeft: 'auto'}}/>
 							  </View>
 							</TouchableOpacity>
               <TouchableOpacity
@@ -130,10 +127,12 @@ const HomeScreen = (props) => {
 							  <Text style={{color: 'black'}}> {post.body}</Text>
 							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-									<FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
-								  <FontAwesomeIcon icon={faComment} size={20} color="black" style={styles.icon} />
-								  <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.icon} />
-								  <FontAwesomeIcon icon={faBookmark} size={20}  style={{marginLeft: 'auto'}} />
+									<Icon name="heart-o" size={20} color="black" style={styles.icon}/>
+                  <Icon name="heart" size={20} color="black" style={styles.icon}/>
+                  <Icon name="comment" size={20} color="black" style={styles.icon}/>
+                  <Icon name="share-alt" size={20} color="black" style={styles.icon}/>
+                  <Icon name="bookmark" size={20} color="black" style={{marginLeft: 'auto'}}/>
+                  <Icon name="bookmark-o" size={20} color="black" style={{marginLeft: 'auto'}}/>
 							  </View>
 							</TouchableOpacity>
 							</React.Fragment>
