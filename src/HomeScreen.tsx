@@ -10,11 +10,14 @@ import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
 import { showMessage } from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const HomeScreen = (props) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const [data, setData] = useState(undefined);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const [viewType, setViewType] = useState('list');
@@ -30,21 +33,135 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
-      showMessage({
-        message: "FAILED!",
-        description: "failed to get",
-        type: "danger",
-        duration: 9000,
-      });
-      console.error('Error fetching data:', error);
+      console.log(error.response.data.errors);
     } finally {
-      setIsRefreshing(false); // Stop the refreshing indicator
+      setIsRefreshing(false);
     }
   };
 
+  if (data === null) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   useEffect(() => {
     getAPIData();
+    // loadBookmarkedPosts();
+    // loadLikedPosts();
   }, []);
+
+  useEffect(() => {
+    // saveBookmarkedPosts();
+    // saveLikedPosts();
+  }, [likedPosts]);
+
+  // const loadLikedPosts = async () => {
+  //   try {
+  //     const storedLikedPosts = await AsyncStorage.getItem('likedPosts');
+  //     if (storedLikedPosts !== null) {
+  //       setLikedPosts(JSON.parse(storedLikedPosts));
+  //     }
+  //   } catch (error) {
+  //     console.log('Error loading liked posts:', error);
+  //   }
+  // };
+
+  // const loadBookmarkedPosts = async () => {
+  //   try {
+  //     const storedBookmarkedPosts = await AsyncStorage.getItem('bookmarkedPosts');
+  //     if (storedBookmarkedPosts !== null) {
+  //       setBookmarkedPosts(JSON.parse(storedBookmarkedPosts));
+  //     }
+  //   } catch (error) {
+  //     console.log('Error loading bookmarked posts:', error);
+  //   }
+  // };
+
+  //  const saveLikedPosts = async () => {
+  //   try {
+  //     await AsyncStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+  //   } catch (error) {
+  //     console.log('Error saving liked posts:', error);
+  //   }
+  // };
+
+  // const saveBookmarkedPosts = async () => {
+  //   try {
+  //     await AsyncStorage.setItem('bookmarkedPosts', JSON.stringify(bookmarkedPosts));
+  //   } catch (error) {
+  //     console.log('Error saving bookmarked posts:', error);
+  //   }
+  // };
+
+  const handleLikeToggle = (postId) => {
+    // Toggle the liked status for the post
+    if (likedPosts.includes(postId)) {
+      setLikedPosts(likedPosts.filter((id) => id !== postId));
+      handleUnlike(postId);
+    } else {
+      setLikedPosts([...likedPosts, postId]);
+      handleLike(postId);
+    }
+  };
+
+  const handleBookmarkToggle = (postId) => {
+    if (bookmarkedPosts.includes(postId)) {
+      setBookmarkedPosts(bookmarkedPosts.filter((id) => id !== postId));
+      handleUnBook(postId);
+    } else {
+      setBookmarkedPosts([...bookmarkedPosts, postId]);
+      handleBook(postId);
+    }
+  };
+
+  const handleBook = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/bookmark/${postId}`, {}, { headers });
+      getAPIData()
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
+  };
+
+  const handleUnBook = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/unbookmark/${postId}`, {}, { headers });
+      getAPIData()
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
+  };
+
+
+  const handleLike = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/like/${postId}`, {}, { headers });
+      setLikedPosts([...likedPosts, postId]);
+      getAPIData()
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
+  };
+
+  const handleUnlike = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/unlike/${postId}`, {}, { headers });
+      getAPIData()
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
+  };
 
   const handleBlogView = (blogId) => {
     navigation.navigate('BlogView', {
@@ -56,13 +173,6 @@ const HomeScreen = (props) => {
     navigation.navigate("UserProfile", {
       id: profileId,
     });
-  };
-
-  const handleLogout = () => {
-    const headers = {
-      Authorization: `Bearer ${userInfo.data.authentication_token}`,
-    };
-    logout(headers);
   };
 
   const onRefresh = () => {
@@ -122,17 +232,29 @@ const HomeScreen = (props) => {
                   marginTop: "auto" 
                 }}
 							  onPress={() => handleBlogView(post.id)}
-							>
+							   >
 							  <Text  style={{color: 'black'}}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
 							  <Text style={{color: 'black'}}> {post.body}</Text>
 							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-									<Icon name="heart-o" size={20} color="black" style={styles.icon}/>
-                  <Icon name="heart" size={20} color="black" style={styles.icon}/>
+                <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
+                  <Icon
+                    name={post.liked ? 'heart' : 'heart-o'}
+                    size={20}
+                    color={post.liked ? 'red' : 'black'}
+                    style={styles.icon}
+                  />
+                </TouchableOpacity>
                   <Icon name="comment" size={20} color="black" style={styles.icon}/>
                   <Icon name="share-alt" size={20} color="black" style={styles.icon}/>
-                  <Icon name="bookmark" size={20} color="black" style={{marginLeft: 'auto'}}/>
-                  <Icon name="bookmark-o" size={20} color="black" style={{marginLeft: 'auto'}}/>
+                  <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{marginLeft: 'auto'}}>
+                    <Icon
+                      name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
+                      size={20}
+                      color={post.bookmarked ? 'black' : 'black'}
+                      style={styles.icon}
+                    />
+                  </TouchableOpacity>
 							  </View>
 							</TouchableOpacity>
 							</React.Fragment>
