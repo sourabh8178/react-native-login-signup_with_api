@@ -1,46 +1,38 @@
-import React, {useState, useContext, useEffect }from 'react'
-import { View, Text, Image, StyleSheet, ScrollView, TouchableWithoutFeedback, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert } from 'react-native';
 import axios from 'axios';
-import Blog from '../Blog/Blog';
-import ProfileSetting from './ProfileSetting';
-import { BASE_URL } from "../Auth/Config";
-import { AuthContext } from "../Auth/AuthContext"
+import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 import { useNavigation } from '@react-navigation/native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEllipsisV, faComment, faBookmark, faHeart, faUsers, faLocation, faShare,  faUserFriends, faCog, faPen, faMusic, faVideo, faFilm, faCamera, faImage, faBell, faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { faFacebook ,faLinkedin, faYoutube, faInstagram} from '@fortawesome/free-brands-svg-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { AuthContext } from '../Auth/AuthContext';
+import { BASE_URL } from '../Auth/Config';
 
 const Profile = () => {
-  
-  const [profileDetail, setprofileDetail] = useState(null);
+  const [profileDetail, setProfileDetail] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [blogData, setBlogData] = useState(null);
+  const { userInfo } = useContext(AuthContext);
   const [viewType, setViewType] = useState('list');
-  const {userInfo, isLoading} = useContext(AuthContext);
   const navigation = useNavigation();
 
   const getAPIData = async () => {
     try {
       setIsRefreshing(true);
       const token = userInfo.data.authentication_token;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
-      setprofileDetail(response.data);
+      setProfileDetail(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setIsRefreshing(false); // Stop the refreshing indicator
+      setIsRefreshing(false);
     }
   };
 
   const getAPIBlogData = async () => {
     try {
       const token = userInfo.data.authentication_token;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(`${BASE_URL}/user_blog`, { headers });
       setBlogData(response.data);
     } catch (error) {
@@ -48,7 +40,7 @@ const Profile = () => {
     }
   };
 
-   useEffect(() => {
+  useEffect(() => {
     getAPIData();
     getAPIBlogData();
   }, []);
@@ -57,7 +49,35 @@ const Profile = () => {
     getAPIData();
     getAPIBlogData();
   };
-  
+
+  const deletePost = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${BASE_URL}/delete_blog/${postId}`, { headers });
+      getAPIBlogData();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const showDeleteConfirmation = (postId) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: () => deletePost(postId) }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const editPost = async (postId) => {
+    console.log(postId)
+
+  }
+
   if (profileDetail === null) {
     return (
       <View style={styles.noProfileContainer}>
@@ -66,125 +86,186 @@ const Profile = () => {
           style={styles.createProfileButton}
           onPress={() => navigation.navigate('CreateProfile')}
         >
-          <Text style={{color: 'white'}}>Create Profile</Text>
+          <Text style={{ color: 'white' }}>Create Profile</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <ScrollView 
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={onRefresh}
-        />
-      }
-    contentContainerStyle={styles.container}>
+    <MenuProvider>
+    <ScrollView
+      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.header}>
         <Text style={styles.headerText}>Profile</Text>
         <View style={styles.headerIcons}>
-          <FontAwesomeIcon icon={faBell} size={20} color="black" />
-          {/* You can add the number of notifications or any other UI for notifications here */}
-          <FontAwesomeIcon icon={faSearch} size={20} color="black" style={styles.headerIcon} />
-          <FontAwesomeIcon icon={faPlus} size={20} color="black" style={styles.headerIcon} />
+          <Icon name="bell" size={20} color="black" />
+          <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
+            <Icon name="cog" size={20} color="black" style={{ marginLeft: 20 }} />
+          </TouchableOpacity>
+          <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
         </View>
       </View>
-      {/*<Text>{console.warn(profileDetail)}</Text>*/}
       {profileDetail.data.profile_background_image ? (
-       <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
-        ) : (
-        <Image source={require("../assest/app.png")} style={styles.backgroundImage} />
-        )}
+        <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
+      ) : (
+        <Image source={require('../assest/app.png')} style={styles.backgroundImage} />
+      )}
       <View style={styles.profileContainer}>
         <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-        <Text style={{marginTop: 10}}>@{profileDetail.data.user_name}</Text>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
+        <Text style={{ marginTop: 10, fontSize: 20, fontWeight: 'bold' }}>@{profileDetail.data.user_name}</Text>
         <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
-            <Text style={styles.setting}>Setting  <FontAwesomeIcon icon={faPen} size={15} color="black"/></Text>
-          </TouchableOpacity>
-          <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.shareIcon} />
-        </View> 
-        <Text style={{marginTop: 10, fontSize: 15}}>Memner since {profileDetail.data.created_at}</Text>
-        <Text style={{marginTop: 10, fontSize: 15}}><FontAwesomeIcon icon={faUsers} size={20} color="black" />  19K Followers</Text>
-        <Text style={{marginTop: 10, fontSize: 15}}><FontAwesomeIcon icon={faHeart} size={20} color="black" />  1,5K Likes</Text>
-        <Text style={{marginTop: 10, fontSize: 15}}><FontAwesomeIcon icon={faLocation} size={20} color="black"/>   {profileDetail.data.country}</Text>
-        <Text style={{marginTop: 10, fontSize: 15}}>{profileDetail.data.about}</Text>
+        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Member since {profileDetail.data.created_at}</Text>
+        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Followers: {profileDetail.data.number_followers}</Text>
+        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Following:  {profileDetail.data.number_followings}</Text>
+        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Location: {profileDetail.data.country}</Text>
+        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>{profileDetail.data.about}</Text>
       </View>
       <View style={styles.socialLinks}>
-        <TouchableOpacity onPress={() => openLink('https://www.facebook.com')}>
-          <FontAwesomeIcon icon={faFacebook} size={20} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => openLink(profileDetail.data)}>
-          <FontAwesomeIcon icon={faLinkedin} size={20} color="black" style={{marginLeft: 20}} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => openLink('https://www.youtube.com')}>
-          <FontAwesomeIcon icon={faYoutube} size={20} color="black" style={{marginLeft: 20}} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => openLink('https://www.instagram.com')}>
-          <FontAwesomeIcon icon={faInstagram} size={20} color="black" style={{marginLeft: 20}} />
-        </TouchableOpacity>
+        <Icon name="facebook" size={20} color="black" />
+        <Icon name="linkedin" size={20} color="black" style={{ marginLeft: 20 }} />
+        <Icon name="youtube" size={20} color="black" style={{ marginLeft: 20 }} />
+        <Icon name="instagram" size={20} color="black" style={{ marginLeft: 20 }} />
       </View>
+      <View style={styles.horizontalLine} />
       <View style={styles.postSocialLinks}>
-        <FontAwesomeIcon icon={faFilm} size={20} color="black"  />
-        <FontAwesomeIcon icon={faImage} size={20} color="black" />
-        <FontAwesomeIcon icon={faVideo} size={20} color="black" />
-        <FontAwesomeIcon icon={faMusic} size={20} color="black" />
+        <Icon name="film" size={20} color="black" />
+        <Icon name="image" size={20} color="black" />
+        <Icon name="video-camera" size={20} color="black" />
+        <Icon name="music" size={20} color="black" />
       </View>
       <View style={styles.horizontalLine} />
       <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
         <View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
-              <FontAwesomeIcon icon={faCamera} size={20} color="black" style={{ marginRight: "5%" }} />
+              <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
               <Text style={{ fontSize: 20 }}>Write a post</Text>
             </View>
         </View>
       </TouchableWithoutFeedback>
-      {/*<View style={styles.horizontalLine} />*/}
-        {viewType === 'list' ? (
+        <View style={styles.horizontalLine} />
+      {viewType === 'list' ? (
         <>
           {blogData ? (
             blogData.data.map((post) => (
               <React.Fragment key={post.id}>
-              <View style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 15, borderTopColor: '#ccc', borderTopWidth: 5, marginTop: 15 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                  <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
-                  <Text style={{color: 'black', fontSize: 20}}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                  <FontAwesomeIcon icon={faEllipsisV} style={{ marginLeft: 'auto' }} />
+                <View 
+                style={{
+                    borderTopLeftRadius: 30,
+                    borderTopRightRadius: 30,
+                    padding: 15,
+                    borderTopColor: '#ccc',
+                    borderTopWidth: 5,
+                    marginTop: 15,
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                    <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
+                    <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                    <Menu>
+                      <MenuTrigger style={{ padding: 10, marginLeft: '75%'  }}>
+                      <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
+                      </MenuTrigger>
+                      <MenuOptions customStyles={menuOptionsStyles} >
+                        <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                        <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
+                      </MenuOptions>
+                    </Menu>
+                  </View>
                 </View>
-                  <Text style={{color: 'grey', marginLeft: 60, marginTop: -18, fontSize:12}}>@{post.profile.user_name}</Text>
-              </View>
-              <TouchableOpacity
-                style={{ borderBottomLeftRadius: 30, borderBottomRightRadius: 30, padding: 15, borderBottomColor: '#ccc', borderBottomWidth: 5, marginTop: "auto" }}
-                onPress={() => handleBlogView(post.id)}
-              >
-                <Text  style={{color: 'black'}}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-                <Text style={{color: 'black'}}> {post.body}</Text>
-                <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                  <FontAwesomeIcon icon={faHeart} size={20} color="black" style={styles.icon} />
-                  <FontAwesomeIcon icon={faComment} size={20} color="black" style={styles.icon} />
-                  <FontAwesomeIcon icon={faShare} size={20} color="black" style={styles.icon} />
-                  <FontAwesomeIcon icon={faBookmark} size={20}  style={{marginLeft: 'auto'}} />
+                <View 
+                style={{
+                    borderBottomLeftRadius: 30,
+                    borderBottomRightRadius: 30,
+                    padding: 15,
+                    borderBottomColor: '#ccc',
+                    borderBottomWidth: 5,
+                    marginTop: "auto"
+                  }}
+                  >
+                  <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
+                  <Text style={{ color: 'black' }}> {post.body}</Text>
+                  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+                    <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
+                      <Icon
+                        name={post.liked ? 'heart' : 'heart-o'}
+                        size={20}
+                        color={post.liked ? 'red' : 'black'}
+                        style={styles.icon}
+                      />
+                    </TouchableOpacity>
+                    
+                    <Icon name="comment" size={20} color="black" style={styles.icon} />
+                    <Icon name="share-alt" size={20} color="black" style={styles.icon} />
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
+                      {post.likes.map((like, index) => (
+                        index < 3 && (
+                          <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
+                        )
+                      ))}
+                      {post.likes_count > 0 && (
+                        <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
+                      )}
+                    </View>
                 </View>
-              </TouchableOpacity>
               </React.Fragment>
             ))
           ) : (
-            null
+            <View style={styles.noData}>
+              <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  marginTop: 20,
+                  marginBottom: 20,
+                  borderRadius: 20,
+                  borderWidth: 2,
+                  height: 50,
+                  width: 200,
+                  backgroundColor: "#66d4f2",
+                  justifyContent: 'center',
+                  borderColor: '#98dbed'
+                }}
+                onPress={() => navigation.navigate('Blog')}
+              >
+                <Text style={{ color: 'white' }}>Create your post</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </>
-        ) : (
-          <FlatList
-            data={blogData ? blogData.blogs : []}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderGridItem}
-            numColumns={2}
-          />
-        )}
+      ) : (
+        <FlatList
+          data={data ? data.blogs : []}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderGridItem}
+          numColumns={2}
+        />
+      )}
     </ScrollView>
-  )
+    </MenuProvider>
+  );
+};
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    marginTop: 45,
+    marginLeft: '40%',
+    backgroundColor: 'white',
+    padding: 8,
+    borderRadius: 8,
+    width: 8,
+  },
+  optionWrapper: {
+    marginVertical: 8,
+  },
+  optionText: {
+    fontSize: 16,
+    color: 'black',
+  },
 };
 
 const styles = StyleSheet.create({
@@ -199,83 +280,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerIcon: {
-    marginLeft: 20,
-  },
-  backgroundImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
-  },
-  profileContainer: {
-    alignItems: 'left',
-    marginTop: -80,
-    marginLeft: 20
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
-  name: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
-  userName: {
-    fontSize: 16,
-    color: 'grey',
-    marginLeft: 5
-  },
-  icon:{
-    marginLeft: 10,
-  },
-  socialLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginLeft: 20
-  },
-  postSocialLinks: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 40,
-    marginBottom: 20
-  },
-  link: {
-    color: 'blue',
-    fontSize: 16,
-  },
-  setting: {
-    borderColor: '#ccc', 
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 7,
-    alignItems: 'center',
-    justifyContent: 'center',  // Center the text vertically
-    alignSelf: 'flex-end',  // Align the container to the right
-    marginLeft: "10%",  // Add some margin for spacing
-    fontSize: 15,
-    marginTop: 10,
-    width: "75%",
-  },
-  shareIcon: {
-    marginTop: 15,
-    marginLeft: "auto",
-    padding: 10
-  },
   inputPost: {
-   flexDirection: 'row',
+    flexDirection: 'row',
     alignItems: 'center',
     width: "90%",
     marginLeft: "5%",
@@ -284,16 +290,73 @@ const styles = StyleSheet.create({
     height: 60,  // Set a specific height
     backgroundColor: "#d1cbcb"
   },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: Dimensions.get('window').height / 5,
+    resizeMode: 'cover',
+  },
+  profileContainer: {
+    // alignItems: 'center',
+    marginLeft: 30,
+    marginTop: -80,
+  },
+  profileImage: {
+    width: Dimensions.get('window').width / 3,
+    height: Dimensions.get('window').width / 3,
+    borderRadius: (Dimensions.get('window').width / 3) * 0.5,
+    borderWidth: 3,
+    borderColor: '#fff',
+    marginTop: 20,
+  },
+  name: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  socialLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  postSocialLinks: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+    marginBottom: 20,
+  },
   noProfileContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: "50%"
+    marginTop: '50%',
+  },
+  createProfileButton: {
+    alignItems: 'center',
+    marginTop: 30,
+    borderRadius: 20,
+    borderWidth: 2,
+    height: 50,
+    width: 200,
+    backgroundColor: '#66d4f2',
+  },
+  noData:{
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // marginTop: "50%"
   },
   horizontalLine: {
     borderBottomColor: 'black',
-    borderBottomWidth: 3,
-    marginVertical: 6, // Adjust the margin as needed
-    width: "100%"
+    borderBottomWidth: 5,
+    width: "100%",
+    marginVertical: 10, 
   },
   blogImage: {
     width: '100%',
@@ -301,24 +364,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+  icon:{
+    marginLeft: 10,
   },
-  createProfileButton: {
-    alignItems: 'center',
-    marginTop:30,
-    borderRadius: 20,
-    borderWidth: 2,
-    height: 50,
-    width: 200,
-    backgroundColor: "#66d4f2",
-    justifyContent: 'center',
-    borderColor: '#98dbed'
-  }
 });
+
+
 export default Profile;

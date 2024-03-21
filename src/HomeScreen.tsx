@@ -256,6 +256,16 @@ const HomeScreen = (props) => {
                     />
                   </TouchableOpacity>
 							  </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 1,marginLeft: 10 }}>
+                    {post.likes.map((like, index) => (
+                      index < 3 && (
+                        <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
+                      )
+                    ))}
+                    {post.likes_count > 0 && (
+                      <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
+                    )}
+                  </View>
 							</TouchableOpacity>
 							</React.Fragment>
             ))

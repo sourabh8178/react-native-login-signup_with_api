@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import Followers from './Profile/Followers';
-import Following from './Profile/Following'
 import { BASE_URL } from "./Auth/Config";
 import { AuthContext } from "./Auth/AuthContext"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -51,7 +49,7 @@ const More = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="blue" />
         <TouchableOpacity style={styles.subMenu} onPress={logout}>
           <Text style={{ fontSize: 22 }} ><FontAwesomeIcon icon={faSignOutAlt} size={25} color="black" />   Logout</Text>
         </TouchableOpacity>
@@ -70,26 +68,26 @@ const More = () => {
       contentContainerStyle={styles.container}>
       {profileDetail ? (
         <>
-        <View style={styles.profileContainer}>
-          <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-          <View style={styles.userInfo}>
-            <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-            <Text style={styles.userName}>@{profileDetail.data.user_name}</Text>
+          <View style={styles.profileContainer}>
+            <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
+            <View style={styles.userInfo}>
+              <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
+              <Text style={styles.userName}>@{profileDetail.data.user_name}</Text>
+            </View>
           </View>
-        </View>
-        
-      <View style={styles.menu}>
-        <MenuItem icon={faClipboard} label="Dashboard" onPress={() => navigation.navigate('Search')} />
-        <MenuItem icon={faUserFriends} label="My Posts" onPress={() => navigation.navigate('Search')} />
-        <MenuItem icon={faBookmark} label="Bookmarks" onPress={() => navigation.navigate('Search')} />
-        <MenuItem icon={faWallet} label={`Wallet: $${profileDetail.data.wallet_balance}`} onPress={() => navigation.navigate('Search')} />
-        <MenuItem icon={faUsers} label="Followers" onPress={() => navigation.navigate('Followers')} />
-        <MenuItem icon={faUsers} label="Following" onPress={() => navigation.navigate('Following')} />
-        <MenuItem icon={faClipboard} label="Purchased" onPress={() => navigation.navigate('Search')} />
-        <MenuItem icon={faSignOutAlt} label="Logout" onPress={handleLogout} />
-      </View>
 
-      </>
+          <View style={styles.menu}>
+            <MenuItem icon={faClipboard} label="Dashboard" onPress={() => navigation.navigate('Search')} />
+            <MenuItem icon={faUserFriends} label="My Posts" onPress={() => navigation.navigate('Search')} />
+            <MenuItem icon={faBookmark} label="Bookmarks" onPress={() => navigation.navigate('Search')} />
+            <MenuItem icon={faWallet} label={`Wallet: $${profileDetail.data.wallet_balance}`} onPress={() => navigation.navigate('Search')} />
+            <MenuItem icon={faUsers} label="Followers" onPress={() => navigation.navigate('Followers')} />
+            <MenuItem icon={faUsers} label="Following" onPress={() => navigation.navigate('Following')} />
+            <MenuItem icon={faClipboard} label="Purchased" onPress={() => navigation.navigate('Search')} />
+            <MenuItem icon={faSignOutAlt} label="Logout" onPress={handleLogout} />
+          </View>
+
+        </>
       ) : (
         <Text>No profile details available</Text>
       )}
