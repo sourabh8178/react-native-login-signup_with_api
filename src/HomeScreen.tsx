@@ -11,6 +11,8 @@ import BlogView from './Blog/BlogView';
 import { showMessage } from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
+
 
 
 const HomeScreen = (props) => {
@@ -180,6 +182,7 @@ const HomeScreen = (props) => {
   };
   
   return (
+    <MenuProvider>
     <ScrollView 
       refreshControl={
         <RefreshControl
@@ -219,7 +222,26 @@ const HomeScreen = (props) => {
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
 							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
 							    <Text style={{color: 'black'}}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                  <Icon name="ellipsis-v" size={20} color="black" style={{marginLeft: 'auto'}}/>
+                  {post.is_current_user_post ? (
+                    <Menu>
+                      <MenuTrigger style={{ padding: 0, marginLeft: '75%'  }}>
+                      <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
+                      </MenuTrigger>
+                      <MenuOptions customStyles={menuOptionsStyles} >
+                        <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                        <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
+                      </MenuOptions>
+                    </Menu>
+                    ) : (
+                      <Menu>
+                        <MenuTrigger style={{ padding: 0, marginLeft: '75%'  }}>
+                        <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
+                        </MenuTrigger>
+                        <MenuOptions customStyles={menuOptionsStyles} >
+                          <MenuOption onSelect={() => editPost(post.id)} text="report" />
+                        </MenuOptions>
+                      </Menu>
+                    )}
 							  </View>
 							</TouchableOpacity>
               <TouchableOpacity
@@ -257,15 +279,15 @@ const HomeScreen = (props) => {
                   </TouchableOpacity>
 							  </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 1,marginLeft: 10 }}>
-                    {post.likes.map((like, index) => (
-                      index < 3 && (
-                        <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
-                      )
-                    ))}
-                    {post.likes_count > 0 && (
-                      <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
-                    )}
-                  </View>
+                  {post.likes.map((like, index) => (
+                    index < 3 && (
+                      <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
+                    )
+                  ))}
+                  {post.likes_count > 0 && (
+                    <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
+                  )}
+                </View>
 							</TouchableOpacity>
 							</React.Fragment>
             ))
@@ -300,7 +322,26 @@ const HomeScreen = (props) => {
         />
       )}
     </ScrollView>
+    </MenuProvider>
   );
+};
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    marginTop: -20,
+    marginLeft: '35%',
+    backgroundColor: 'white',
+    padding: 3,
+    borderRadius: 8,
+    width: 5,
+  },
+  optionWrapper: {
+    marginVertical: 5,
+  },
+  optionText: {
+    fontSize: 20,
+    color: 'black',
+  },
 };
 
 const styles = StyleSheet.create({
