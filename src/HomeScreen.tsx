@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Button, TouchableOpacity,TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl } from 'react-native';
+import { View, Text, Modal, StyleSheet, Button, TouchableOpacity, TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl, Alert, KeyboardAvoidingView } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
@@ -13,8 +13,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
-
-
 const HomeScreen = (props) => {
   const { userInfo, logout, isLoading } = useContext(AuthContext);
   const [data, setData] = useState(undefined);
@@ -24,6 +22,11 @@ const HomeScreen = (props) => {
   const navigation = useNavigation();
   const [viewType, setViewType] = useState('list');
   const [body, setBody] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [commentData, setCommentData] = useState(null);
+  const [postIds, setPostIds] = useState(null);
+  const [textInputValue, setTextInputValue] = useState('');
+  const [noCommentData, setNoCommentData] = useState(null);
 
   const getAPIData = async () => {
     try {
@@ -177,152 +180,274 @@ const HomeScreen = (props) => {
     });
   };
 
+  const showDeleteConfirmation = (postId) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: () => deletePost(postId) }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const openModel = (postId) => {
+    setShowModal(true);
+    commentPost(postId);
+  }
+
+  const commentPost = async (postId) => {
+    const token = userInfo.data.authentication_token;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      const response = await axios.get(`${BASE_URL}/comments/${postId}`, { headers });
+      setCommentData(response.data);
+      setPostIds(postId);
+    } catch (error) {
+      console.log(error.response.data.errors);
+      setNoCommentData(error.response.data.errors);
+    }
+
+  };
+
+  const closeModal = () => {
+    setCommentData(null);
+    setNoCommentData(null);
+    setPostIds(null);
+    setShowModal(false);
+  };
+
+  const handleSubmit = async (postIds) => {
+    const token = userInfo.data.authentication_token;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const data = {
+      post_id: postIds,
+      comment: textInputValue,
+    };
+    try {
+      const response = await axios.post(`${BASE_URL}/comment`, data, { headers });
+      await commentPost(postIds); // Wait for comment data to be fetched
+      setTextInputValue(''); 
+    } catch (error) {
+      setShowModal(true);
+      console.log(error.response.data.errors);
+    }
+  };
+
   const onRefresh = () => {
     getAPIData();
   };
-  
+
   return (
-    <MenuProvider>
-    <ScrollView 
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={onRefresh}
-        />
-      }
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      {viewType === 'list' ? (
-        <>
-        {data ? (
-          <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
-            <View style={styles.inputPost}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
-                  <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
-                  <Text style={{ fontSize: 20 }}>Write a post</Text>
-                </View>
-            </View>
-          </TouchableWithoutFeedback>
+      <MenuProvider>
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+            />
+          }
+        >
+          {viewType === 'list' ? (
+            <>
+              {data ? (
+                <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
+                  <View style={styles.inputPost}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
+                      <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%" }} />
+                      <Text style={{ fontSize: 20 }}>Write a post</Text>
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              ) : (
+                  null
+                )}
+              {data ? (
+                data.data.map((post) => (
+                  <React.Fragment key={post.id}>
+                    <TouchableOpacity
+                      style={{
+                        borderTopLeftRadius: 30,
+                        borderTopRightRadius: 30,
+                        padding: 15,
+                        borderTopColor: '#ccc',
+                        borderTopWidth: 5,
+                        marginTop: 15,
+                      }}
+                      onPress={() => handleProfileView(post.profile.id)}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                        <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
+                        <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                        {post.is_current_user_post ? (
+                          <Menu>
+                            <MenuTrigger style={{ padding: 0, marginLeft: '75%' }}>
+                              <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }} />
+                            </MenuTrigger>
+                            <MenuOptions customStyles={menuOptionsStyles} >
+                              <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                              <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
+                            </MenuOptions>
+                          </Menu>
+                        ) : (
+                            <Menu>
+                              <MenuTrigger style={{ padding: 0, marginLeft: '75%' }}>
+                                <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }} />
+                              </MenuTrigger>
+                              <MenuOptions customStyles={menuOptionsStyles} >
+                                <MenuOption onSelect={() => editPost(post.id)} text="report" />
+                              </MenuOptions>
+                            </Menu>
+                          )}
+                      </View>
+                    </TouchableOpacity>
+                    <View style={{
+                      borderBottomLeftRadius: 30,
+                      borderBottomRightRadius: 30,
+                      padding: 15,
+                      borderBottomColor: '#ccc',
+                      borderBottomWidth: 5,
+                      marginTop: "auto"
+                    }}
+                    >
+                      <TouchableOpacity onPress={() => handleBlogView(post.id)}>
+                        <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
+                        <Text style={{ color: 'black' }}> {post.body}</Text>
+                        <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                      </TouchableOpacity>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                        <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
+                          <Icon
+                            name={post.liked ? 'heart' : 'heart-o'}
+                            size={20}
+                            color={post.liked ? 'red' : 'black'}
+                            style={styles.icon}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => openModel(post.id)}>
+                          <Icon name="comment" size={20} color="black" style={styles.icon} />
+                        </TouchableOpacity>
+                        <Modal
+                            visible={showModal}
+                            transparent={true}
+                            animationType="slide"
+                            onRequestClose={closeModal}
+                          >
+                          <View style={styles.modalContainer}>
+                            <View style={styles.modalHeader}>
+                              <Text style={styles.modalTitle}>Comments</Text>
+                              <TouchableOpacity onPress={closeModal}>
+                                <Icon name="times" size={25} color="black" style={styles.modalIcon} />
+                              </TouchableOpacity>
+                            </View>
+                            <ScrollView>
+                              <View style={styles.commentContainer}>
+                                {commentData ? (
+                                  commentData.data.map((comment, index) => (
+                                    <View style={styles.commentItem} key={index}>
+                                      {/* User profile picture */}
+                                      <Image source={{ uri: comment.profile_image.url }} style={styles.profileImage} />
+                                      {/* User name and date */}
+                                      <View style={styles.commentHeader}>
+                                        <Text style={styles.userName}>
+                                          {comment.name}{" "}
+                                          <Text style={styles.commentDate}>{" , " + comment.created_at}</Text>
+                                        </Text>
+                                        <Text style={styles.commentText}>{comment.message}</Text>
+                                      </View>
+                                    </View>
+                                  ))
+                                ) : (
+                                  <View style={[styles.loadingContainer, { justifyContent: 'center' }]}>
+                                    {noCommentData ? (
+                                      <Text>No comments....</Text>
+                                    ) : (
+                                      <Text>Loading....</Text>
+                                    )}
+                                  </View>
+                                )}
+                              </View>
+                            </ScrollView>
+                            {/* Comment input displayed at the bottom */}
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                value={textInputValue}
+                                style={styles.inputComment}
+                                placeholder="Add your comment..."
+                                onChangeText={(text) => setTextInputValue(text)}
+                              />
+                              <TouchableOpacity onPress={() => handleSubmit(postIds)} style={styles.createCommentButton}>
+                                <Text>Add Comment</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </Modal>
+
+                        <Icon name="share-alt" size={20} color="black" style={styles.icon} />
+                        <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{ marginLeft: 'auto' }}>
+                          <Icon
+                            name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
+                            size={20}
+                            color={post.bookmarked ? 'black' : 'black'}
+                            style={styles.icon}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginLeft: 1, marginLeft: 20 }}>
+                        {post.likes.map((like, index) => (
+                          index < 3 && (
+                            <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
+                          )
+                        ))}
+                        {post.likes_count > 0 && (
+                          <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
+                        )}
+                      </View>
+                    </View>
+                  </React.Fragment>
+                ))
+              ) : (
+                  <View style={styles.noData}>
+                    <Text style={{ fontSize: 30 }}>No data avalable</Text>
+                    <TouchableOpacity
+                      style={{
+                        alignItems: 'center',
+                        marginTop: 30,
+                        borderRadius: 20,
+                        borderWidth: 2,
+                        height: 50,
+                        width: 200,
+                        backgroundColor: "#66d4f2",
+                        justifyContent: 'center',
+                        borderColor: '#98dbed'
+                      }}
+                      onPress={() => navigation.navigate('Blog')}
+                    >
+                      <Text style={{ color: 'white' }}>Create your own post</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+            </>
           ) : (
-          null
-          )}
-          {data ? (
-            data.data.map((post) => (
-            	<React.Fragment key={post.id}>
-            	<TouchableOpacity
-							  style={{
-                  borderTopLeftRadius: 30,
-                  borderTopRightRadius: 30,
-                  padding: 15,
-                  borderTopColor: '#ccc',
-                  borderTopWidth: 5,
-                  marginTop: 15,
-                }}
-							  onPress={() => handleProfileView(post.profile.id)}
-							>
-								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-							    <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
-							    <Text style={{color: 'black'}}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                  {post.is_current_user_post ? (
-                    <Menu>
-                      <MenuTrigger style={{ padding: 0, marginLeft: '75%'  }}>
-                      <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
-                      </MenuTrigger>
-                      <MenuOptions customStyles={menuOptionsStyles} >
-                        <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
-                        <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
-                      </MenuOptions>
-                    </Menu>
-                    ) : (
-                      <Menu>
-                        <MenuTrigger style={{ padding: 0, marginLeft: '75%'  }}>
-                        <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
-                        </MenuTrigger>
-                        <MenuOptions customStyles={menuOptionsStyles} >
-                          <MenuOption onSelect={() => editPost(post.id)} text="report" />
-                        </MenuOptions>
-                      </Menu>
-                    )}
-							  </View>
-							</TouchableOpacity>
-              <TouchableOpacity
-							  style={{ 
-                  borderBottomLeftRadius: 30,
-                  borderBottomRightRadius: 30, 
-                  padding: 15, 
-                  borderBottomColor: '#ccc', 
-                  borderBottomWidth: 5, 
-                  marginTop: "auto" 
-                }}
-							  onPress={() => handleBlogView(post.id)}
-							   >
-							  <Text  style={{color: 'black'}}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-							  <Text style={{color: 'black'}}> {post.body}</Text>
-							  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
-                  <Icon
-                    name={post.liked ? 'heart' : 'heart-o'}
-                    size={20}
-                    color={post.liked ? 'red' : 'black'}
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-                  <Icon name="comment" size={20} color="black" style={styles.icon}/>
-                  <Icon name="share-alt" size={20} color="black" style={styles.icon}/>
-                  <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{marginLeft: 'auto'}}>
-                    <Icon
-                      name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
-                      size={20}
-                      color={post.bookmarked ? 'black' : 'black'}
-                      style={styles.icon}
-                    />
-                  </TouchableOpacity>
-							  </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 1,marginLeft: 10 }}>
-                  {post.likes.map((like, index) => (
-                    index < 3 && (
-                      <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
-                    )
-                  ))}
-                  {post.likes_count > 0 && (
-                    <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
-                  )}
-                </View>
-							</TouchableOpacity>
-							</React.Fragment>
-            ))
-          ) : (
-            <View style={styles.noData}>
-              <Text style={{fontSize: 30}}>No data avalable</Text>
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  marginTop:30,
-                  borderRadius: 20,
-                  borderWidth: 2,
-                  height: 50,
-                  width: 200,
-                  backgroundColor: "#66d4f2",
-                  justifyContent: 'center',
-                  borderColor: '#98dbed'
-                }}
-                onPress={() => navigation.navigate('Blog')}
-              >
-                <Text style={{color: 'white'}}>Create your own post</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </>
-      ) : (
-        <FlatList
-          data={data ? data.blogs : []}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderGridItem}
-          numColumns={2}
-        />
-      )}
-    </ScrollView>
-    </MenuProvider>
+              <FlatList
+                data={data ? data.blogs : []}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderGridItem}
+                numColumns={2}
+              />
+            )}
+        </ScrollView>
+      </MenuProvider>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -345,7 +470,7 @@ const menuOptionsStyles = {
 };
 
 const styles = StyleSheet.create({
-  noData:{
+  noData: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -357,8 +482,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  icon:{
-  	marginLeft: 10,
+  icon: {
+    marginLeft: 10,
   },
   wraper: {
     fontSize: 18,
@@ -369,7 +494,7 @@ const styles = StyleSheet.create({
     borderColor: '#bbb',
     borderRadius: 10,
     paddingHorizontal: 14,
-    borderWidth:2,
+    borderWidth: 2,
     borderColor: "#fff",
     marginRight: "5%",
     marginTop: "4%",
@@ -388,7 +513,7 @@ const styles = StyleSheet.create({
   },
   blogImage: {
     width: '100%',
-    height: 300, // Adjust the height
+    height: 300,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -406,14 +531,96 @@ const styles = StyleSheet.create({
     marginLeft: "5%",
     marginTop: "2%",
     borderRadius: 30,
-    height: 60,  // Set a specific height
+    height: 60,
     backgroundColor: "#d1cbcb"
   },
-	horizontalLine: {
+  horizontalLine: {
     borderBottomColor: 'black',
     borderBottomWidth: 3,
-    marginVertical: 10,
-    marginBottom: -3
+    marginVertical: 5,
+    marginLeft: '3%',
+    width: '94%',
+  },
+  createCommentButton: {
+    // marginLeft: 10,
+    padding: 10,
+    backgroundColor: '#66d4f2',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 16,
+    paddingTop: 30,
+    marginTop: '20%',
+    borderRadius: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalIcon: {
+    marginLeft: 'auto',
+  },
+  commentItem: {
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    backgroundColor: '#fff',
+  },
+  profileImage: {
+    width: 40,
+    height: 30,
+    borderRadius: 25,
+  },
+  commentHeader: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  userName: {
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  commentDate: {
+    color: '#777',
+  },
+  commentText: {
+    color: '#333',
+    fontSize: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  commentContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  inputComment: {
+    flex: 1,
+    marginRight: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: '#ccc',
   },
 });
 
