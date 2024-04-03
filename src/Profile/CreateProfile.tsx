@@ -352,24 +352,24 @@ const styles = StyleSheet.create({
   imagePickerButton: {
     alignItems: 'center',
     marginTop:10,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 2,
     height: 40,
     width: 150,
-    backgroundColor: "#66d4f2",
+    backgroundColor: "#2baed6",
     justifyContent: 'center',
-    borderColor: '#98dbed'
+    borderColor: '#2baed6'
   },
   imageBackPickerButton: {
     alignItems: 'center',
     marginTop:10,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 2,
     height: 40,
     width: 150,
-    backgroundColor: "#66d4f2",
+    backgroundColor: "#2baed6",
     justifyContent: 'center',
-    borderColor: '#98dbed',
+    borderColor: '#2baed6',
     marginLeft: 'auto'
   },
   inputs: {

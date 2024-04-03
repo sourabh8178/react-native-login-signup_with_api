@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import { BASE_URL } from '../Auth/Config';
 const Profile = () => {
   const [profileDetail, setProfileDetail] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [blogData, setBlogData] = useState(null);
   const { userInfo } = useContext(AuthContext);
   const [viewType, setViewType] = useState('list');
@@ -26,6 +27,7 @@ const Profile = () => {
       console.error('Error fetching data:', error);
     } finally {
       setIsRefreshing(false);
+      setLoading(false);
     }
   };
 
@@ -36,7 +38,7 @@ const Profile = () => {
       const response = await axios.get(`${BASE_URL}/user_blog`, { headers });
       setBlogData(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // console.error('Error fetching data:', error);
     }
   };
 
@@ -74,26 +76,33 @@ const Profile = () => {
   };
 
   const editPost = async (postId) => {
-    console.log(postId)
+    console.log(postId);
+  }
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="blue" />
+      </View>
+    );
   }
 
   if (profileDetail === null) {
     return (
       <View style={styles.noProfileContainer}>
-        <Text style={styles.noProfileText}>Complete your profile details</Text>
+        <Text style={{fontSize: 20, fontWeight: 'bold'}}>Complete your profile details</Text>
         <TouchableOpacity
           style={styles.createProfileButton}
           onPress={() => navigation.navigate('CreateProfile')}
         >
-          <Text style={{ color: 'white' }}>Create Profile</Text>
+          <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Create Profile</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <MenuProvider>
+    <MenuProvider skipInstanceCheck>
     <ScrollView
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       contentContainerStyle={styles.container}
@@ -222,13 +231,13 @@ const Profile = () => {
                   alignItems: 'center',
                   marginTop: 20,
                   marginBottom: 20,
-                  borderRadius: 20,
+                  borderRadius: 10,
                   borderWidth: 2,
                   height: 50,
                   width: 200,
-                  backgroundColor: "#66d4f2",
+                  backgroundColor: "#2baed6",
                   justifyContent: 'center',
-                  borderColor: '#98dbed'
+                  borderColor: '#2baed6'
                 }}
                 onPress={() => navigation.navigate('Blog')}
               >
@@ -294,6 +303,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -340,21 +354,23 @@ const styles = StyleSheet.create({
   createProfileButton: {
     alignItems: 'center',
     marginTop: 30,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 2,
     height: 50,
     width: 200,
-    backgroundColor: '#66d4f2',
+    backgroundColor: "#2baed6",
+    justifyContent: 'center',
+    borderColor: '#2baed6'
   },
   noData:{
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // marginTop: "50%"
+    // marginTop: "20%"
   },
   horizontalLine: {
     borderBottomColor: 'black',
-    borderBottomWidth: 5,
+    borderBottomWidth: 3,
     width: "100%",
     marginVertical: 10, 
   },

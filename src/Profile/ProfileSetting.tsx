@@ -1,102 +1,96 @@
-import React from 'react'
-import {View, Text, StyleSheet, Button, TouchableOpacity, ScrollView, FlatList, Image, TextInput } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import EditMyProfile from './EditMyProfile';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBookmark, faUsers, faClipboard, faEdit, faCheckCircle, faWallet, faLock, faBan, faCreditCard, faUserFriends, faShoppingBag, faShield, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-
+import { faEdit, faCheckCircle, faWallet, faSignOutAlt, faUsers, faShield, faLock, faBan, faCreditCard, faUserFriends, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 const ProfileSetting = () => {
-	const navigation = useNavigation();
-	return (
-		<ScrollView contentContainerStyle={styles.container}>
-			<View>
-				<Text style={styles.menuHead}>Account</Text>
-				<View style={styles.menu}>
-	      	<TouchableOpacity  style={styles.subMenu} onPress={() => navigation.navigate('EditMyProfile')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faEdit} size={20} color="black" />  Edit My Page</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faCheckCircle} size={20} color="black" />  Verifyed Account!</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faWallet} size={20} color="black" />  Wallet:$2.3</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faSignOutAlt} size={20} color="black" />  Logout</Text>
-	        </TouchableOpacity>
-	        <View style={styles.horizontalLine} />
-	      </View>
-	      <Text style={styles.menuHead} >Subscription</Text>
-	      <View style={styles.menu} >
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faUsers} size={20} color="black" />  Subscription Price</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faUsers} size={20} color="black" />  My Subscibers</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faUsers} size={20} color="black" />  My Subscriptions</Text>
-	        </TouchableOpacity>
-					<View style={styles.horizontalLine} />
-	      </View>
-	      <Text style={styles.menuHead} >Privecy and Security</Text>
-	      <View style={styles.menu} >
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faShield} size={20} color="black" />  Privecy and Security</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faLock} size={20} color="black" />  Password</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faUserFriends} size={20} color="black" />  Block Countries</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faBan} size={20} color="black" />  Ristricted Users</Text>
-	        </TouchableOpacity>
-					<View style={styles.horizontalLine} />
-	      </View>
-	      <Text style={styles.menuHead} >Payments</Text>
-	      <View style={styles.menu} >
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faWallet} size={20} color="black" />  Payments</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faCreditCard} size={20} color="black" />  Payments recived</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faCreditCard} size={20} color="black" />  Payout menthod</Text>
-	        </TouchableOpacity>
-	        <TouchableOpacity style={styles.subMenu} onPress={() => navigation.navigate('Search')}>
-	          <Text style={{ fontSize: 18, color: "black", fontWeight: 'bold' }} ><FontAwesomeIcon icon={faCreditCard} size={20} color="black" />  Withdrawals</Text>
-	        </TouchableOpacity>
-					<View style={styles.horizontalLine} />
-	      </View>
-			</View>
-		</ScrollView>
-	)
+  const navigation = useNavigation();
+
+  const navigateTo = (screen) => {
+    navigation.navigate(screen);
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View>
+        <View style={styles.menu}>
+        <Text style={styles.menuHead}>Account</Text>
+          <MenuItem icon={faEdit} label="Edit My Porfile" onPress={() => navigateTo('EditMyProfile')} />
+          <MenuItem icon={faCheckCircle} label="Verified Account" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faWallet} label="Wallet: $2.3" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faSignOutAlt} label="Logout" onPress={() => navigateTo('Search')} />
+        </View>
+
+        <View style={styles.menu}>
+        <Text style={styles.menuHead}>Subscription</Text>
+          <MenuItem icon={faUsers} label="Subscription Price" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faUsers} label="My Subscribers" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faUsers} label="My Subscriptions" onPress={() => navigateTo('Search')} />
+        </View>
+
+        <View style={styles.menu}>
+        <Text style={styles.menuHead}>Privacy and Security</Text>
+          <MenuItem icon={faShield} label="Privacy and Security" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faLock} label="Password" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faUserFriends} label="Block Countries" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faBan} label="Restricted Users" onPress={() => navigateTo('Search')} />
+        </View>
+
+        <View style={styles.menu}>
+        <Text style={styles.menuHead}>Payments</Text>
+          <MenuItem icon={faWallet} label="Payments" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faCreditCard} label="Payments Received" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faCreditCard} label="Payout Method" onPress={() => navigateTo('Search')} />
+          <MenuItem icon={faCreditCard} label="Withdrawals" onPress={() => navigateTo('Search')} />
+        </View>
+      </View>
+    </ScrollView>
+  );
 };
+
+const MenuItem = ({ icon, label, onPress }) => (
+  <TouchableOpacity style={styles.subMenu} onPress={onPress}>
+    <Text style={styles.menuItemText}>
+      <FontAwesomeIcon icon={icon} size={20} color="black" /> {label}
+    </Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
-	container: {
+  container: {
     flexGrow: 1,
-    marginTop: 3,
-    padding: 5
-  },
-	horizontalLine: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 5,
-    width: "100%",
-    marginVertical: 10, 
-  },
-  subMenu: {
-  	paddingLeft: "3%",
-  	fontSize: 6,
-  	color: "black",
-  	paddingBottom: 10,
-  	paddingTop: 10
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   menuHead: {
-  	fontSize: 18, 
-  	fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  menu: {
+    marginBottom: 20,
+    paddingLeft: "6%",
+    paddingBottom: 25,
+    paddingTop: 25,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 3,
+  },
+  subMenu: {
+    // paddingVertical: 10,
+    fontSize: 18,
+    paddingBottom: 15,
+    paddingTop: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  menuItemText: {
+    fontSize: 20,
+    // color: 'black',
+    fontWeight: 'bold'
   },
 });
+
 export default ProfileSetting;

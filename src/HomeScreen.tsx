@@ -38,6 +38,7 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
+      console.warn("check1")
       console.log(error.response.data.errors);
     } finally {
       setIsRefreshing(false);
@@ -54,52 +55,10 @@ const HomeScreen = (props) => {
 
   useEffect(() => {
     getAPIData();
-    // loadBookmarkedPosts();
-    // loadLikedPosts();
   }, []);
 
   useEffect(() => {
-    // saveBookmarkedPosts();
-    // saveLikedPosts();
   }, [likedPosts]);
-
-  // const loadLikedPosts = async () => {
-  //   try {
-  //     const storedLikedPosts = await AsyncStorage.getItem('likedPosts');
-  //     if (storedLikedPosts !== null) {
-  //       setLikedPosts(JSON.parse(storedLikedPosts));
-  //     }
-  //   } catch (error) {
-  //     console.log('Error loading liked posts:', error);
-  //   }
-  // };
-
-  // const loadBookmarkedPosts = async () => {
-  //   try {
-  //     const storedBookmarkedPosts = await AsyncStorage.getItem('bookmarkedPosts');
-  //     if (storedBookmarkedPosts !== null) {
-  //       setBookmarkedPosts(JSON.parse(storedBookmarkedPosts));
-  //     }
-  //   } catch (error) {
-  //     console.log('Error loading bookmarked posts:', error);
-  //   }
-  // };
-
-  //  const saveLikedPosts = async () => {
-  //   try {
-  //     await AsyncStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-  //   } catch (error) {
-  //     console.log('Error saving liked posts:', error);
-  //   }
-  // };
-
-  // const saveBookmarkedPosts = async () => {
-  //   try {
-  //     await AsyncStorage.setItem('bookmarkedPosts', JSON.stringify(bookmarkedPosts));
-  //   } catch (error) {
-  //     console.log('Error saving bookmarked posts:', error);
-  //   }
-  // };
 
   const handleLikeToggle = (postId) => {
     // Toggle the liked status for the post

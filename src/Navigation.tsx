@@ -4,9 +4,6 @@ import {View, Text, TouchableOpacity} from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
-// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-// import { faComment, faSearch, faBell, faArrowLeft, faHome, faCompass, faEnvelope, faUser, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
-// import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import HomeScreen from './HomeScreen';
 import LoginScreen from './Auth/LoginScreen';
 import ForgotPassword from './Auth/ForgotPassword'
@@ -62,21 +59,21 @@ const BlogHeader = ({ title, navigation }) => {
   );
 };
 
-const ProfileHeader = ({ title, navigation }) => {
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-      {/* You can customize the icon and onPress event for the back button */}
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon name="arrow-left" size={30} color="black" />
-        {/*<Icon name="arrow-left" size={30} color="#900" />*/}
-      </TouchableOpacity>
-      <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', alignItems: 'center' }}>{title}</Text>
-      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
-        <Icon name="bell" size={30} color="black" />
-      </TouchableOpacity>
-    </View>
-  );
-};
+// const ProfileHeader = ({ title, navigation }) => {
+//   return (
+//     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
+//       {/* You can customize the icon and onPress event for the back button */}
+//       <TouchableOpacity onPress={() => navigation.goBack()}>
+//         <Icon name="arrow-left" size={30} color="black" />
+//         {/*<Icon name="arrow-left" size={30} color="#900" />*/}
+//       </TouchableOpacity>
+//       <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', alignItems: 'center' }}>{title}</Text>
+//       <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
+//         <Icon name="bell" size={30} color="black" />
+//       </TouchableOpacity>
+//     </View>
+//   );
+// };
 const HomeStack = () => (
   <Stack.Navigator>
     <Stack.Screen
@@ -96,9 +93,12 @@ const HomeStack = () => (
     <Stack.Screen
       name="Profile"
       component={Profile}
-      options={({ navigation, route }) => ({
-        header: () => <ProfileHeader title="Profile my" navigation={navigation} />,
-      })}
+      options={{
+        headerShown: false,
+      }}
+      // options={({ navigation, route }) => ({
+      //   header: () => <ProfileHeader title="Profile my" navigation={navigation} />,
+      // })}
     />
     {/*<Stack.Screen
       name="ChatScreen"
@@ -120,55 +120,68 @@ const HomeStack = () => (
   </Stack.Navigator>
 );
 
-const AuthenticatedTabs = ({navigation, route}) => (
-
-  <Tab.Navigator>
-    <Tab.Screen name="Home" component={HomeStack} options={{
+const AuthenticatedTabs = ({ navigation, route }) => (
+  <Tab.Navigator
+    screenOptions={{
+      tabBarActiveTintColor: '#147a99',
+      tabBarInactiveTintColor: 'black',
+      tabBarLabelStyle: { fontSize: 18, fontWeight: 'bold' },
+      tabBarStyle: { backgroundColor: 'white', height: 60 },
+    }}
+  >
+    <Tab.Screen
+      name="Home"
+      component={HomeStack}
+      options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <Icon name="home" size={30} color="black" />
+          <Icon name="home" size={30} color={color} />
         ),
-        tabBarLabelStyle: { fontSize: 16 },
-      }}
-    />
-    <Tab.Screen name="Explore" component={Explore} options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="compass" size={30} color="black" />
-        ),
-        tabBarLabelStyle: { fontSize: 15 },
       }}
     />
     <Tab.Screen
-          name="Message"
-          options={{
-              headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="wechat" size={30} color="black" />
-            ),
-            tabBarLabelStyle: { fontSize: 15 },
-          }}
-        >
-          {() => <Message navigation={navigation} />}
-    </Tab.Screen>
-      <Tab.Screen name="Profile" component={Profile}options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="user" size={30} color="black" />
-          ),
-          tabBarLabelStyle: { fontSize: 15 },
-        }}
-     />
-    <Tab.Screen name="More" component={More}
+      name="Explore"
+      component={Explore}
       options={{
-      headerShown: false, 
         tabBarIcon: ({ color, size }) => (
-          <Icon name="ellipsis-h" size={30} color="black" />
+          <Icon name="compass" size={30} color={color} />
         ),
-        tabBarLabelStyle: { fontSize: 15 },
+      }}
+    />
+    <Tab.Screen
+      name="Message"
+      options={{
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="wechat" size={30} color={color} />
+        ),
+      }}
+    >
+      {() => <Message navigation={navigation} />}
+    </Tab.Screen>
+    <Tab.Screen
+      name="Profile"
+      component={Profile}
+      options={{
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="user" size={30} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="More"
+      component={More}
+      options={{
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="ellipsis-h" size={30} color={color} />
+        ),
       }}
     />
   </Tab.Navigator>
 );
+
 
 const Navigation = () => {
   const { userInfo, splashLoading } = useContext(AuthContext);
@@ -178,7 +191,7 @@ const Navigation = () => {
         <Stack.Navigator>
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
-      ) : userInfo ?  (
+      ) : userInfo !== null && Object.keys(userInfo).length !== 0 ?  (
         <AuthenticatedTabs />
       ) : (
         <Stack.Navigator>
