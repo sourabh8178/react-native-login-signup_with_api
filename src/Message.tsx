@@ -1,20 +1,19 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image, RefreshControl, TextInput, Modal } from 'react-native';
-import ChatScreen from '../ChatScreen';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
-const Message = ({ proc }) => {
-  const { userInfo, logout, isLoading } = useContext(AuthContext);
+const Message = () => {
+  const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [data, setData] = useState(undefined);
-  const [filteredData, setFilteredData] = useState([]);
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const getAPIData = async () => {
@@ -34,16 +33,20 @@ const Message = ({ proc }) => {
     getAPIData();
   }, []);
 
-  const onRefresh = () => {
-    getAPIData();
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await getAPIData();
+    setIsRefreshing(false);
   };
 
   const handleAddUser = () => {
     setShowModal(true);
   };
+
   const closeModal = () => {
     setShowModal(false);
   };
+
   const onSearch = (text) => {
     setSearchText(text);
     searchApi(text);
@@ -64,71 +67,58 @@ const Message = ({ proc }) => {
 
   const clearSearch = () => {
     setSearchText('');
-    setFilteredData(data);
+    setSearchResults([]);
   };
 
-  const follow = (id) => {
+  const follow = async (id) => {
     try {
-        const token = userInfo.data.authentication_token;
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = axios.get(`${BASE_URL}/follow_user/${id}`, { headers });
-        // setProfileDetail(prevProfile => ({ ...prevProfile, follow: true }));
-      } catch (error) {
-        console.error('Error following user:', error);
+      const token = userInfo.data.authentication_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await axios.get(`${BASE_URL}/follow_user/${id}`, { headers });
+      // Handle response if needed
+    } catch (error) {
+      console.error('Error following user:', error);
     }
   };
 
   const renderUserItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.userItem}
-      onPress={() => addUserToChat(item.id)}
-    >
-      <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
-      <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
-        <Text style={styles.lastMessage}>{item.user_name}</Text>
-      </View>
-      <TouchableOpacity style={styles.addUserButton} onPress={follow(item.id)}>
-        <Icon name="user-plus" size={25} color="#3498db" style={styles.addUserIcon} />
+      <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}>
+        <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{item.name}</Text>
+          <Text style={styles.userUsername}>@{item.user_name}</Text>
+        </View>
+        <Menu>
+          <MenuTrigger style={{ padding: 10 }} >
+            <Icon name="ellipsis-v" size={30} color="black" style={{ marginRight: 20 }}/>
+          </MenuTrigger>
+          <MenuOptions customStyles={menuOptionsStyles}>
+            <MenuOption text="View Profile" />
+            <MenuOption text="Block" />
+            <MenuOption text="Clear Chat" />
+            <MenuOption text="Report" />
+          </MenuOptions>
+        </Menu>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.userItem}
-      onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}
-    >
-      <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
-      <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
-        <Text style={styles.lastMessage}>{item.user_name}</Text>
-      </View>
-      <Text style={styles.timestamp}>{item.timestamp}</Text>
-    </TouchableOpacity>
   );
 
   return (
+  <MenuProvider skipInstanceCheck>
     <View style={styles.container}>
       <View style={styles.header}>
-          <Text style={{fontSize: 24, fontWeight: 'bold'}}>Connect </Text>
-          <TouchableOpacity style={styles.addUserButton} onPress={handleAddUser}>
-            <Icon name="user-plus" size={25} color="#3498db" style={styles.addUserIcon} />
-          </TouchableOpacity>
+        <Text style={styles.headerTitle}>Chats</Text>
       </View>
       <FlatList
         data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-          />
-        }
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderUserItem}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       />
+      <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
+        <Icon name="user-plus" size={30} color="#fff" />
+      </TouchableOpacity>
       <Modal
         visible={showModal}
         transparent={true}
@@ -139,7 +129,7 @@ const Message = ({ proc }) => {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Add User</Text>
             <TouchableOpacity onPress={closeModal}>
-              <Icon name="times" size={25} color="black" style={styles.modalIcon} />
+              <Icon name="times" size={25} color="black" />
             </TouchableOpacity>
           </View>
           <View style={styles.searchContainer}>
@@ -158,35 +148,58 @@ const Message = ({ proc }) => {
           </View>
           <FlatList
             data={searchResults}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={renderUserItem}
           />
         </View>
       </Modal>
     </View>
+    </MenuProvider>
   );
+};
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    marginTop: 40,
+    // marginLeft: '40%',
+    backgroundColor: 'white',
+    padding: 8,
+    borderRadius: 20,
+  },
+  optionWrapper: {
+    marginVertical: 8,
+    marginHorizontal: 10
+  },
+  optionText: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: 'bold'
+  },
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    borderBottomWidth: 2,
-    borderBottomColor: 'black',
-    marginBottom: 20,
+    backgroundColor: '#398ea8',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'black',
+    borderBottomColor: '#ddd',
   },
   profileImage: {
     width: 50,
@@ -201,27 +214,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  lastMessage: {
+  userUsername: {
     fontSize: 16,
     color: '#777',
   },
-  timestamp: {
-    fontSize: 12,
-    color: '#aaa',
-  },
-  addUserButton: {
+  addButton: {
     position: 'absolute',
-    bottom: 5,
+    bottom: 20,
     right: 20,
-    marginRight: 'auto',
-    padding: 15,
-  },
-  addUserIcon: {
-    color: '#3498db',
+    backgroundColor: '#3498db',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     padding: 16,
     paddingTop: 40,
   },
@@ -235,13 +245,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  modalIcon: {
-    marginLeft: 10,
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: 'gray',
+    borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
     paddingLeft: 10,
