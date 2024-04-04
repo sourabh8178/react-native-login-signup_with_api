@@ -343,12 +343,6 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   saveButton: {
-    // backgroundColor: '#007bff', // Primary color
-    // borderRadius: 5,
-    // paddingVertical: 12,
-    // paddingHorizontal: 20,
-    // marginTop: 20,
-
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#147a99',

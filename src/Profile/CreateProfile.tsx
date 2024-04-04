@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, Alert } from 'react-native';
 import { AuthContext } from "../Auth/AuthContext"
 import { BASE_URL } from "../Auth/Config";
 import axios from 'axios';
@@ -33,33 +33,39 @@ const CreateProfile = () => {
 
 	const validateInputs = () => {
     if (!profileImage) {
-	    alert('Please select a profile image.');
+	    Alert.alert('Please select a profile image.');
 	    return false;
 	  }
 
 	  if (!backgroundImage) {
-	    alert('Please select a background image.');
+	    Alert.alert('Please select a background image.');
 	    return false;
 	  }
 
 	  if (!name) {
-	    alert('Please enter your full name.');
+	    Alert.alert('Please enter your full name.');
 	    return false;
 	  }
 
 	  if (!userName) {
-	    alert('Please enter your user name.');
+	    Alert.alert('Please enter your user name.');
 	    return false;
 	  }
 
 	  if (!gender) {
-	    alert('Please select your gender.');
+	    Alert.alert('Please select your gender.');
 	    return false;
 	  }
+
+    if (!date) {
+      Alert.alert('Please select your date of birth.');
+      return false;
+    }
 
     return true;
   };
   const handleCreateProfile = () => {
+    if (!validateInputs()) return;
 		const formData = new FormData();
 		formData.append('name', name);
     formData.append('user_name', userName);
@@ -97,9 +103,7 @@ const CreateProfile = () => {
 	  })
     .then((res) => {
       console.log(res.data);
-      // setUserInfo(res.data);
-      // setIsLoading(false);
-      alert('Created Successfully');
+      Alert.alert('Success', 'Profile created successfully.');
       handleProfileView()
     })
     .catch((error) => {
@@ -109,12 +113,15 @@ const CreateProfile = () => {
       setIsLoading(false);
     });
 	  } catch (errors) {
-	    console.log(errors);
+	    console.log('Profile creation failed:',errors);
+      Alert.alert('Error', 'Failed to create profile. Please try again later.');
 	  }
 	};
+
 	const handleProfileView = () => {
   	navigation.navigate('Profile');
   };
+
   const pickImage = async () => {
     try {
       const options = {
@@ -126,7 +133,8 @@ const CreateProfile = () => {
         setProfileImage(images);
       }
     } catch (err) {
-      console.log(err);
+      console.error('Image picking failed:', err);
+      Alert.alert('Error', 'Failed to pick image. Please try again later.');
     }
   };
   const backPickImage = async () => {
@@ -140,7 +148,8 @@ const CreateProfile = () => {
         setBackgroundImage(images);
       }
     } catch (err) {
-      console.log(err);
+      console.error('Background image picking failed:', err);
+      Alert.alert('Error', 'Failed to pick background image. Please try again later.');
     }
   };
   const removeImage = () => {
@@ -167,160 +176,146 @@ const CreateProfile = () => {
 
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-	    <View style={{margin: 5}}>
-	      <TouchableOpacity onPress={backPickImage}>
-	        {backgroundImage && (
-	          <View>
-	            <Image source={{ uri: backgroundImage.assets[0].uri }} style={styles.backgroundImage} />
-	            <TouchableOpacity style={styles.removeImageButton} onPress={removeBackgroundImage}>
-	              <Text style={{color: 'white'}}>Remove Image</Text>
-	            </TouchableOpacity>
-	          </View>
-	        )}
-	      </TouchableOpacity>
-	      <TouchableOpacity
-	          style={styles.imageBackPickerButton}
-	          onPress={backPickImage}
-	        >
-	        <Text style={{color: 'white', fontWeight: 'bold'}}>Add back Image</Text>
-	      </TouchableOpacity>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 2, paddingBottom: 5 }}>
+	    <View style={styles.imageContainer}>
+	     {backgroundImage && <Image source={{ uri: backgroundImage.assets[0].uri }} style={styles.backgroundImage} />}
+        {backgroundImage ? (
+          <TouchableOpacity style={styles.removeImageButton} onPress={removeBackgroundImage}>
+            <Text style={{color: 'white'}}>Remove Image</Text>
+          </TouchableOpacity>
+          ) : (
+          <TouchableOpacity style={styles.imageBackPickerButton} onPress={backPickImage} >
+            <Text style={{color: 'white', fontWeight: 'bold'}}>Add back Image</Text>
+          </TouchableOpacity>
+        )}
 	    </View>
 	    <View style={{marginLeft: 10}}>
-		    <TouchableOpacity onPress={pickImage} >
-		      {profileImage && (
-		        <View>
-		          <Image source={{ uri: profileImage.assets[0].uri }} style={styles.profileImage} />
-		          <TouchableOpacity style={styles.removeProfileImageButton} onPress={removeImage}>
-		            <Text style={{color: 'white'}}>Remove Image</Text>
-		          </TouchableOpacity>
-		        </View>
-		      )}
-	      </TouchableOpacity>
-	      <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage} >
-	      	<Text style={{color: 'white', fontWeight: 'bold'}}>Add profile Image</Text>
-	      </TouchableOpacity>
-      </View>
-      <View style={{ flex: 1, padding: 20 }}>
-        <Text style={styles.inputHeader}>Full name*</Text>
-        <TextInput
-          value={name}
-          style={[styles.input]}
-          placeholder="Name"
-          onChangeText={(text) => setName(text)}
-        />
-        <Text style={styles.inputHeader}>User Name*</Text>
-        <TextInput
-          value={userName}
-          style={[styles.input]}
-          placeholder="User name"
-          onChangeText={(text) => setUserName(text)}
-        />
-        <Text style={styles.inputHeader}>Date Birth</Text>
-	        <TouchableOpacity
-	          style={{ backgroundColor: '#32adcf', padding: 6, borderRadius: 5, alignItems: 'center', marginTop: 0, marginBottom: 10, width: '40%', marginRight: 'auto' }}
-	          onPress={showDatepicker}
-	        >
-	        {date ? (
-				    <Text style={{color: 'white', fontWeight: 'bold'}}> {date.toLocaleDateString()}</Text>
-	        	) : (
-	        		<Text style={{color: 'white', fontWeight: 'bold'}}>--/--/--</Text>
-	        	)}
-				   	<SafeAreaView>
-				      {show && (
-				        <DateTimePicker
-				          // testID="dateTimePicker"
-				          value={dateOfBirth}
-				          mode={mode}
-				          is24Hour={true}
-				          onChange={onChange}
-				        />
-				      )}
-				    </SafeAreaView>
+		    {profileImage && <Image source={{ uri: profileImage.assets[0].uri }} style={styles.profileImage} /> }
+        {profileImage ? (
+          <TouchableOpacity style={styles.removeProfileImageButton} onPress={removeImage}>
+            <Text style={{color: 'white'}}>Remove Image</Text>
           </TouchableOpacity>
-        
-        <Text style={styles.inputHeader}>Select Gender*</Text>
-        <Picker
-            selectedValue={gender}
-            onValueChange={(itemValue, itemIndex) =>
-              setGender(itemValue)
-            }>
-            <Picker.Item label="select gender:" value="" />
-            <Picker.Item label="Male" value="male" />
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Other" value="other" />
-          </Picker>
+          ) : (
+  	      <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage} >
+  	      	<Text style={{color: 'white', fontWeight: 'bold'}}>Add profile Image</Text>
+  	      </TouchableOpacity>
+        )}
       </View>
-      <View style={styles.horizontalLine} />
-      <View style={styles.inputs}>
-      <Text style={styles.inputHeader}>About*</Text>
-        <TextInput
-          value={about}
-          style={[styles.input, styles.multilineInput]}
-          placeholder=" About"
-          onChangeText={(text) => setAbout(text)}
-        />
+      <View style={styles.inputcontainer}>
+        <View style={styles.inputs}>
+          <Text style={{ fontSize: 20,  paddingTop: 12, color: 'black', fontWeight: 'bold' }}>Personal Informaition</Text>
+          <Text style={styles.inputHeader}>Full name*</Text>
+          <TextInput
+            value={name}
+            style={[styles.input]}
+            placeholder="Name"
+            onChangeText={(text) => setName(text)}
+          />
+          <Text style={styles.inputHeader}>User Name*</Text>
+          <TextInput
+            value={userName}
+            style={[styles.input]}
+            placeholder="User name"
+            onChangeText={(text) => setUserName(text)}
+          />
+          <Text style={styles.inputHeader}>Date Birth*(Date of Birth will no Change)</Text>
+	        <TouchableOpacity style={{ backgroundColor: '#32adcf', padding: 6, borderRadius: 5, alignItems: 'center', marginTop: 0, marginBottom: 10, width: '40%', marginRight: 'auto' }}
+	          onPress={showDatepicker}
+  	        >
+  	        {date ? (
+  				    <Text style={{color: 'white', fontWeight: 'bold'}}> {date.toLocaleDateString()}</Text>
+  	        	) : (
+  	        		<Text style={{color: 'white', fontWeight: 'bold'}}>--/--/--</Text>
+  	        )}
+  			   	<SafeAreaView>
+  			      {show && (
+  			        <DateTimePicker
+  			          // testID="dateTimePicker"
+  			          value={dateOfBirth}
+  			          mode={mode}
+  			          is24Hour={true}
+  			          onChange={onChange}
+  			        />
+  			      )}
+  			    </SafeAreaView>
+          </TouchableOpacity>
+          
+          <Text style={styles.inputHeader}>Select Gender*</Text>
+          <Picker
+              selectedValue={gender}
+              onValueChange={(itemValue, itemIndex) =>
+                setGender(itemValue)
+              }>
+              <Picker.Item label="select gender:" value="" />
+              <Picker.Item label="Male" value="male" />
+              <Picker.Item label="Female" value="female" />
+              <Picker.Item label="Other" value="other" />
+            </Picker>
+        </View>
+        <View style={styles.inputs}>
+        <Text style={styles.inputHeader}>About*</Text>
+          <TextInput
+            value={about}
+            style={[styles.input, styles.multilineInput]}
+            placeholder=" About"
+            onChangeText={(text) => setAbout(text)}
+          />
+        </View>
+        <View style={styles.inputs}>
+          <Text style={{ fontSize: 20,  paddingTop: 12, color: 'black', fontWeight: 'bold' }}>Billing Informaition</Text>
+          <Text style={styles.inputHeader}>Country</Text>
+          <TextInput
+            value={country}
+            style={[styles.input]}
+            placeholder="Country"
+            onChangeText={(text) => setCountry(text)}
+          />
+          <Text style={styles.inputHeader}>City</Text>
+          <TextInput
+            value={city}
+            style={[styles.input]}
+            placeholder="City"
+            onChangeText={(text) => setCity(text)}
+          />
+          <Text style={styles.inputHeader}>Postal/Zip Code</Text>
+          <TextInput
+            value={zipCode}
+            style={[styles.input]}
+            placeholder="Zip Code"
+            onChangeText={(text) => setZipCode(text)}
+          />
+          <Text style={styles.inputHeader}>Address Line</Text>
+          <TextInput
+            value={address}
+            style={[styles.input]}
+            placeholder="Address Line"
+            onChangeText={(text) => setAddress(text)}
+          />
+        </View>
+        <View style={styles.inputs}>
+          <Text style={{ fontSize: 20,  paddingTop: 12, color: 'black', fontWeight: 'bold' }}>Profile Socials</Text>
+          <TextInput
+            value={instagramUrl}
+            style={[styles.input]}
+            placeholder="@instagram Url"
+            onChangeText={(text) => setInstagramUrl(text)}
+          />
+          <TextInput
+            value={youtubeUrl}
+            style={[styles.input]}
+            placeholder="@Youtub Url"
+            onChangeText={(text) => setYoutubeUrl(text)}
+          />
+          <TextInput
+            value={linkedinUrl}
+            style={[styles.input]}
+            placeholder="@linkedin Url"
+            onChangeText={(text) => setLinkedinUrl(text)}
+          />
+        </View>
       </View>
-        <View style={styles.horizontalLine} />
-      <View style={styles.inputs}>
-        <Text style={{ fontSize: 20, marginTop: -15, paddingBottom: 12 }}>Billing Informaition</Text>
-        <Text style={styles.inputHeader}>Country</Text>
-        <TextInput
-          value={country}
-          style={[styles.input]}
-          placeholder="Country"
-          onChangeText={(text) => setCountry(text)}
-        />
-        <Text style={styles.inputHeader}>City</Text>
-        <TextInput
-          value={city}
-          style={[styles.input]}
-          placeholder="City"
-          onChangeText={(text) => setCity(text)}
-        />
-        <Text style={styles.inputHeader}>Postal/Zip Code</Text>
-        <TextInput
-          value={zipCode}
-          style={[styles.input]}
-          placeholder="Zip Code"
-          onChangeText={(text) => setZipCode(text)}
-        />
-        <Text style={styles.inputHeader}>Address Line</Text>
-        <TextInput
-          value={address}
-          style={[styles.input]}
-          placeholder="Address Line"
-          onChangeText={(text) => setAddress(text)}
-        />
-      </View>
-      <View style={styles.horizontalLine} />
-      <View style={styles.inputs}>
-      <Text style={{ fontSize: 20,  paddingBottom: 12 }}>Profile Socials</Text>
-        <TextInput
-          value={instagramUrl}
-          style={[styles.input]}
-          placeholder="@instagram Url"
-          onChangeText={(text) => setInstagramUrl(text)}
-        />
-        <TextInput
-          value={youtubeUrl}
-          style={[styles.input]}
-          placeholder="@Youtub Url"
-          onChangeText={(text) => setYoutubeUrl(text)}
-        />
-        <TextInput
-          value={linkedinUrl}
-          style={[styles.input]}
-          placeholder="@linkedin Url"
-          onChangeText={(text) => setLinkedinUrl(text)}
-        />
-      </View>
-      <View style={styles.horizontalLine} />
-
-        {/* Add other input fields similarly */}
-        
         <TouchableOpacity
-          style={{ backgroundColor: '#32adcf', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 20, marginBottom: 30, width: '80%', marginLeft: 30 }}
+          style={styles.buttonSave}
           onPress={handleCreateProfile}
         >
           <Text style={{ color: 'white' }}>Create Profile</Text>
@@ -331,7 +326,19 @@ const CreateProfile = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    position: 'relative',
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    backgroundColor: '#f0f0f0',
+  },
+  inputcontainer: {
+    flexGrow: 1,
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   backgroundImage: {
     width: '100%',
@@ -373,20 +380,22 @@ const styles = StyleSheet.create({
     marginLeft: 'auto'
   },
   inputs: {
-    padding: "5%",
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 4,
+    marginTop: 20,
+    paddingHorizontal: 10,
   },
   input: {
+    height: 40,
     marginBottom: 10,
     borderColor: '#ccc',
-    borderRadius: 25,
-    backgroundColor: '#fff',
-    paddingLeft: 20
-  },
-  horizontalLine: {
-    borderBottomColor: 'grey',
-    borderBottomWidth: 5,
-    width: "100%",
-    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#d5dee0',
+    paddingLeft: 20,
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 18
   },
   multilineInput: {
     height: 100,
@@ -396,15 +405,18 @@ const styles = StyleSheet.create({
     borderRightWidth:0
   },
   inputHeader: {
-    paddingLeft: 10,
-    marginBottom: 10,
-    fontSize: 15,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: 'black',
   },
   buttonSave: {
-    width: '30%',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#147a99',
+    height: 40,
+    borderRadius: 20,
+    marginTop:20,
   },
   selectedImage: {
     width: '30%',
@@ -429,8 +441,9 @@ const styles = StyleSheet.create({
   	backgroundColor: 'red',
   	borderRadius: 10,
     height: 30,
-    width: "40%",
-    // marginLeft: 'auto',
+    width: "30%",
+    // paddingTop:2
+    marginTop: 10,
   }
 });
 export default CreateProfile;
