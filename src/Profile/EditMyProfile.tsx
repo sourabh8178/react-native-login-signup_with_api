@@ -58,6 +58,7 @@ const EditMyProfile = () => {
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       };
       await axios.put(`${BASE_URL}/update_profile`, editedData, { headers });
       setIsDirty(false);
@@ -71,40 +72,48 @@ const EditMyProfile = () => {
     setEditedData({ ...editedData, [field]: value });
     setIsDirty(true);
   };
-
-   const isSaveDisabled = () => {
+  const isSaveDisabled = () => {
     return !isDirty || !profileDetail;
   };
-
   const handleImagePicker = async () => {
     try {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+      };
       const images = await launchImageLibrary(options);
-      console.log(images.assets);
-
+      if (!images.didCancel) {
       setProfileImage(images);
+      const imageData = {
+        uri: images.assets[0].uri,
+        type: images.assets[0].type,
+        name: images.assets[0].fileName,
+      };
+      handleInputChange('profile_image', imageData);
+      // setEditedData({ ...editedData, profile_image: imageData });
+      // setIsDirty(true);
+    }
     } catch (err) {
-      if (DocumentPicker.isCancel(err))
-        console.log("User canceled the upload", err);
-      else
-        console.log(err);
+      console.error('Image picking failed:', err);
+      Alert.alert('Error', 'Failed to pick image. Please try again later.');
     }
   };
-
-
   const handleImagePickerBack = async () => {
     try {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+      };
       const images = await launchImageLibrary(options);
-      console.log(images.assets);
-
-      setProfileImage(images);
+      if (!images.didCancel) {
+        setProfileBackgroundImage(images);
+      }
     } catch (err) {
-      if (DocumentPicker.isCancel(err))
-        console.log("User canceled the upload", err);
-      else
-        console.log(err);
+      console.error('Background image picking failed:', err);
+      Alert.alert('Error', 'Failed to pick background image. Please try again later.');
     }
   };
-   const handleGenderChange = (gender) => {
+  const handleGenderChange = (gender) => {
     setEditedData({ ...editedData, gender });
     setIsDirty(true);
   };
@@ -119,7 +128,7 @@ const EditMyProfile = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={handleImagePickerBack}>
-        <Image source={{ uri: profileImage?.assets[0].uri || profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
+        <Image source={{ uri: profileBackgroundImage?.assets[0].uri || profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
       </TouchableOpacity>
       <View style={styles.profileContainer}>
         <TouchableOpacity onPress={handleImagePicker}>
@@ -232,7 +241,6 @@ const EditMyProfile = () => {
       <TouchableOpacity onPress={handleEditProfile} style={[styles.saveButton, isSaveDisabled() && styles.saveButtonDisabled]}>
         <Text style={{color: "#fff", fontSize: 20, fontWeight: 'bold'}}>Save Change</Text>
       </TouchableOpacity>
-
     </ScrollView>
   )
 };

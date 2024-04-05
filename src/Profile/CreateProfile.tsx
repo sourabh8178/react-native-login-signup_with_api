@@ -10,7 +10,6 @@ import { showMessage } from "react-native-flash-message";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateProfile = () => {
-
 	const [date, setDate] = useState('');
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);

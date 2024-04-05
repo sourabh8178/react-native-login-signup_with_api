@@ -7,7 +7,6 @@ import HomeScreen from '../HomeScreen'
 import CreateProfile from "../Profile/CreateProfile";
 import { BASE_URL } from "../Auth/Config";
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 import { RNCamera } from 'react-native-camera';
 
@@ -59,28 +58,26 @@ const Blog = (props) => {
 
   const postCreate = (title, body, image, userInfo) => {
       if (validateInputs()){
-  	   setIsLoading(true);
-    	  const formData = new FormData();
-    		formData.append('title', title);
+       setIsLoading(true);
+        const formData = new FormData();
+        formData.append('title', title);
         formData.append('body', body);
-  	    formData.append('image', {
-  	        uri: image.assets[0].uri,
-  	        type: image.assets[0].type,
-  	        name: image.assets[0].fileName,
+        formData.append('image', {
+            uri: image.assets[0].uri,
+            type: image.assets[0].type,
+            name: image.assets[0].fileName,
         });
       axios.post(`${BASE_URL}/blogs`, formData, {
-  	    headers: {
-  	      Authorization: `Bearer ${userInfo.data.authentication_token}`,
-  	      'Content-Type': 'multipart/form-data',
-  	    },
-  	  })
+        headers: {
+          Authorization: `Bearer ${userInfo.data.authentication_token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
         .then(res => {
           let blogInfo = res.data;
-          setBlogInfo(blogInfo);
-  	      AsyncStorage.setItem('blogInfo', JSON.stringify(blogInfo));
-  	      setIsLoading(false);
-          console.log(blogInfo);
-          handleBlogView(blogInfo.id);
+          setIsLoading(false);
+          // console.log(blogInfo);
+          handleBlogView(blogInfo.data.id);
         })
         .catch(e => {
           console.log(`register error ${e}`);
@@ -90,9 +87,9 @@ const Blog = (props) => {
   };
 
   const handleBlogView = (blogId) => {
-  	navigation.navigate('BlogView', {
-		    id: blogId 
-		});
+    navigation.navigate('BlogView', {
+        id: blogId 
+    });
   };
 
   const removeImage = () => {
@@ -112,28 +109,26 @@ const Blog = (props) => {
   };
 
   return (
-  	<ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {profileDetail ? (
         <>
           <View style={styles.profileContainer}>
             <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-            <View style={styles.userName}>
-              <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-              <Text style={styles.userName1}>@{profileDetail.data.user_name}</Text>
-              <Text style={styles.share}>Only for Followers</Text>
+            <View style={styles.userInfo}>
+              <Text style={styles.username}>@{profileDetail.data.user_name}</Text>
+              <RNPickerSelect
+                value={postType}
+                onValueChange={(itemValue, itemIndex) => setPostType(itemValue)}
+                items={[
+                  { label: 'Reels', value: 'Reels' },
+                  { label: 'Image', value: 'post' },
+                  { label: 'Other', value: 'other' },
+                ]}
+                placeholder={{ label: 'Select Post Type', value: null }}
+              />
             </View>
           </View>
           <View style={styles.inputContainer}>
-            <Text>Select Post type:</Text>
-            <RNPickerSelect
-              value={postType}
-              onValueChange={(itemValue, itemIndex) => setPostType(itemValue)}
-              items={[
-                { label: 'Reels', value: 'Reels' },
-                { label: 'Image', value: 'post' },
-                { label: 'Other', value: 'other' },
-              ]}
-            />
             <TextInput
               value={title}
               style={styles.input}
@@ -147,25 +142,22 @@ const Blog = (props) => {
               multiline
               onChangeText={(text) => setBody(text)}
             />
-            <TouchableOpacity
-              style={styles.imagePickerButton}
-              onPress={pickImage}
-            >
-              <Text style={styles.imagePickerText}>Add Image</Text>
-            </TouchableOpacity>
-            <View>
-              {image && (
-                <View>
-                  <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />
-                  <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
-                    <Text style={styles.removeImageText}>Remove Image</Text>
-                  </TouchableOpacity>
-                </View>
+            
+            {image && <Image source={{ uri: image.assets[0].uri }} style={styles.selectedImage} />}
+            {image ? (
+              <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
+                  <Text style={styles.removeImageText}>Remove Image</Text>
+                </TouchableOpacity>
+              ) : (
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={pickImage}
+              >
+                <Text style={styles.imagePickerText}>Add Image</Text>
+              </TouchableOpacity>
               )}
-            </View>
-
-            <TouchableOpacity onPress={() => {postCreate(title, body, image, userInfo)}} style={styles.loginBtn}>
-              <Text style={{color: "#fff", fontSize: 20, fontWeight: 'bold'}}>Create Post</Text>
+            <TouchableOpacity onPress={() => {postCreate(title, body, image, userInfo)}} style={styles.createPostButton}>
+              <Text style={styles.createPostButtonText}>Create Post</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -176,7 +168,7 @@ const Blog = (props) => {
             style={styles.createProfileButton}
             onPress={() => navigation.navigate('CreateProfile')}
           >
-            <Text style={{ color: 'white' }}>Create Profile</Text>
+            <Text style={styles.createProfileButtonText}>Create Profile</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -211,7 +203,7 @@ const styles = StyleSheet.create({
   imagePickerButton: {
     width: '100%',
     backgroundColor: '#3498db',
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 12,
@@ -219,6 +211,7 @@ const styles = StyleSheet.create({
   imagePickerText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   selectedImage: {
     width: '100%',
@@ -229,7 +222,7 @@ const styles = StyleSheet.create({
   removeImageButton: {
     width: '100%',
     backgroundColor: '#e74c3c',
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 5,
@@ -237,6 +230,7 @@ const styles = StyleSheet.create({
   removeImageText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   profileContainer: {
     flexDirection: 'row',
@@ -251,20 +245,16 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     marginRight: 15,
   },
-  userName: {
+  userInfo: {
     flex: 1,
   },
   name: {
     fontSize: 20,
     fontWeight: 'bold',
   },
-  userName1: {
+  username: {
     fontSize: 16,
     color: '#555',
-  },
-  share: {
-    fontSize: 12,
-    color: '#888',
   },
   noProfileContainer: {
     alignItems: 'center',
@@ -285,13 +275,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: '#98dbed',
   },
-  loginBtn: {
+  createPostButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#3d6ddb',
-    height: 40,
-    borderRadius: 20,
-    marginTop:20,
+    backgroundColor: '#147a99',
+    height: 50,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  createPostButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 

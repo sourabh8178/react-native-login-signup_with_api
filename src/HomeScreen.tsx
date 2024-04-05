@@ -38,7 +38,7 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
-      console.warn("check1")
+      Alert.alert('Please Complete your profile.');
       console.log(error.response.data.errors);
     } finally {
       setIsRefreshing(false);

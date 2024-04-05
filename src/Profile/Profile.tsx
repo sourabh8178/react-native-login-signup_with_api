@@ -24,7 +24,7 @@ const Profile = () => {
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
       setProfileDetail(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // console.error('Error fetching data:', error);
     } finally {
       setIsRefreshing(false);
       setLoading(false);
@@ -103,114 +103,114 @@ const Profile = () => {
 
   return (
     <MenuProvider skipInstanceCheck>
-    <ScrollView
-      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
-      contentContainerStyle={styles.container}
-    >
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Profile</Text>
-        <View style={styles.headerIcons}>
-          <Icon name="bell" size={20} color="black" />
-          <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
-            <Icon name="cog" size={20} color="black" style={{ marginLeft: 20 }} />
-          </TouchableOpacity>
-          <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        contentContainerStyle={styles.container}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Profile</Text>
+          <View style={styles.headerIcons}>
+            <Icon name="bell" size={20} color="black" />
+            <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
+              <Icon name="cog" size={20} color="black" style={{ marginLeft: 20 }} />
+            </TouchableOpacity>
+            <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
+          </View>
         </View>
-      </View>
-      {profileDetail.data.profile_background_image ? (
-        <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
-      ) : (
-        <Image source={require('../assest/app.png')} style={styles.backgroundImage} />
-      )}
-      <View style={styles.profileContainer}>
-        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-        <Text style={{ marginTop: 10, fontSize: 20, fontWeight: 'bold' }}>@{profileDetail.data.user_name}</Text>
-        <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Member since {profileDetail.data.created_at}</Text>
-        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Followers: {profileDetail.data.number_followers}</Text>
-        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Following:  {profileDetail.data.number_followings}</Text>
-        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Location: {profileDetail.data.country}</Text>
-        <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>{profileDetail.data.about}</Text>
-      </View>
-      <View style={styles.socialLinks}>
-        <Icon name="facebook" size={20} color="black" />
-        <Icon name="linkedin" size={20} color="black" style={{ marginLeft: 20 }} />
-        <Icon name="youtube" size={20} color="black" style={{ marginLeft: 20 }} />
-        <Icon name="instagram" size={20} color="black" style={{ marginLeft: 20 }} />
-      </View>
-      <View style={styles.horizontalLine} />
-      <View style={styles.postSocialLinks}>
-        <Icon name="film" size={20} color="black" />
-        <Icon name="image" size={20} color="black" />
-        <Icon name="video-camera" size={20} color="black" />
-        <Icon name="music" size={20} color="black" />
-      </View>
-      <View style={styles.horizontalLine} />
-      <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
-        <View style={styles.inputPost}>
+        {profileDetail.data.profile_background_image ? (
+          <Image source={{ uri: profileDetail.data.profile_background_image.url }} style={styles.backgroundImage} />
+        ) : (
+          <Image source={require('../assest/app.png')} style={styles.backgroundImage} />
+        )}
+        <View style={styles.profileContainer}>
+          <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
+          <Text style={{ marginTop: 10, fontSize: 20, fontWeight: 'bold' }}>@{profileDetail.data.user_name}</Text>
+          <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Member since {profileDetail.data.created_at}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Followers: {profileDetail.data.number_followers}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Following:  {profileDetail.data.number_followings}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Location: {profileDetail.data.country}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>{profileDetail.data.about}</Text>
+        </View>
+        <View style={styles.socialLinks}>
+          <Icon name="facebook" size={20} color="black" />
+          <Icon name="linkedin" size={20} color="black" style={{ marginLeft: 20 }} />
+          <Icon name="youtube" size={20} color="black" style={{ marginLeft: 20 }} />
+          <Icon name="instagram" size={20} color="black" style={{ marginLeft: 20 }} />
+        </View>
+        <View style={styles.horizontalLine} />
+        <View style={styles.postSocialLinks}>
+          <Icon name="film" size={20} color="black" />
+          <Icon name="image" size={20} color="black" />
+          <Icon name="video-camera" size={20} color="black" />
+          <Icon name="music" size={20} color="black" />
+        </View>
+        <View style={styles.horizontalLine} />
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
+          <View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
               <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
               <Text style={{ fontSize: 20 }}>Write a post</Text>
             </View>
-        </View>
-      </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
         <View style={styles.horizontalLine} />
-      {viewType === 'list' ? (
-        <>
-          {blogData ? (
-            blogData.data.map((post) => (
-              <React.Fragment key={post.id}>
-                <View 
-                style={{
-                    borderTopLeftRadius: 30,
-                    borderTopRightRadius: 30,
-                    padding: 15,
-                    borderTopColor: '#ccc',
-                    borderTopWidth: 5,
-                    marginTop: 15,
-                  }}
-                >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                    <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
-                    <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                    <Menu>
-                      <MenuTrigger style={{ padding: 10, marginLeft: '75%'  }}>
-                      <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
-                      </MenuTrigger>
-                      <MenuOptions customStyles={menuOptionsStyles} >
-                        <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
-                        <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
-                      </MenuOptions>
-                    </Menu>
-                  </View>
-                </View>
-                <View 
-                style={{
-                    borderBottomLeftRadius: 30,
-                    borderBottomRightRadius: 30,
-                    padding: 15,
-                    borderBottomColor: '#ccc',
-                    borderBottomWidth: 5,
-                    marginTop: "auto"
-                  }}
+        {viewType === 'list' ? (
+          <>
+            {blogData ? (
+              blogData.data.map((post) => (
+                <React.Fragment key={post.id}>
+                  <View 
+                    style={{
+                      borderTopLeftRadius: 30,
+                      borderTopRightRadius: 30,
+                      padding: 15,
+                      borderTopColor: '#ccc',
+                      borderTopWidth: 5,
+                      marginTop: 15,
+                    }}
                   >
-                  <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-                  <Text style={{ color: 'black' }}> {post.body}</Text>
-                  <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
-                    <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
-                      <Icon
-                        name={post.liked ? 'heart' : 'heart-o'}
-                        size={20}
-                        color={post.liked ? 'red' : 'black'}
-                        style={styles.icon}
-                      />
-                    </TouchableOpacity>
-                    
-                    <Icon name="comment" size={20} color="black" style={styles.icon} />
-                    <Icon name="share-alt" size={20} color="black" style={styles.icon} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                      <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
+                      <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                      <Menu>
+                        <MenuTrigger style={{ padding: 5, marginLeft: '65%'  }}>
+                          <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
+                        </MenuTrigger>
+                        <MenuOptions customStyles={menuOptionsStyles} >
+                          <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                          <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
+                        </MenuOptions>
+                      </Menu>
+                    </View>
                   </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
+                  <View 
+                    style={{
+                      borderBottomLeftRadius: 30,
+                      borderBottomRightRadius: 30,
+                      padding: 15,
+                      borderBottomColor: '#ccc',
+                      borderBottomWidth: 5,
+                      marginTop: "auto"
+                    }}
+                  >
+                    <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
+                    <Text style={{ color: 'black' }}> {post.body}</Text>
+                    <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+                      <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
+                        <Icon
+                          name={post.liked ? 'heart' : 'heart-o'}
+                          size={20}
+                          color={post.liked ? 'red' : 'black'}
+                          style={styles.icon}
+                        />
+                      </TouchableOpacity>
+                      
+                      <Icon name="comment" size={20} color="black" style={styles.icon} />
+                      <Icon name="share-alt" size={20} color="black" style={styles.icon} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
                       {post.likes.map((like, index) => (
                         index < 3 && (
                           <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
@@ -220,41 +220,41 @@ const Profile = () => {
                         <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
                       )}
                     </View>
-                </View>
-              </React.Fragment>
-            ))
-          ) : (
-            <View style={styles.noData}>
-              <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  marginTop: 20,
-                  marginBottom: 20,
-                  borderRadius: 10,
-                  borderWidth: 2,
-                  height: 50,
-                  width: 200,
-                  backgroundColor: "#2baed6",
-                  justifyContent: 'center',
-                  borderColor: '#2baed6'
-                }}
-                onPress={() => navigation.navigate('Blog')}
-              >
-                <Text style={{ color: 'white' }}>Create your post</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </>
-      ) : (
-        <FlatList
-          data={data ? data.blogs : []}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderGridItem}
-          numColumns={2}
-        />
-      )}
-    </ScrollView>
+                  </View>
+                </React.Fragment>
+              ))
+            ) : (
+              <View style={styles.noData}>
+                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
+                <TouchableOpacity
+                  style={{
+                    alignItems: 'center',
+                    marginTop: 20,
+                    marginBottom: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    height: 50,
+                    width: 200,
+                    backgroundColor: "#2baed6",
+                    justifyContent: 'center',
+                    borderColor: '#2baed6'
+                  }}
+                  onPress={() => navigation.navigate('Blog')}
+                >
+                  <Text style={{ color: 'white' }}>Create your post</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        ) : (
+          <FlatList
+            data={data ? data.blogs : []}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderGridItem}
+            numColumns={2}
+          />
+        )}
+      </ScrollView>
     </MenuProvider>
   );
 };
