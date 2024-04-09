@@ -180,6 +180,9 @@ const HomeScreen = (props) => {
   };
 
   const handleSubmit = async (postIds) => {
+    if (!textInputValue) {
+      return false;
+    }
     const token = userInfo.data.authentication_token;
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -345,7 +348,7 @@ const HomeScreen = (props) => {
                                 onChangeText={(text) => setTextInputValue(text)}
                               />
                               <TouchableOpacity onPress={() => handleSubmit(postIds)} style={styles.createCommentButton}>
-                                <Text>Add Comment</Text>
+                                <Text style={{color: 'white', fontSize: 18}}>Add Comment</Text>
                               </TouchableOpacity>
                             </View>
                           </View>
@@ -501,13 +504,13 @@ const styles = StyleSheet.create({
     width: '94%',
   },
   createCommentButton: {
-    // marginLeft: 10,
-    padding: 10,
-    backgroundColor: '#66d4f2',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#147a99',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
+    height: 50,
   },
   modalContainer: {
     flex: 1,

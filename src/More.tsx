@@ -155,7 +155,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   menuItemText: {
-    fontSize: 18,
+    fontSize: 20,
+    color: 'black',
+    fontWeight: 'bold'
   },
 });
 

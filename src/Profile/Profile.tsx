@@ -111,7 +111,7 @@ const Profile = () => {
           <Text style={styles.headerText}>Profile</Text>
           <View style={styles.headerIcons}>
             <Icon name="bell" size={20} color="black" />
-            <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')}>
+            <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')} style={{ padding: 5 }}>
               <Icon name="cog" size={20} color="black" style={{ marginLeft: 20 }} />
             </TouchableOpacity>
             <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
@@ -124,13 +124,22 @@ const Profile = () => {
         )}
         <View style={styles.profileContainer}>
           <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-          <Text style={{ marginTop: 10, fontSize: 20, fontWeight: 'bold' }}>@{profileDetail.data.user_name}</Text>
+          <View style={styles.stats}>
+            <TouchableOpacity onPress={() => navigateToPosts()} style={{ padding: 5 }}>
+              <Text style={styles.statText}> Posts</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Followers')} style={{ padding: 5 }}>
+              <Text style={styles.statText}>{profileDetail.data.number_followers} Followers</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Following')} style={{ padding: 5 }}>
+              <Text style={styles.statText}>{profileDetail.data.number_followings} Followings</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={{ marginTop: 10, fontSize: 20, fontWeight: 'bold', color: 'black' }}>@{profileDetail.data.user_name}</Text>
           <Text style={styles.name}>{profileDetail.data.name.charAt(0).toUpperCase() + profileDetail.data.name.slice(1)}</Text>
-          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Member since {profileDetail.data.created_at}</Text>
-          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Followers: {profileDetail.data.number_followers}</Text>
-          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Following:  {profileDetail.data.number_followings}</Text>
-          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>Location: {profileDetail.data.country}</Text>
-          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, }}>{profileDetail.data.about}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, color: 'black' }}>Member since {profileDetail.data.created_at}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, color: 'black' }}>Location: {profileDetail.data.country}</Text>
+          <Text style={{ marginTop: 10, fontSize: 15, fontSize: 20, color: 'black' }}>{profileDetail.data.about}</Text>
         </View>
         <View style={styles.socialLinks}>
           <Icon name="facebook" size={20} color="black" />
@@ -262,11 +271,12 @@ const Profile = () => {
 const menuOptionsStyles = {
   optionsContainer: {
     marginTop: 45,
-    marginLeft: '40%',
+    marginLeft: 'auto', // Align to the right
+    marginRight: '5%', // Add some margin from the right
     backgroundColor: 'white',
     padding: 8,
     borderRadius: 8,
-    width: 8,
+    minWidth: 100, // Set a minimum width
   },
   optionWrapper: {
     marginVertical: 8,
@@ -297,10 +307,25 @@ const styles = StyleSheet.create({
     marginTop: "2%",
     borderRadius: 30,
     height: 60,  // Set a specific height
-    backgroundColor: "#d1cbcb"
+    backgroundColor: "#d1cbcb",
+    color: 'black'
   },
   headerText: {
     fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black'
+  },
+  stats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%',
+    marginTop: -14,
+    marginLeft: 'auto',
+    paddingRight: 15 
+  },
+  statText: {
+    fontSize: 19,
+    color: '#333',
     fontWeight: 'bold',
   },
   loadingContainer: {
@@ -334,6 +359,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     marginTop: 10,
+    color: 'black'
   },
   socialLinks: {
     flexDirection: 'row',
