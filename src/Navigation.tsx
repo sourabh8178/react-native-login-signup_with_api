@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import {View, Text, TouchableOpacity} from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import HomeScreen from './HomeScreen';
 import LoginScreen from './Auth/LoginScreen';
-import ForgotPassword from './Auth/ForgotPassword'
+import ForgotPassword from './Auth/ForgotPassword';
 import Blog from './Blog/Blog';
 import Followers from './Profile/Followers';
 import Following from './Profile/Following';
@@ -19,7 +19,7 @@ import Message from './Message';
 import More from './More';
 import VideosScreen from './VideosScreen';
 import MusicScreen from './MusicScreen';
-import CreateProfile from './Profile/CreateProfile'
+import CreateProfile from './Profile/CreateProfile';
 import UserProfile from './Profile/UserProfile';
 import { AuthContext } from './Auth/AuthContext';
 import SplashScreen from './SplashScreen';
@@ -43,80 +43,81 @@ const CustomHeader = ({ title, navigation }) => {
     </View>
   );
 };
-const BlogHeader = ({ title, navigation }) => {
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-      {/* You can customize the icon and onPress event for the back button */}
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon name="arrow-left" size={30} color="black" />
-        {/*<Icon name="arrow-left" size={30} color="#900" />*/}
-      </TouchableOpacity>
-      <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', alignItems: 'center' }}>{title}</Text>
-      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
-        <Icon name="bell" size={30} color="black" />
-      </TouchableOpacity>
-    </View>
-  );
-};
 
-// const ProfileHeader = ({ title, navigation }) => {
-//   return (
-//     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-//       {/* You can customize the icon and onPress event for the back button */}
-//       <TouchableOpacity onPress={() => navigation.goBack()}>
-//         <Icon name="arrow-left" size={30} color="black" />
-//         {/*<Icon name="arrow-left" size={30} color="#900" />*/}
-//       </TouchableOpacity>
-//       <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', alignItems: 'center' }}>{title}</Text>
-//       <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
-//         <Icon name="bell" size={30} color="black" />
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-const HomeStack = () => (
+const ProfileStack = () => (
   <Stack.Navigator>
-    <Stack.Screen
-        name="AsSocial"
-        component={HomeScreen}
-        options={({ navigation, route }) => ({
-          header: () => <CustomHeader title="SA Social" navigation={navigation} />,
-        })}
-    />
-    <Stack.Screen 
-      name="Blog" 
-      component={Blog}
-      options={({ navigation, route }) => ({
-          header: () => <BlogHeader title="Create Post" navigation={navigation} />,
-        })}
-    />
     <Stack.Screen
       name="Profile"
       component={Profile}
       options={{
         headerShown: false,
       }}
-      // options={({ navigation, route }) => ({
-      //   header: () => <ProfileHeader title="Profile my" navigation={navigation} />,
-      // })}
     />
-    {/*<Stack.Screen
-      name="ChatScreen"
-      component={ChatScreen}
-      options={{
-        headerShown: false,
-        bottomShown: false,
-      }}
-    />*/}
-    <Stack.Screen name="BlogView" component={BlogView} />
+    <Stack.Screen
+      name="ProfileSetting"
+      component={ProfileSetting}
+    />
+    <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
     <Stack.Screen name="Followers" component={Followers} />
     <Stack.Screen name="Following" component={Following} />
+  </Stack.Navigator>
+);
+
+const MoreStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="More"
+      component={More}
+      options={{
+        headerShown: false,
+      }}
+    />
+    <Stack.Screen name="Followers" component={Followers} />
+    <Stack.Screen name="Following" component={Following} />
+  </Stack.Navigator>
+);
+
+const MessageStack = () => (
+  <Stack.Navigator>
+  <Stack.Screen
+    name="Messages"
+    component={Message}
+    options={{ headerShown: false }}
+  />
+  <Stack.Screen
+      name="ChatScreen"
+      component={ChatScreen}
+      options={{ headerShown: false }}
+    />
+    </Stack.Navigator>
+);
+
+
+const HomeStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="AsSocial"
+      component={HomeScreen}
+      options={({ navigation, route }) => ({
+        header: () => <CustomHeader title="SA Social" navigation={navigation} />,
+      })}
+    />
+    <Stack.Screen
+      name="Blog"
+      component={Blog}
+      options={({ navigation, route }) => ({
+        header: () => <CustomHeader title="Create Post" navigation={navigation} />,
+      })}
+    />
+    <Stack.Screen
+      name="ChatScreen"
+      component={ChatScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen name="BlogView" component={BlogView} />
     <Stack.Screen name="CreateProfile" component={CreateProfile} />
-    <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false, tabBarVisible: false }} />
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
-    <Stack.Screen name="ProfileSetting" component={ProfileSetting} />
-    <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
   </Stack.Navigator>
 );
 
@@ -150,18 +151,17 @@ const AuthenticatedTabs = ({ navigation, route }) => (
     />
     <Tab.Screen
       name="Message"
+      component={MessageStack}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <Icon name="wechat" size={30} color={color} />
         ),
       }}
-    >
-      {() => <Message navigation={navigation} />}
-    </Tab.Screen>
+    />
     <Tab.Screen
       name="Profile"
-      component={Profile}
+      component={ProfileStack}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
@@ -171,7 +171,7 @@ const AuthenticatedTabs = ({ navigation, route }) => (
     />
     <Tab.Screen
       name="More"
-      component={More}
+      component={MoreStack}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
@@ -182,7 +182,6 @@ const AuthenticatedTabs = ({ navigation, route }) => (
   </Tab.Navigator>
 );
 
-
 const Navigation = () => {
   const { userInfo, splashLoading } = useContext(AuthContext);
   return (
@@ -191,12 +190,12 @@ const Navigation = () => {
         <Stack.Navigator>
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
-      ) : userInfo !== null && Object.keys(userInfo).length !== 0 ?  (
+      ) : userInfo !== null && Object.keys(userInfo).length !== 0 ? (
         <AuthenticatedTabs />
       ) : (
         <Stack.Navigator>
           <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen}  />
+          <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Registration" component={RegistrationScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         </Stack.Navigator>

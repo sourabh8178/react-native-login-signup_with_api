@@ -27,19 +27,31 @@ const Following = () => {
   useEffect(() => {
     getAPIData();
   }, []);
-  
-  const handleUnfollow = (followerId) => {
+
+   const follow = async (id) => {
     try {
       const token = userInfo.data.authentication_token;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      const response = axios.get(`${BASE_URL}/follow_user/${followerId}`, { headers });
-      navigation.goBack();
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.get(`${BASE_URL}/follow_user/${id}`, { headers });
+      setProfileDetail(prevProfile => ({ ...prevProfile, follow: true }));
+      getAPIData()
+    } catch (error) {
+      console.error('Error following user:', error);
+    }
+  };
+
+  const unfollow = async (id) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.get(`${BASE_URL}/unfollow_user/${id}`, { headers });
+      setProfileDetail(prevProfile => ({ ...prevProfile, follow: false }));
+      getAPIData()
     } catch (error) {
       console.error('Error unfollowing user:', error);
     }
   };
+  
   const renderFollowerItem = ({ item }) => (
     <View style={styles.followerItem}>
       <Image source={{ uri: item.profile_image.url }} style={styles.followerImage} />
@@ -47,7 +59,7 @@ const Following = () => {
         <Text style={styles.followerName}>{item.name}</Text>
         <Text style={styles.followerUsername}>{item.user_name}</Text>
       </View>
-      <TouchableOpacity onPress={() => handleUnfollow(item.user_id)} style={styles.unfollowButton}>
+      <TouchableOpacity onPress={() => unfollow(item.user_id)} style={styles.unfollowButton}>
         <Text style={styles.unfollowButtonText}>Following</Text>
       </TouchableOpacity>
     </View>

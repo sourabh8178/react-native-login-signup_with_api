@@ -5,7 +5,7 @@ import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import { useNavigation } from '@react-navigation/native';
 
-const SearchComponent = () => {
+const Explore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const {userInfo, isLoading} = useContext(AuthContext);
@@ -101,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchComponent;
+export default Explore;

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ImageBackground } from 'react-native';
 import { GiftedChat, Composer, InputToolbar, Send, Bubble, Avatar } from 'react-native-gifted-chat';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -199,57 +199,58 @@ const ChatScreen = () => {
 
   const renderBubble = props => {
     return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          right: {
-            backgroundColor: 'orange',
-          },
-          left: {
-            backgroundColor: '#ddd',
-          },
-        }}
-        textStyle={{
-          right: {
-            color: 'white',
-            fontFamily: 'monospace',
-          },
-          left: {
-            color: 'black',
-            fontFamily: 'monospace',
-          }
-        }}
-      />
+      <View style={{marginBottom: 10}}>
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            right: {
+              backgroundColor: 'orange',
+            },
+            left: {
+              backgroundColor: '#ddd',
+            },
+          }}
+          textStyle={{
+            right: {
+              color: 'white',
+              fontFamily: 'monospace',
+            },
+            left: {
+              color: 'black',
+              fontFamily: 'monospace',
+            }
+          }}
+        />
+      </View>
     );
   };
 
-  const renderMessageImage = (props) => {
-    const { currentMessage } = props;
-      // if (currentMessage.image) {
-        return (
-          <Image
-            source={{ uri: currentMessage.image }}
-            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
-          />
-        );
-      // }
+  // const renderMessageImage = (props) => {
+  //   const { currentMessage } = props;
+  //     // if (currentMessage.image) {
+  //       return (
+  //         <Image
+  //           source={{ uri: currentMessage.image }}
+  //           style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
+  //         />
+  //       );
+  //     // }
 
-      // return null;
-  };
+  //     // return null;
+  // };
 
   return (
     <MenuProvider>
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Message')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Messages')}>
             <Icon name="arrow-left" size={25} color="black" style={styles.icon}/>
-            {/*<FontAwesomeIcon icon={faArrowLeft} size={25} color="black" style={styles.icon} />*/}
           </TouchableOpacity>
           <Image source={{ uri: route.params.userProfile }} style={styles.profileImage} />
           <Text style={styles.userName}>{route.params.userName.charAt(0).toUpperCase() + route.params.userName.slice(1)}</Text>
           <Menu>
-            <MenuTrigger>
-            <Icon name="ellipsis-v" size={30} color="black" style={styles.icon}/>
+            <MenuTrigger style={{padding: 20}}>
+            <Icon name="ellipsis-v" size={30} color="black" style={styles.menuIcon}/>
             </MenuTrigger>
             <MenuOptions customStyles={menuOptionsStyles} >
               <MenuOption onSelect={() => console.log('Block user')} text="Block User" />
@@ -257,6 +258,10 @@ const ChatScreen = () => {
             </MenuOptions>
           </Menu>
         </View>
+        <ImageBackground
+      source={require('./assest/background.jpg')}
+      style={styles.backgroundImage}
+    >
         <GiftedChat
           messages={messageList}
           onSend={messages => onSend(messages)}
@@ -270,8 +275,9 @@ const ChatScreen = () => {
           renderSend={renderSend}
           renderBubble={renderBubble}
           alwaysShowSend
-          renderMessageImage={(props) => renderMessageImage(props)}
+          // renderMessageImage={(props) => renderMessageImage(props)}
         />
+        </ImageBackground>
       </View>
     </MenuProvider>
   );
@@ -279,7 +285,7 @@ const ChatScreen = () => {
 
 const menuOptionsStyles = {
   optionsContainer: {
-    marginTop: 30,
+    marginTop: 50,
     backgroundColor: 'white',
     padding: 8,
     borderRadius: 8,
@@ -297,13 +303,16 @@ const menuOptionsStyles = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
+    paddingLeft: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
@@ -319,6 +328,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 'auto',
   },
+  menuIcon: {
+    marginLeft: 'auto',
+  },
   icon: {
     marginLeft: 'auto',
   },
@@ -327,24 +339,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  sendingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 0,
-  },
   inputtoolbar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 5,
+    paddingVertical: 3,
     paddingHorizontal: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    marginBottom: 5
   },
   primary: {
     flex: 1,
-    marginLeft: 8,
-    marginRight: 8,
-    borderRadius: 20,
-    borderWidth: 1,
     borderColor: '#ccc',
     minHeight: 40,
     paddingHorizontal: 8,

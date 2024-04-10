@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image, RefreshControl, TextInput, Modal } from 'react-native';
+import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image, RefreshControl, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
+
 
 const Message = () => {
   const { userInfo } = useContext(AuthContext);
@@ -15,9 +16,11 @@ const Message = () => {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getAPIData = async () => {
     try {
+      setIsRefreshing(true);
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -26,6 +29,9 @@ const Message = () => {
       setData(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+      Alert.alert('Error', 'Failed to fetch data. Please try again later.');
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -33,10 +39,8 @@ const Message = () => {
     getAPIData();
   }, []);
 
-  const onRefresh = async () => {
-    setIsRefreshing(true);
-    await getAPIData();
-    setIsRefreshing(false);
+  const onRefresh = () => {
+    getAPIData();
   };
 
   const handleAddUser = () => {
@@ -54,6 +58,7 @@ const Message = () => {
 
   const searchApi = async (term) => {
     try {
+      setIsLoading(true);
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -62,6 +67,9 @@ const Message = () => {
       setSearchResults(response.data);
     } catch (error) {
       console.error('API error:', error.message);
+      Alert.alert('Error', 'Failed to search users. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,101 +78,129 @@ const Message = () => {
     setSearchResults([]);
   };
 
-  const follow = async (id) => {
-    try {
-      const token = userInfo.data.authentication_token;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      const response = await axios.get(`${BASE_URL}/follow_user/${id}`, { headers });
-      // Handle response if needed
-    } catch (error) {
-      console.error('Error following user:', error);
+  const renderUserItem = ({ item }) => (
+    <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('ChatScreen', { userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}>
+      <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
+      <View style={styles.userInfo}>
+        <Text style={styles.userName}>{item.name}</Text>
+        <Text style={styles.userUsername}>@{item.user_name}</Text>
+      </View>
+      <Menu>
+        <MenuTrigger style={styles.menuTrigger}>
+          <Icon name="ellipsis-v" size={30} color="black" />
+        </MenuTrigger>
+        <MenuOptions customStyles={menuOptionsStyles}>
+          <MenuOption text="View Profile" />
+          <MenuOption text="Block" />
+          <MenuOption text="Clear Chat" />
+          <MenuOption text="Report" />
+        </MenuOptions>
+      </Menu>
+    </TouchableOpacity>
+  );
+
+  const renderSearchUserItem = ({ item }) => (
+    <TouchableOpacity style={styles.userSearchItem} onPress={() => navigation.navigate('ChatScreen', { userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}>
+      <Image source={{ uri: item.profile_image.url }} style={styles.profileSearchImage} />
+      <View style={styles.userInfo}>
+        <Text style={styles.userSearchName}>{item.name}</Text>
+        <Text style={styles.userSearchUsername}>@{item.user_name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const filterUsers = () => {
+    if (searchText === '') {
+      return data;
+    } else {
+      return data.filter((user) =>
+        user.name.toLowerCase().includes(searchText.toLowerCase())
+      );
     }
   };
 
-  const renderUserItem = ({ item }) => (
-      <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('ChatScreen', { userId: item.id, userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}>
-        <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>{item.name}</Text>
-          <Text style={styles.userUsername}>@{item.user_name}</Text>
-        </View>
-        <Menu>
-          <MenuTrigger style={{ padding: 10 }} >
-            <Icon name="ellipsis-v" size={30} color="black" style={{ marginRight: 20 }}/>
-          </MenuTrigger>
-          <MenuOptions customStyles={menuOptionsStyles}>
-            <MenuOption text="View Profile" />
-            <MenuOption text="Block" />
-            <MenuOption text="Clear Chat" />
-            <MenuOption text="Report" />
-          </MenuOptions>
-        </Menu>
-      </TouchableOpacity>
-  );
+  const filteredUsers = filterUsers();
 
   return (
-  <MenuProvider skipInstanceCheck>
-    <View style={styles.container}>
+    <MenuProvider skipInstanceCheck>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Chats</Text>
       </View>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderUserItem}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
-      />
-      <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
-        <Icon name="user-plus" size={30} color="#fff" />
-      </TouchableOpacity>
-      <Modal
-        visible={showModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add User</Text>
-            <TouchableOpacity onPress={closeModal}>
-              <Icon name="times" size={25} color="black" />
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <Icon name="search" size={20} color="#555" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search users..."
+            onChangeText={onSearch}
+            value={searchText}
+          />
+          {searchText !== '' && (
+            <TouchableOpacity onPress={clearSearch}>
+              <Icon name="times" size={20} color="#555" style={styles.clearIcon} />
             </TouchableOpacity>
-          </View>
-          <View style={styles.searchContainer}>
-            <Icon name="search" size={20} color="#555" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search users..."
-              onChangeText={onSearch}
-              value={searchText}
-            />
-            {searchText !== '' && (
-              <TouchableOpacity onPress={clearSearch}>
-                <Icon name="times" size={20} color="#555" style={styles.clearIcon} />
+          )}
+        </View>
+        <FlatList
+          data={filteredUsers}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderUserItem}
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
+          <Icon name="user-plus" size={30} color="#fff" />
+        </TouchableOpacity>
+        <Modal
+          visible={showModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add User</Text>
+              <TouchableOpacity onPress={closeModal}>
+                <Icon name="times" size={25} color="black" />
               </TouchableOpacity>
+            </View>
+            <View style={styles.searchContainer}>
+              <Icon name="search" size={20} color="#555" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search users..."
+                onChangeText={onSearch}
+                value={searchText}
+              />
+              {searchText !== '' && (
+                <TouchableOpacity onPress={clearSearch}>
+                  <Icon name="times" size={20} color="#555" style={styles.clearIcon} />
+                </TouchableOpacity>
+              )}
+            </View>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#3498db" style={styles.loader} />
+            ) : (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderSearchUserItem}
+              />
             )}
           </View>
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderUserItem}
-          />
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
     </MenuProvider>
   );
 };
 
 const menuOptionsStyles = {
   optionsContainer: {
-    marginTop: 40,
-    // marginLeft: '40%',
+    marginTop: 60,
+    marginRight: 10,
     backgroundColor: 'white',
     padding: 8,
     borderRadius: 20,
+    width: 150,
   },
   optionWrapper: {
     marginVertical: 8,
@@ -175,12 +211,14 @@ const menuOptionsStyles = {
     color: 'black',
     fontWeight: 'bold'
   },
+
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 16,
+    paddingLeft: 7,
+    paddingRight: 7,
   },
   header: {
     backgroundColor: '#398ea8',
@@ -198,14 +236,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderWidth: 2,
+    borderColor:'#ddd',
+    borderRadius: 20,
+    elevation: 2,
+    backgroundColor: '#fff',
+    marginTop: 8
   },
   profileImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 16,
+    marginLeft: 16,
   },
   userInfo: {
     flex: 1,
@@ -264,6 +307,36 @@ const styles = StyleSheet.create({
   },
   clearIcon: {
     marginLeft: 10,
+  },
+  loader: {
+    marginTop: 20,
+  },
+  menuTrigger: {
+    padding: 10,
+    marginRight: 15
+  },
+  userSearchItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#ddd',
+  },
+
+  profileSearchImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 16,
+  },
+  userSearchName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  userSearchUsername: {
+    fontSize: 16,
+    color: '#777',
   },
 });
 
