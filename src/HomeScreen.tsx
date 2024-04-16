@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { View, Text, Modal, StyleSheet, Button, TouchableOpacity, TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl, Alert, KeyboardAvoidingView } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './Auth/AuthContext';
@@ -8,9 +8,11 @@ import Blog from './Blog/Blog';
 import UserProfile from "./Profile/UserProfile"
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
+import Story from './Profile/Story'
 import { showMessage } from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Video from 'react-native-video';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
 const HomeScreen = (props) => {
@@ -27,6 +29,9 @@ const HomeScreen = (props) => {
   const [postIds, setPostIds] = useState(null);
   const [textInputValue, setTextInputValue] = useState('');
   const [noCommentData, setNoCommentData] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const videoRef = useRef(null);
 
   const getAPIData = async () => {
     try {
@@ -38,7 +43,7 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
-      Alert.alert('Please Complete your profile.');
+      // Alert.alert('Please Complete your profile.');
       console.log(error.response.data.errors);
     } finally {
       setIsRefreshing(false);
@@ -61,7 +66,6 @@ const HomeScreen = (props) => {
   }, [likedPosts]);
 
   const handleLikeToggle = (postId) => {
-    // Toggle the liked status for the post
     if (likedPosts.includes(postId)) {
       setLikedPosts(likedPosts.filter((id) => id !== postId));
       handleUnlike(postId);
@@ -116,6 +120,22 @@ const HomeScreen = (props) => {
     }
   };
 
+  const togglePlaying = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  // Function to toggle mute/unmute
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
   const handleUnlike = async (postId) => {
     try {
       const token = userInfo.data.authentication_token;
@@ -124,6 +144,17 @@ const HomeScreen = (props) => {
       getAPIData()
     } catch (error) {
       console.log(error.response.data.errors);
+    }
+  };
+
+  const deletePost = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${BASE_URL}/delete_blog/${postId}`, { headers });
+      getAPIData();
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -219,6 +250,7 @@ const HomeScreen = (props) => {
             />
           }
         >
+        <Story/>
           {viewType === 'list' ? (
             <>
               {data ? (
@@ -236,23 +268,37 @@ const HomeScreen = (props) => {
               {data ? (
                 data.data.map((post) => (
                   <React.Fragment key={post.id}>
-                    <TouchableOpacity
-                      style={{
+                  <View style={{
                         borderTopLeftRadius: 30,
                         borderTopRightRadius: 30,
                         padding: 15,
                         borderTopColor: '#ccc',
                         borderTopWidth: 5,
                         marginTop: 15,
-                      }}
-                      onPress={() => handleProfileView(post.profile.id)}
-                    >
-                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                        <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
-                        <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                      }}>
+                      {post.is_current_user_post ? (
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('Profile')}
+                          >
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                            <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
+                            <Text style={{ color: 'black', fontSize:18, fontWeight: 'bold' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                          </View>
+                        </TouchableOpacity>
+                        ) : (
+                        <TouchableOpacity
+                          onPress={() => handleProfileView(post.profile.id)}
+                          >
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                            <Image source={{ uri: post.profile.image.url }} style={{ height: '200%', width: "12%", borderRadius: 50, marginRight: 10, marginBottom: 5, marginTop: 15 }} />
+                            <Text style={{ color: 'black', fontSize:18, fontWeight: 'bold' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      <View style={{marginTop: -28, marginRight: 20}}>
                         {post.is_current_user_post ? (
                           <Menu>
-                            <MenuTrigger style={{ padding: 0, marginLeft: '75%' }}>
+                            <MenuTrigger style={{ marginLeft: '75%' }}>
                               <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }} />
                             </MenuTrigger>
                             <MenuOptions customStyles={menuOptionsStyles} >
@@ -260,18 +306,18 @@ const HomeScreen = (props) => {
                               <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
                             </MenuOptions>
                           </Menu>
-                        ) : (
+                          ) : (
                             <Menu>
-                              <MenuTrigger style={{ padding: 0, marginLeft: '75%' }}>
+                              <MenuTrigger style={{ padding: 10, marginLeft: '75%' }}>
                                 <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }} />
                               </MenuTrigger>
                               <MenuOptions customStyles={menuOptionsStyles} >
                                 <MenuOption onSelect={() => editPost(post.id)} text="report" />
                               </MenuOptions>
                             </Menu>
-                          )}
+                        )}
                       </View>
-                    </TouchableOpacity>
+                    </View>
                     <View style={{
                       borderBottomLeftRadius: 30,
                       borderBottomRightRadius: 30,
@@ -284,7 +330,26 @@ const HomeScreen = (props) => {
                       <TouchableOpacity onPress={() => handleBlogView(post.id)}>
                         <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
                         <Text style={{ color: 'black' }}> {post.body}</Text>
-                        <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                        {post.blog_image.blob === "video/mp4" ? (
+                          <View>
+                           <Button onPress={togglePlaying} title={isPlaying ? 'Stop' : 'Play'} />
+                            <Button
+                              onPress={() => setIsMuted(m => !m)}
+                              title={isMuted ? 'Unmute' : 'Mute'}
+                            />
+                          <Video
+                            ref={videoRef}
+                            source={{ uri: post.blog_image.url }}
+                            autoplay={true}
+                            paused={!isPlaying}
+                            controls={false}
+                            muted={isMuted}
+                            style={styles.blogImage}
+                          />
+                          </View>
+                        ) : (
+                          <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                        )}
                       </TouchableOpacity>
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                         <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
@@ -355,7 +420,7 @@ const HomeScreen = (props) => {
                         </Modal>
 
                         <Icon name="share-alt" size={20} color="black" style={styles.icon} />
-                        <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{ marginLeft: 'auto' }}>
+                        <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{ marginLeft: '65%' }}>
                           <Icon
                             name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
                             size={20}
@@ -416,7 +481,7 @@ const HomeScreen = (props) => {
 const menuOptionsStyles = {
   optionsContainer: {
     marginTop: -20,
-    marginLeft: '35%',
+    marginLeft: '50%',
     backgroundColor: 'white',
     padding: 3,
     borderRadius: 8,

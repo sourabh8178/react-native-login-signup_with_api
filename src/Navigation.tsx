@@ -33,7 +33,7 @@ const Tab = createBottomTabNavigator();
 const CustomHeader = ({ title, navigation }) => {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-      <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+      <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
         <Icon name="search" size={30} color="black" />
       </TouchableOpacity>
       <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black' }}>{title}</Text>
@@ -47,7 +47,7 @@ const CustomHeader = ({ title, navigation }) => {
 const ProfileStack = () => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Profile"
+      name="Profiles"
       component={Profile}
       options={{
         headerShown: false,
@@ -66,7 +66,7 @@ const ProfileStack = () => (
 const MoreStack = () => (
   <Stack.Navigator>
     <Stack.Screen
-      name="More"
+      name="Mores"
       component={More}
       options={{
         headerShown: false,
@@ -79,17 +79,17 @@ const MoreStack = () => (
 
 const MessageStack = () => (
   <Stack.Navigator>
-  <Stack.Screen
-    name="Messages"
-    component={Message}
-    options={{ headerShown: false }}
-  />
-  <Stack.Screen
-      name="ChatScreen"
-      component={ChatScreen}
+    <Stack.Screen
+      name="Messages"
+      component={Message}
       options={{ headerShown: false }}
     />
-    </Stack.Navigator>
+    <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={{ headerShown: false }}
+      />
+  </Stack.Navigator>
 );
 
 

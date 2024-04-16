@@ -9,6 +9,7 @@ import { BASE_URL } from "../Auth/Config";
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import { RNCamera } from 'react-native-camera';
+import {Picker} from '@react-native-picker/picker';
 
 const options = {
   title: 'Select Image',
@@ -62,6 +63,7 @@ const Blog = (props) => {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('body', body);
+        formData.append('postType', postType);
         formData.append('image', {
             uri: image.assets[0].uri,
             type: image.assets[0].type,
@@ -120,9 +122,9 @@ const Blog = (props) => {
                 value={postType}
                 onValueChange={(itemValue, itemIndex) => setPostType(itemValue)}
                 items={[
-                  { label: 'Reels', value: 'Reels' },
-                  { label: 'Image', value: 'post' },
-                  { label: 'Other', value: 'other' },
+                  { label: 'Reels', value: 'reels' },
+                  { label: 'Post', value: 'post' },
+                  { label: 'story', value: 'story' },
                 ]}
                 placeholder={{ label: 'Select Post Type', value: null }}
               />

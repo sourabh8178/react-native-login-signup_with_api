@@ -25,7 +25,7 @@ const Message = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await axios.get(`${BASE_URL}/following_lists`, { headers });
+      const response = await axios.get(`${BASE_URL}/my_room`, { headers });
       setData(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);

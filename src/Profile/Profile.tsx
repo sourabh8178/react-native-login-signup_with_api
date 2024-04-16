@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert, ActivityIndicator, Share } from 'react-native';
 import axios from 'axios';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 import { useNavigation } from '@react-navigation/native';
@@ -10,11 +10,21 @@ import { BASE_URL } from '../Auth/Config';
 const Profile = () => {
   const [profileDetail, setProfileDetail] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [likedPosts, setLikedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [blogData, setBlogData] = useState(null);
   const { userInfo } = useContext(AuthContext);
   const [viewType, setViewType] = useState('list');
   const navigation = useNavigation();
+
+
+  const shareContent = () => {
+    Share.share({
+      message: 'Your message to share', // Text content you want to share
+    })
+      .then(result => console.log(result))
+      .catch(error => console.log(error));
+  };
 
   const getAPIData = async () => {
     try {
@@ -50,6 +60,40 @@ const Profile = () => {
   const onRefresh = () => {
     getAPIData();
     getAPIBlogData();
+  };
+
+  const handleLikeToggle = (postId) => {
+    // Toggle the liked status for the post
+    if (likedPosts.includes(postId)) {
+      setLikedPosts(likedPosts.filter((id) => id !== postId));
+      handleUnlike(postId);
+    } else {
+      setLikedPosts([...likedPosts, postId]);
+      handleLike(postId);
+    }
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/like/${postId}`, {}, { headers });
+      setLikedPosts([...likedPosts, postId]);
+      getAPIBlogData();
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
+  };
+
+  const handleUnlike = async (postId) => {
+    try {
+      const token = userInfo.data.authentication_token;
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.post(`${BASE_URL}/unlike/${postId}`, {}, { headers });
+      getAPIBlogData();
+    } catch (error) {
+      console.log(error.response.data.errors);
+    }
   };
 
   const deletePost = async (postId) => {
@@ -114,7 +158,9 @@ const Profile = () => {
             <TouchableOpacity onPress={() => navigation.navigate('ProfileSetting')} style={{ padding: 5 }}>
               <Icon name="cog" size={20} color="black" style={{ marginLeft: 20 }} />
             </TouchableOpacity>
-            <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
+            <TouchableOpacity onPress={shareContent}>
+              <Icon name="share-alt" size={20} color="black" style={{ marginLeft: 20 }} />
+            </TouchableOpacity>
           </View>
         </View>
         {profileDetail.data.profile_background_image ? (
