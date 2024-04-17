@@ -29,9 +29,11 @@ const HomeScreen = (props) => {
   const [postIds, setPostIds] = useState(null);
   const [textInputValue, setTextInputValue] = useState('');
   const [noCommentData, setNoCommentData] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const videoRef = useRef(null);
+  const [clicked, setClicked] = useState(false);
+  const [paused, setPaused] = useState(true);
+  const [muted, setMuted] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState(null);
+
 
   const getAPIData = async () => {
     try {
@@ -43,7 +45,6 @@ const HomeScreen = (props) => {
       const response = await axios.get(`${BASE_URL}/blogs`, { headers });
       setData(response.data);
     } catch (error) {
-      // Alert.alert('Please Complete your profile.');
       console.log(error.response.data.errors);
     } finally {
       setIsRefreshing(false);
@@ -120,22 +121,6 @@ const HomeScreen = (props) => {
     }
   };
 
-  const togglePlaying = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  // Function to toggle mute/unmute
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
   const handleUnlike = async (postId) => {
     try {
       const token = userInfo.data.authentication_token;
@@ -200,7 +185,6 @@ const HomeScreen = (props) => {
       console.log(error.response.data.errors);
       setNoCommentData(error.response.data.errors);
     }
-
   };
 
   const closeModal = () => {
@@ -230,6 +214,14 @@ const HomeScreen = (props) => {
       setShowModal(true);
       console.log(error.response.data.errors);
     }
+  };
+
+  const handleVideoClick = (postId) => {
+    setClicked(true);
+    setCurrentVideoId(postId); // Set the currentVideoId state to the postId of the clicked video
+    setTimeout(() => {
+      setClicked(false);
+    }, 15000);
   };
 
   const onRefresh = () => {
@@ -319,38 +311,58 @@ const HomeScreen = (props) => {
                       </View>
                     </View>
                     <View style={{
-                      borderBottomLeftRadius: 30,
-                      borderBottomRightRadius: 30,
-                      padding: 15,
-                      borderBottomColor: '#ccc',
-                      borderBottomWidth: 5,
-                      marginTop: "auto"
-                    }}
-                    >
-                      <TouchableOpacity onPress={() => handleBlogView(post.id)}>
+                          borderBottomLeftRadius: 30,
+                          borderBottomRightRadius: 30,
+                          padding: 15,
+                          borderBottomColor: '#ccc',
+                          borderBottomWidth: 5,
+                          marginTop: "auto"
+                        }}
+                        >
                         <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
                         <Text style={{ color: 'black' }}> {post.body}</Text>
                         {post.blog_image.blob === "video/mp4" ? (
-                          <View>
-                           <Button onPress={togglePlaying} title={isPlaying ? 'Stop' : 'Play'} />
-                            <Button
-                              onPress={() => setIsMuted(m => !m)}
-                              title={isMuted ? 'Unmute' : 'Mute'}
-                            />
-                          <Video
-                            ref={videoRef}
-                            source={{ uri: post.blog_image.url }}
-                            autoplay={true}
-                            paused={!isPlaying}
-                            controls={false}
-                            muted={isMuted}
-                            style={styles.blogImage}
-                          />
+                          <View style={styles.blogVideo}>
+                              <TouchableOpacity style={{width: "100%", height: 200}} onPress={() => handleVideoClick(post.id)}>
+                                {currentVideoId === post.id ? (
+                                  <Video
+                                    paused={paused}
+                                    source={{ uri: post.blog_image.url }}
+                                    style={styles.video}
+                                    muted={muted}
+                                  />
+                                ) : (
+                                <Image source={require("./assest/videothumb.jpeg")} style={styles.blogImage} />
+                                )}
+                              </TouchableOpacity>
+                              {clicked && currentVideoId === post.id && (
+                                <View style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  positions: "absolute",
+                                  backgroundColor: 'rbga(0,0,0,0.5)',
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  marginTop: "-50%"
+                                }}>
+                                  <View style={{flexDirection: 'row'}}>
+                                    <TouchableOpacity onPress={() => setPaused(!paused)} style={styles.touchArea}>
+                                      <View style={styles.touchAreaContainer}>
+                                        <Icon name={paused ? 'play' : 'pause'} size={30} color="white" />
+                                      </View>
+                                    </TouchableOpacity>
+                                  </View>
+                                    <TouchableOpacity onPress={() => setMuted(!muted)} style={[styles.touchArea, { marginLeft: "80%" }]}>
+                                      <View style={styles.touchAreaContainer}>
+                                        <Icon name={muted ? 'volume-off' : 'volume-up'} size={30} color="white" />
+                                      </View>
+                                    </TouchableOpacity>
+                                </View>
+                                )}
                           </View>
                         ) : (
                           <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
                         )}
-                      </TouchableOpacity>
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                         <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
                           <Icon
@@ -404,7 +416,6 @@ const HomeScreen = (props) => {
                                 )}
                               </View>
                             </ScrollView>
-                            {/* Comment input displayed at the bottom */}
                             <View style={styles.inputContainer}>
                               <TextInput
                                 value={textInputValue}
@@ -544,6 +555,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
+  blogVideo: {
+    width: '100%',
+    height: 300,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
   gridTextContainer: {
     padding: 8,
     backgroundColor: '#fff',
@@ -648,6 +665,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     borderColor: '#ccc',
+  },
+  backgroundVideo: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  video: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+  },
+  playPauseButton: {
+    position: 'absolute',
+    zIndex: 1,
+    alignSelf: 'center',
+  },
+  touchArea: {
+    padding: 20,
+  },
+  touchAreaContainer: {
+    padding: 10,
   },
 });
 

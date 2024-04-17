@@ -83,6 +83,19 @@ android {
         versionName "1.0"
     }
     signingConfigs {
+            release {
+                storeFile file('your_key_name.keystore')
+                storePassword 'password123' // Replace 'password' with the actual keystore password
+                keyAlias 'my-key-alias'
+                keyPassword 'password123' // Replace 'password' with the actual key alias password
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
+        }
+    signingConfigs {
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -106,6 +119,8 @@ android {
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
+    implementation project(':react-native-video')
+    implementation "androidx.appcompat:appcompat:1.0.0"
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
     implementation platform('com.google.firebase:firebase-bom:32.7.1')
