@@ -8,7 +8,7 @@ import Blog from './Blog/Blog';
 import UserProfile from "./Profile/UserProfile"
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
-import Story from './Profile/Story'
+import Story from './Profile/Story';
 import { showMessage } from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -33,6 +33,7 @@ const HomeScreen = (props) => {
   const [paused, setPaused] = useState(true);
   const [muted, setMuted] = useState(false);
   const [currentVideoId, setCurrentVideoId] = useState(null);
+  const [storyRefresh, setStoryRefresh] = useState(false);
 
 
   const getAPIData = async () => {
@@ -58,6 +59,10 @@ const HomeScreen = (props) => {
       </View>
     );
   }
+
+  const refreshStory = () => {
+    setStoryRefresh(true);
+  };
 
   useEffect(() => {
     getAPIData();
@@ -170,6 +175,7 @@ const HomeScreen = (props) => {
   const openModel = (postId) => {
     setShowModal(true);
     commentPost(postId);
+    setPostIds(postId);
   }
 
   const commentPost = async (postId) => {
@@ -208,7 +214,7 @@ const HomeScreen = (props) => {
     };
     try {
       const response = await axios.post(`${BASE_URL}/comment`, data, { headers });
-      await commentPost(postIds); // Wait for comment data to be fetched
+      await commentPost(postIds);
       setTextInputValue(''); 
     } catch (error) {
       setShowModal(true);
@@ -218,7 +224,7 @@ const HomeScreen = (props) => {
 
   const handleVideoClick = (postId) => {
     setClicked(true);
-    setCurrentVideoId(postId); // Set the currentVideoId state to the postId of the clicked video
+    setCurrentVideoId(postId);
     setTimeout(() => {
       setClicked(false);
     }, 15000);
@@ -238,11 +244,14 @@ const HomeScreen = (props) => {
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
-              onRefresh={onRefresh}
+              onRefresh={() => {
+                getAPIData();
+                refreshStory(); // Refresh the story component
+              }}
             />
           }
         >
-        <Story/>
+        <Story refresh={storyRefresh} />
           {viewType === 'list' ? (
             <>
               {data ? (
@@ -250,7 +259,7 @@ const HomeScreen = (props) => {
                   <View style={styles.inputPost}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
                       <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%" }} />
-                      <Text style={{ fontSize: 20 }}>Write a post</Text>
+                      <Text style={{ fontSize: 20, color: "black" }}>Write a post</Text>
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -267,6 +276,8 @@ const HomeScreen = (props) => {
                         borderTopColor: '#ccc',
                         borderTopWidth: 5,
                         marginTop: 15,
+                        backgroundColor: 'white',
+                        elevation: 10,
                       }}>
                       {post.is_current_user_post ? (
                         <TouchableOpacity
@@ -295,6 +306,7 @@ const HomeScreen = (props) => {
                             </MenuTrigger>
                             <MenuOptions customStyles={menuOptionsStyles} >
                               <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                              <MenuOption onSelect={() => editPost(post.id)} text="share" />
                               <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
                             </MenuOptions>
                           </Menu>
@@ -305,6 +317,7 @@ const HomeScreen = (props) => {
                               </MenuTrigger>
                               <MenuOptions customStyles={menuOptionsStyles} >
                                 <MenuOption onSelect={() => editPost(post.id)} text="report" />
+                                <MenuOption onSelect={() => editPost(post.id)} text="share" />
                               </MenuOptions>
                             </Menu>
                         )}
@@ -314,9 +327,9 @@ const HomeScreen = (props) => {
                           borderBottomLeftRadius: 30,
                           borderBottomRightRadius: 30,
                           padding: 15,
-                          borderBottomColor: '#ccc',
-                          borderBottomWidth: 5,
-                          marginTop: "auto"
+                          marginTop: "auto",
+                          backgroundColor: 'white',
+                          elevation: 10,
                         }}
                         >
                         <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
@@ -363,17 +376,17 @@ const HomeScreen = (props) => {
                         ) : (
                           <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
                         )}
-                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, justifyContent: 'space-around' }}>
                         <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
                           <Icon
                             name={post.liked ? 'heart' : 'heart-o'}
-                            size={20}
+                            size={25}
                             color={post.liked ? 'red' : 'black'}
                             style={styles.icon}
                           />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => openModel(post.id)}>
-                          <Icon name="comment" size={20} color="black" style={styles.icon} />
+                          <Icon name="comment-o" size={25} color="black" style={styles.icon} />
                         </TouchableOpacity>
                         <Modal
                             visible={showModal}
@@ -393,9 +406,7 @@ const HomeScreen = (props) => {
                                 {commentData ? (
                                   commentData.data.map((comment, index) => (
                                     <View style={styles.commentItem} key={index}>
-                                      {/* User profile picture */}
                                       <Image source={{ uri: comment.profile_image.url }} style={styles.profileImage} />
-                                      {/* User name and date */}
                                       <View style={styles.commentHeader}>
                                         <Text style={styles.userName}>
                                           {comment.name}{" "}
@@ -429,12 +440,10 @@ const HomeScreen = (props) => {
                             </View>
                           </View>
                         </Modal>
-
-                        <Icon name="share-alt" size={20} color="black" style={styles.icon} />
                         <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{ marginLeft: '65%' }}>
                           <Icon
                             name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
-                            size={20}
+                            size={25}
                             color={post.bookmarked ? 'black' : 'black'}
                             style={styles.icon}
                           />
@@ -461,16 +470,16 @@ const HomeScreen = (props) => {
                         alignItems: 'center',
                         marginTop: 30,
                         borderRadius: 20,
-                        borderWidth: 2,
                         height: 50,
                         width: 200,
-                        backgroundColor: "#66d4f2",
+                        backgroundColor: "#147a99",
                         justifyContent: 'center',
-                        borderColor: '#98dbed'
+                        borderColor: '#98dbed',
+                        elevation: 10,
                       }}
                       onPress={() => navigation.navigate('Blog')}
                     >
-                      <Text style={{ color: 'white' }}>Create your own post</Text>
+                      <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Create your own post</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -569,14 +578,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   inputPost: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: "90%",
+    backgroundColor: 'white',
+    elevation: 10,
+    marginTop: 20,
     marginLeft: "5%",
-    marginTop: "2%",
-    borderRadius: 30,
-    height: 60,
-    backgroundColor: "#d1cbcb"
+    marginRight: "5%",
+    borderRadius: 20,
+    height: 50,
+    justifyContent: 'center'
   },
   horizontalLine: {
     borderBottomColor: 'black',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, Button, ScrollView, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, TouchableOpacity, StyleSheet, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import { AuthContext } from '../Auth/AuthContext';
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
@@ -12,14 +12,13 @@ import { RNCamera } from 'react-native-camera';
 import {Picker} from '@react-native-picker/picker';
 
 const options = {
-  title: 'Select Image',
-  type: 'library',
-  options: {
-    selectionLimit: 1,
-    mediaType: 'photo',
-    includeBase64: false,
-  },
-}
+    title: 'Video Picker', 
+    mediaType: 'image/video', 
+    storageOptions:{
+      skipBackup:true,
+      path:'images'
+    }
+};
 
 const Blog = (props) => {
   const [title, setTitle] = useState(null);
@@ -28,12 +27,14 @@ const Blog = (props) => {
   const [postType, setPostType] = useState(null);
   const [blogInfo, setBlogInfo] = useState({});
   const [profileDetail, setprofileDetail] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const getAPIData = async () => {
     try {
+      setIsRefreshing(true);
       const token = userInfo.data.authentication_token;
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -41,13 +42,25 @@ const Blog = (props) => {
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
       setprofileDetail(response.data);
     } catch (error) {
-      console.log('Error fetching data:', error.response.data);
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsRefreshing(false);
+      setIsLoading(false);
     }
   };
 
    useEffect(() => {
     getAPIData();
   }, []);
+
+   if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="black" />
+        <Text>Your post is getting ready </Text>
+      </View>
+    );
+  }
 
   const validateInputs = () => {
     if (!title || !body || !postType || !image) {
@@ -60,6 +73,7 @@ const Blog = (props) => {
   const postCreate = (title, body, image, userInfo) => {
       if (validateInputs()){
        setIsLoading(true);
+       setIsRefreshing(true);
         const formData = new FormData();
         formData.append('title', title);
         formData.append('body', body);
@@ -289,6 +303,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

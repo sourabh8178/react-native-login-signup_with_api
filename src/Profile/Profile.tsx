@@ -209,7 +209,6 @@ const Profile = () => {
             </View>
           </View>
         </TouchableWithoutFeedback>
-        <View style={styles.horizontalLine} />
         {viewType === 'list' ? (
           <>
             {blogData ? (
@@ -222,7 +221,9 @@ const Profile = () => {
                       padding: 15,
                       borderTopColor: '#ccc',
                       borderTopWidth: 5,
-                      marginTop: 15,
+                      backgroundColor: 'white',
+                      elevation: 10,
+                      marginTop: "auto",
                     }}
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
@@ -241,6 +242,8 @@ const Profile = () => {
                   </View>
                   <View 
                     style={{
+                      backgroundColor: 'white',
+                      elevation: 10,
                       borderBottomLeftRadius: 30,
                       borderBottomRightRadius: 30,
                       padding: 15,
@@ -346,14 +349,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   inputPost: {
+    backgroundColor: 'white',
+    elevation: 10,
+    justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     width: "90%",
     marginLeft: "5%",
     marginTop: "2%",
     borderRadius: 30,
-    height: 60,  // Set a specific height
-    backgroundColor: "#d1cbcb",
+    height: 60,
     color: 'black'
   },
   headerText: {
@@ -426,13 +431,13 @@ const styles = StyleSheet.create({
   createProfileButton: {
     alignItems: 'center',
     marginTop: 30,
+    elevation: 10,
     borderRadius: 10,
-    borderWidth: 2,
     height: 50,
     width: 200,
-    backgroundColor: "#2baed6",
+    backgroundColor: "#147a99",
     justifyContent: 'center',
-    borderColor: '#2baed6'
+    // borderColor: '#2baed6'
   },
   noData:{
     flex: 1,

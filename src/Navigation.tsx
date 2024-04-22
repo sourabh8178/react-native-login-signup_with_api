@@ -26,6 +26,7 @@ import SplashScreen from './SplashScreen';
 import ProfileSetting from './Profile/ProfileSetting';
 import EditMyProfile from './Profile/EditMyProfile';
 import PreHomeScreen from './Auth/PreHomeScreen';
+import CreateStory from './Profile/CreateStory'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -118,6 +119,7 @@ const HomeStack = () => (
     <Stack.Screen name="CreateProfile" component={CreateProfile} />
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
+    <Stack.Screen name="CreateStory" component={CreateStory} />
   </Stack.Navigator>
 );
 

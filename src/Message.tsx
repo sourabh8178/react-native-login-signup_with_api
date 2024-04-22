@@ -29,7 +29,6 @@ const Message = () => {
       setData(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
-      Alert.alert('Error', 'Failed to fetch data. Please try again later.');
     } finally {
       setIsRefreshing(false);
     }

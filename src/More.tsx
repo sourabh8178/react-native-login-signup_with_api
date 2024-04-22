@@ -86,7 +86,13 @@ const More = () => {
 
         </>
       ) : (
-        <Text>No profile details available</Text>
+        <Text style={{
+                        alignItems: 'center',
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        marginTop: "70%"
+                      }}>No profile details available</Text>
       )}
     </ScrollView>
   );
