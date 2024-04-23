@@ -38,16 +38,12 @@ const Explore = () => {
      if (searchTerm) {
       debouncedSearch(searchTerm);
     } else {
-      // Clear the search results if the search term is empty
       setSearchResults([]);
     }
     return () => clearTimeout(debouncedSearch);
   }, [searchTerm]);
 
-  // Function to bhandle the search
   const handleItemPress = (selectedUser) => {
-    // Handle what happens when a user is selected
-
     setSearchTerm('');
     setSearchResults([]);
     console.warn(searchResults[0])
@@ -65,7 +61,6 @@ const Explore = () => {
         autoFocus={true}
         clearButtonMode="while-editing"
       />
-      {/*<Text>{console.warn(searchResults)}</Text>*/}
       <FlatList
 			  data={searchResults}
 			  keyExtractor={(item) => item.id.toString()}
@@ -92,7 +87,10 @@ const styles = StyleSheet.create({
    	backgroundColor: "#d1cbcb",
     padding: 10,
     marginBottom: 10,
-    borderRadius: 20
+    borderRadius: 20,
+    backgroundColor: "white",
+    elevation: 10,
+    color: 'black'
   },
   resultItem: {
     padding: 10,

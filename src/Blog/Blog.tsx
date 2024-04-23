@@ -184,7 +184,7 @@ const Blog = (props) => {
             style={styles.createProfileButton}
             onPress={() => navigation.navigate('CreateProfile')}
           >
-            <Text style={styles.createProfileButtonText}>Create Profile</Text>
+            <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Create Profile</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -283,13 +283,13 @@ const styles = StyleSheet.create({
   },
   createProfileButton: {
     alignItems: 'center',
-    borderRadius: 20,
-    borderWidth: 2,
+    marginTop: 30,
+    elevation: 10,
+    borderRadius: 10,
     height: 50,
     width: 200,
-    backgroundColor: "#66d4f2",
+    backgroundColor: "#147a99",
     justifyContent: 'center',
-    borderColor: '#98dbed',
   },
   createPostButton: {
     justifyContent: 'center',

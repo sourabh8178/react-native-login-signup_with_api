@@ -205,7 +205,7 @@ const Profile = () => {
           <View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
               <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
-              <Text style={{ fontSize: 20 }}>Write a post</Text>
+              <Text style={{ fontSize: 20, color: "black" }}>Write a post</Text>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -359,7 +359,8 @@ const styles = StyleSheet.create({
     marginTop: "2%",
     borderRadius: 30,
     height: 60,
-    color: 'black'
+    color: 'black',
+    marginBottom: 20
   },
   headerText: {
     fontSize: 20,
@@ -405,6 +406,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#fff',
     marginTop: 20,
+
   },
   name: {
     fontSize: 30,
@@ -421,7 +423,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 20,
-    marginBottom: 20,
+    // marginBottom: 20,
+    height: 50,
+    // width: 200,
+    // backgroundColor: "white",
+    // justifyContent: 'center',
+    // borderColor: '#98dbed',
+    // elevation: 10,
   },
   noProfileContainer: {
     alignItems: 'center',

@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 const Story = ({ refresh }) => {
     const { userInfo } = useContext(AuthContext);
     const [data, setData] = useState(null);
+    const [currentStory, setCurrentStory] = useState(null);
     const [myStory, setMyStory] = useState(null);
     const [profileDetail, setProfileDetail] = useState(null);
     const [storyData, setStoryData] = useState(null);
@@ -27,8 +28,11 @@ const Story = ({ refresh }) => {
     	if (refresh) {
         getUserData();
         getAPIData();
-        // getMyStory();
+        getCurrentStory();
       }
+      	getUserData();
+        getAPIData();
+        getCurrentStory();
     }, [refresh]);
 
     const getUserData = async () => {
@@ -62,41 +66,21 @@ const Story = ({ refresh }) => {
         }
     };
 
-    const handleCreateStory = () => {
-        if (!title && !image) {
-			    Alert.alert('Please enter title or select image.');
-			    return;
-				}
-
-				const formData = new FormData();
-        formData.append('title', title);
-        if (image) {
-				  formData.append('story_image', {
-				    uri: image.assets[0].uri,
-				    type: image.assets[0].type,
-				    name: image.assets[0].fileName,
-				  });
-				}
-
-			try {
-			  axios.post(`${BASE_URL}/stories`, formData, {
-			    headers: {
-			      Authorization: `Bearer ${userInfo.data.authentication_token}`,
-			      'Content-Type': 'multipart/form-data',
-			    },
-			  })
-		    .then((res) => {
-		      console.log(res.data);
-		      handleSend();
-		    })
-		    .catch((error) => {
-		      const errorMessage = error.response.data.errors;
-		      alert(errorMessage);
-		      setIsLoading(false);
-		    });
-			  } catch (errors) {
-		      Alert.alert('Error', 'Failed to create story. Please try again later.');
-			  }
+    const getCurrentStory = async () => {
+        try {
+            if (!userInfo || !userInfo.data || !userInfo.data.authentication_token) {
+                return;
+            }
+            const token = userInfo.data.authentication_token;
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+            const response = await axios.get(`${BASE_URL}/my_story`, { headers });
+            setCurrentStory(response.data);
+        } catch (error) {
+        		setData(null);
+            console.error('Error fetching stories:', error);
+        }
     };
 
     const toggleUserList = () => {
@@ -104,7 +88,6 @@ const Story = ({ refresh }) => {
     };
 
     const openModel = (story) => {
-    	console.warn("a", story )
       setShowModal(true);
       setStoryData(story);
       const storyId = story.story_id;
@@ -183,7 +166,7 @@ const Story = ({ refresh }) => {
 
     const showDeleteConfirmation = (storyId) => {
 	    Alert.alert(
-	      'Confirm Deletion',
+	      'Confirm Deletions',
 	      'Are you sure you want to delete this post?',
 	      [
 	        { text: 'Cancel', style: 'cancel' },
@@ -203,14 +186,14 @@ const Story = ({ refresh }) => {
     return (
         <View style={styles.container}>
             <ScrollView horizontal>
-			        {data && data.data && data.data.some(story => story.id === userInfo.data.id) ? (
-			            data.data.map((story, index) => (
+			        {currentStory && currentStory.data && currentStory.data.some(story => story.id === userInfo.data.id) ? (
+			            currentStory.data.map((story, index) => (
 			                <TouchableOpacity
 			                    key={index}
 			                    onPress={() => {
 			                        openCheckModel(story);
 			                    }}
-			                >
+			                	>
 			                    <View style={[
 			                        styles.profileContainer,
 			                        { borderColor: story.stories && seenStory.includes(story.stories.story_id) ? 'black' : 'red' }
@@ -222,14 +205,32 @@ const Story = ({ refresh }) => {
 			            ))
 			        ) : (
 			            profileDetail && (
-			                <View>
-			                    <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate("CreateStory")}>
-			                        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-			                        <Text>Your story</Text>
-			                    </TouchableOpacity>
-			                    <Icon name="plus" size={18} color="white" style={styles.plusIcon} />
-			                </View>
+		                <View>
+		                    <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate("CreateStory")}>
+		                        <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
+		                        <Text>Your story</Text>
+		                    </TouchableOpacity>
+		                    <Icon name="plus" size={18} color="white" style={styles.plusIcon} />
+		                </View>
 			            )
+			        )}
+			        {data && data.data && data.data.some(story => story.id !== userInfo.data.id) && (
+			            data.data.map((story, index) => (
+			                <TouchableOpacity
+			                    key={index}
+			                    onPress={() => {
+			                        openCheckModel(story);
+			                    }}
+			                	>
+			                    <View style={[
+			                        styles.profileContainer,
+			                        { borderColor: story.stories && seenStory.includes(story.stories.story_id) ? 'black' : 'red' }
+			                    ]}>
+			                        <Image source={{ uri: story.profile_image.url }} style={styles.profileImage} />
+			                    </View>
+			                    <Text>{story.name ? story.name : ''}</Text>
+			                </TouchableOpacity>
+			            ))
 			        )}
 			    	</ScrollView>
             <Modal
@@ -246,7 +247,13 @@ const Story = ({ refresh }) => {
                     <View style={styles.modalContent}>
                         <View style={styles.imageContainer}>
                             <Swiper index={currentIndex} style={styles.swiper}>
-													    <Text>xxz</Text>
+													    {storyData && storyData.stories ?  (
+														    	<Image source={{ uri: storyData.stories.url }} style={styles.modalImage} />
+														    ) : (
+														        <View style={styles.textOverlay}>
+												              <Text style={styles.storyText}>{storyData ? storyData.title : ''}</Text>
+												            </View>
+														    )}
 													</Swiper>
                         </View>
                     </View>
@@ -278,7 +285,7 @@ const Story = ({ refresh }) => {
 															<TouchableOpacity  onPress={toggleUserList} style={styles.eyeUpIconContainer}>
 						                  <Icon name="chevron-down" size={25} color="black" style={styles.eyeIcon} />
 						              		</TouchableOpacity>
-						              		)}
+						              	)}
 														<TouchableOpacity  onPress={toggleUserList} style={styles.eyeIconContainer}>
 					                  <Icon name="eye" size={18} color="black" style={styles.eyeIcon} />
 					              		</TouchableOpacity>
@@ -305,7 +312,6 @@ const Story = ({ refresh }) => {
 		                        )}
                         </View>
                     </View>
-	                  
                 </View>
             </Modal>
         </View>
@@ -316,7 +322,8 @@ const Story = ({ refresh }) => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      paddingLeft: 10
+      paddingLeft: 10,
+      marginTop: 10
     },
     profileContainer: {
       position: 'relative',
@@ -336,8 +343,8 @@ const styles = StyleSheet.create({
       width: 30,
       height: 30,
       borderRadius: 40,
-      bottom: 15,
-      right: 9,
+      bottom: 9,
+      right: 3,
       backgroundColor: 'black',
       borderColor: "white",
       borderWidth: 2,
