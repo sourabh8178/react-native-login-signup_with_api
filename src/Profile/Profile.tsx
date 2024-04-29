@@ -1,11 +1,26 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, Dimensions, Alert, ActivityIndicator, Share } from 'react-native';
+import { 
+  View, 
+  Text, 
+  Image, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  TouchableWithoutFeedback, 
+  RefreshControl, 
+  Dimensions, 
+  Alert, 
+  ActivityIndicator, 
+  Share,
+  FlatList // Added FlatList import
+} from 'react-native';
 import axios from 'axios';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { AuthContext } from '../Auth/AuthContext';
 import { BASE_URL } from '../Auth/Config';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
 const Profile = () => {
   const [profileDetail, setProfileDetail] = useState(null);
@@ -16,7 +31,141 @@ const Profile = () => {
   const { userInfo } = useContext(AuthContext);
   const [viewType, setViewType] = useState('list');
   const navigation = useNavigation();
+  const [index, setIndex] = useState(0);
 
+  const PostsRoute = () => (
+    <ScrollView>
+        {viewType === 'list' ? (
+          <>
+            {blogData ? (
+              blogData.data.map((post) => (
+                <React.Fragment key={post.id}>
+                  <View 
+                    style={{
+                      borderTopLeftRadius: 30,
+                      borderTopRightRadius: 30,
+                      padding: 15,
+                      borderTopColor: '#ccc',
+                      borderTopWidth: 5,
+                      backgroundColor: 'white',
+                      elevation: 10,
+                      marginTop: "auto",
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                      <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
+                      <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
+                      <Menu>
+                        <MenuTrigger style={{ padding: 5, marginLeft: '65%'  }}>
+                          <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
+                        </MenuTrigger>
+                        <MenuOptions customStyles={menuOptionsStyles} >
+                          <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
+                          <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
+                        </MenuOptions>
+                      </Menu>
+                    </View>
+                  </View>
+                  <View 
+                    style={{
+                      backgroundColor: 'white',
+                      elevation: 10,
+                      borderBottomLeftRadius: 30,
+                      borderBottomRightRadius: 30,
+                      padding: 15,
+                      borderBottomColor: '#ccc',
+                      borderBottomWidth: 5,
+                      marginTop: "auto"
+                    }}
+                  >
+                    <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
+                    <Text style={{ color: 'black' }}> {post.body}</Text>
+                    <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+                      <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
+                        <Icon
+                          name={post.liked ? 'heart' : 'heart-o'}
+                          size={20}
+                          color={post.liked ? 'red' : 'black'}
+                          style={styles.icon}
+                        />
+                      </TouchableOpacity>
+                      
+                      <Icon name="comment" size={20} color="black" style={styles.icon} />
+                      <Icon name="share-alt" size={20} color="black" style={styles.icon} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
+                      {post.likes.map((like, index) => (
+                        index < 3 && (
+                          <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
+                        )
+                      ))}
+                      {post.likes_count > 0 && (
+                        <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
+                      )}
+                    </View>
+                  </View>
+                </React.Fragment>
+              ))
+            ) : (
+              <View style={styles.noData}>
+                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
+                <TouchableOpacity
+                  style={{
+                    alignItems: 'center',
+                    marginTop: 20,
+                    marginBottom: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    height: 50,
+                    width: 200,
+                    backgroundColor: "#2baed6",
+                    justifyContent: 'center',
+                    borderColor: '#2baed6'
+                  }}
+                  onPress={() => navigation.navigate('Blog')}
+                >
+                  <Text style={{ color: 'white' }}>Create your post</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        ) : (
+          <FlatList
+            data={data ? data.blogs : []}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderGridItem}
+            numColumns={2}
+          />
+        )}
+    </ScrollView>
+  );
+
+  const MediaRoute = () => (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Media</Text>
+    </View>
+  );
+
+  const MusicRoute = () => (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Music</Text>
+    </View>
+  );
+
+  const initialLayout = { width: Dimensions.get('window').width };
+
+  const [routes] = useState([
+    { key: 'posts', title: 'Posts', icon: 'film' },
+    { key: 'media', title: 'Media', icon: 'image' },
+    { key: 'music', title: 'Music', icon: 'music' },
+  ]);
+
+  const renderScene = SceneMap({
+    posts: PostsRoute,
+    media: MediaRoute,
+    music: MusicRoute,
+  });
 
   const shareContent = () => {
     Share.share({
@@ -194,124 +343,29 @@ const Profile = () => {
           <Icon name="instagram" size={20} color="black" style={{ marginLeft: 20 }} />
         </View>
         <View style={styles.horizontalLine} />
-        <View style={styles.postSocialLinks}>
-          <Icon name="film" size={20} color="black" />
-          <Icon name="image" size={20} color="black" />
-          <Icon name="video-camera" size={20} color="black" />
-          <Icon name="music" size={20} color="black" />
-        </View>
-        <View style={styles.horizontalLine} />
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Blog')}>
-          <View style={styles.inputPost}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>
-              <Icon name="camera-retro" size={20} color="black" style={{ marginRight: "5%"}}/>
-              <Text style={{ fontSize: 20, color: "black" }}>Write a post</Text>
-            </View>
+        {blogData && (
+          <View >
+            <TabView
+              navigationState={{ index, routes }}
+              renderScene={renderScene}
+              onIndexChange={setIndex}
+              initialLayout={initialLayout}
+              renderTabBar={props => (
+                <TabBar
+                  {...props}
+                  renderIcon={({ route, focused, color }) => (
+                    <Icon name={route.icon} size={20} color='black' />
+                  )}
+                  tabStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+                  style={{ backgroundColor: 'white' }}
+                  indicatorStyle={{ backgroundColor: 'black' }}
+                  inactiveColor="black"
+                  activeColor="black"
+                />
+              )}
+            />
           </View>
-        </TouchableWithoutFeedback>
-        {viewType === 'list' ? (
-          <>
-            {blogData ? (
-              blogData.data.map((post) => (
-                <React.Fragment key={post.id}>
-                  <View 
-                    style={{
-                      borderTopLeftRadius: 30,
-                      borderTopRightRadius: 30,
-                      padding: 15,
-                      borderTopColor: '#ccc',
-                      borderTopWidth: 5,
-                      backgroundColor: 'white',
-                      elevation: 10,
-                      marginTop: "auto",
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                      <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
-                      <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                      <Menu>
-                        <MenuTrigger style={{ padding: 5, marginLeft: '65%'  }}>
-                          <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
-                        </MenuTrigger>
-                        <MenuOptions customStyles={menuOptionsStyles} >
-                          <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
-                          <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
-                        </MenuOptions>
-                      </Menu>
-                    </View>
-                  </View>
-                  <View 
-                    style={{
-                      backgroundColor: 'white',
-                      elevation: 10,
-                      borderBottomLeftRadius: 30,
-                      borderBottomRightRadius: 30,
-                      padding: 15,
-                      borderBottomColor: '#ccc',
-                      borderBottomWidth: 5,
-                      marginTop: "auto"
-                    }}
-                  >
-                    <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-                    <Text style={{ color: 'black' }}> {post.body}</Text>
-                    <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
-                      <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
-                        <Icon
-                          name={post.liked ? 'heart' : 'heart-o'}
-                          size={20}
-                          color={post.liked ? 'red' : 'black'}
-                          style={styles.icon}
-                        />
-                      </TouchableOpacity>
-                      
-                      <Icon name="comment" size={20} color="black" style={styles.icon} />
-                      <Icon name="share-alt" size={20} color="black" style={styles.icon} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
-                      {post.likes.map((like, index) => (
-                        index < 3 && (
-                          <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
-                        )
-                      ))}
-                      {post.likes_count > 0 && (
-                        <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
-                      )}
-                    </View>
-                  </View>
-                </React.Fragment>
-              ))
-            ) : (
-              <View style={styles.noData}>
-                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
-                <TouchableOpacity
-                  style={{
-                    alignItems: 'center',
-                    marginTop: 20,
-                    marginBottom: 20,
-                    borderRadius: 10,
-                    borderWidth: 2,
-                    height: 50,
-                    width: 200,
-                    backgroundColor: "#2baed6",
-                    justifyContent: 'center',
-                    borderColor: '#2baed6'
-                  }}
-                  onPress={() => navigation.navigate('Blog')}
-                >
-                  <Text style={{ color: 'white' }}>Create your post</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
-        ) : (
-          <FlatList
-            data={data ? data.blogs : []}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderGridItem}
-            numColumns={2}
-          />
-        )}
+          )}
       </ScrollView>
     </MenuProvider>
   );
@@ -319,156 +373,107 @@ const Profile = () => {
 
 const menuOptionsStyles = {
   optionsContainer: {
-    marginTop: 45,
-    marginLeft: 'auto', // Align to the right
-    marginRight: '5%', // Add some margin from the right
     backgroundColor: 'white',
-    padding: 8,
-    borderRadius: 8,
-    minWidth: 100, // Set a minimum width
-  },
-  optionWrapper: {
-    marginVertical: 8,
-  },
-  optionText: {
-    fontSize: 16,
-    color: 'black',
+    padding: 5,
+    width: 120,
   },
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#fff',
     flexGrow: 1,
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: 10,
     borderBottomColor: '#ccc',
-  },
-  inputPost: {
+    borderBottomWidth: 1,
     backgroundColor: 'white',
-    elevation: 10,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: "90%",
-    marginLeft: "5%",
-    marginTop: "2%",
-    borderRadius: 30,
-    height: 60,
-    color: 'black',
-    marginBottom: 20
+    elevation: 5,
+    position: 'relative',
   },
   headerText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'black'
+  },
+  headerIcons: {
+    flexDirection: 'row',
+  },
+  profileContainer: {
+    alignItems: 'center',
+    marginTop: -40,
   },
   stats: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '60%',
-    marginTop: -14,
-    marginLeft: 'auto',
-    paddingRight: 15 
+    marginTop: 10,
   },
   statText: {
-    fontSize: 19,
-    color: '#333',
+    fontSize: 18,
+    marginLeft: 10,
+  },
+  name: {
+    fontSize: 25,
+    marginTop: 10,
     fontWeight: 'bold',
+    color: 'black',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: 200,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 5,
+    borderColor: 'white',
+  },
+  socialLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  horizontalLine: {
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    marginTop: 20,
+  },
+  blogImage: {
+    width: '100%',
+    height: 200,
+    marginTop: 10,
+  },
+  icon: {
+    marginRight: 10,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backgroundImage: {
-    width: '100%',
-    height: Dimensions.get('window').height / 5,
-    resizeMode: 'cover',
-  },
-  profileContainer: {
-    // alignItems: 'center',
-    marginLeft: 30,
-    marginTop: -80,
-  },
-  profileImage: {
-    width: Dimensions.get('window').width / 3,
-    height: Dimensions.get('window').width / 3,
-    borderRadius: (Dimensions.get('window').width / 3) * 0.5,
-    borderWidth: 3,
-    borderColor: '#fff',
-    marginTop: 20,
-
-  },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color: 'black'
-  },
-  socialLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  postSocialLinks: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
-    // marginBottom: 20,
-    height: 50,
-    // width: 200,
-    // backgroundColor: "white",
-    // justifyContent: 'center',
-    // borderColor: '#98dbed',
-    // elevation: 10,
-  },
   noProfileContainer: {
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    marginTop: '50%',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   createProfileButton: {
-    alignItems: 'center',
-    marginTop: 30,
-    elevation: 10,
+    backgroundColor: '#2baed6',
+    padding: 10,
     borderRadius: 10,
-    height: 50,
-    width: 200,
-    backgroundColor: "#147a99",
-    justifyContent: 'center',
-    // borderColor: '#2baed6'
+    marginTop: 20,
   },
-  noData:{
+  noData: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    // marginTop: "20%"
-  },
-  horizontalLine: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 3,
-    width: "100%",
-    marginVertical: 10, 
-  },
-  blogImage: {
-    width: '100%',
-    height: 300, // Adjust the height
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  icon:{
-    marginLeft: 10,
+    alignItems: 'center',
+    marginTop: 20,
   },
 });
-
 
 export default Profile;

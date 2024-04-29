@@ -278,6 +278,7 @@ const HomeScreen = (props) => {
                         marginTop: 15,
                         backgroundColor: 'white',
                         elevation: 10,
+                        margin: 10
                       }}>
                       {post.is_current_user_post ? (
                         <TouchableOpacity
@@ -330,6 +331,8 @@ const HomeScreen = (props) => {
                           marginTop: "auto",
                           backgroundColor: 'white',
                           elevation: 10,
+                          margin: 10,
+                          marginTop: -10
                         }}
                         >
                         <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>

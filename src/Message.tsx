@@ -172,7 +172,7 @@ const Message = () => {
               />
               {searchText !== '' && (
                 <TouchableOpacity onPress={clearSearch}>
-                  <Icon name="times" size={20} color="#555" style={styles.clearIcon} />
+                  <Icon name="times" size={20} color="black" style={styles.clearIcon} />
                 </TouchableOpacity>
               )}
             </View>
@@ -277,8 +277,9 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
     marginBottom: 20,
   },
   modalTitle: {

@@ -79,6 +79,22 @@ const MoreStack = () => (
   </Stack.Navigator>
 );
 
+const ExploreStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Explores"
+      component={Explore}
+      options={{
+        headerShown: false,
+      }}
+    />
+    <Stack.Screen name="UserProfile" component={UserProfile} />
+    <Stack.Screen name="BlogView" component={BlogView} />
+    {/*<Stack.Screen name="Followers" component={Followers} />*/}
+    {/*<Stack.Screen name="Following" component={Following} />*/}
+  </Stack.Navigator>
+);
+
 const MessageStack = () => (
   <Stack.Navigator>
     <Stack.Screen
@@ -147,8 +163,9 @@ const AuthenticatedTabs = ({ navigation, route }) => (
     />
     <Tab.Screen
       name="Explore"
-      component={Explore}
+      component={ExploreStack}
       options={{
+        headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <Icon name="compass" size={30} color={color} />
         ),

@@ -93,8 +93,8 @@ const Story = ({ refresh }) => {
       const storyId = story.story_id;
       setSeenStory(prevState => [...prevState, storyId]);
       setId(storyId);
-      // setCurrentIndex(0);
-      // startSlideshow();
+      setCurrentIndex(0);
+      startSlideshow();
     };
 
     const openMyStoryModal = (story) => {
