@@ -61,7 +61,7 @@ const HomeScreen = (props) => {
   }
 
   const refreshStory = () => {
-    setStoryRefresh(!storyRefresh);
+    setStoryRefresh(true);
   };
 
   useEffect(() => {
@@ -246,7 +246,7 @@ const HomeScreen = (props) => {
               refreshing={isRefreshing}
               onRefresh={() => {
                 getAPIData();
-                refreshStory();
+                refreshStory(); // Refresh the story component
               }}
             />
           }
@@ -584,8 +584,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     elevation: 10,
     marginTop: 20,
-    marginLeft: "4%",
-    marginRight: "6%",
+    marginLeft: "5%",
+    marginRight: "5%",
     borderRadius: 20,
     height: 50,
     justifyContent: 'center'

@@ -26,20 +26,19 @@ import SplashScreen from './SplashScreen';
 import ProfileSetting from './Profile/ProfileSetting';
 import EditMyProfile from './Profile/EditMyProfile';
 import PreHomeScreen from './Auth/PreHomeScreen';
-import CreateStory from './Profile/CreateStory';
-import Notifications from './Notifications'
+import CreateStory from './Profile/CreateStory'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const CustomHeader = ({ title, navigation, iconName }) => {
+const CustomHeader = ({ title, navigation }) => {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon name={iconName} size={30} color="black" />
+      <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
+        <Icon name="search" size={30} color="black" />
       </TouchableOpacity>
       <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black' }}>{title}</Text>
-      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notifications')}>
+      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
         <Icon name="bell" size={30} color="black" />
       </TouchableOpacity>
     </View>
@@ -107,7 +106,6 @@ const MessageStack = () => (
         component={ChatScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="UserProfile" component={UserProfile} />
   </Stack.Navigator>
 );
 
@@ -118,14 +116,14 @@ const HomeStack = () => (
       name="AsSocial"
       component={HomeScreen}
       options={({ navigation, route }) => ({
-        header: () => <CustomHeader title="SA Social"  navigation={navigation} />,
+        header: () => <CustomHeader title="SA Social" navigation={navigation} />,
       })}
     />
     <Stack.Screen
       name="Blog"
       component={Blog}
       options={({ navigation, route }) => ({
-        header: () => <CustomHeader title="Create Post" iconName="arrow-left" navigation={navigation} />,
+        header: () => <CustomHeader title="Create Post" navigation={navigation} />,
       })}
     />
     <Stack.Screen
@@ -138,7 +136,6 @@ const HomeStack = () => (
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="CreateStory" component={CreateStory} />
-    <Stack.Screen name="Notifications" component={Notifications} />
   </Stack.Navigator>
 );
 

@@ -78,7 +78,7 @@ const Message = () => {
   };
 
   const renderUserItem = ({ item }) => (
-    <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('ChatScreen', { userName: item.name, userId: item.user_id, userProfile: item.profile_image.url, profileId: item.id })}>
+    <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('ChatScreen', { userName: item.name, userId: item.user_id, userProfile: item.profile_image.url })}>
       <Image source={{ uri: item.profile_image.url }} style={styles.profileImage} />
       <View style={styles.userInfo}>
         <Text style={styles.userName}>{item.name}</Text>
@@ -235,7 +235,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    elevation: 10,
+    borderWidth: 2,
+    borderColor:'#ddd',
+    borderRadius: 20,
+    elevation: 2,
     backgroundColor: '#fff',
     marginTop: 8
   },
@@ -252,7 +255,6 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'black'
   },
   userUsername: {
     fontSize: 16,
@@ -294,18 +296,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingLeft: 10,
     marginBottom: 10,
-    backgroundColor: "white",
-    elevation: 10,
   },
   searchIcon: {
     marginRight: 10,
-    backgroundColor: "white"
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: 'black',
-    backgroundColor: "white"
+    color: '#555',
   },
   clearIcon: {
     marginLeft: 10,

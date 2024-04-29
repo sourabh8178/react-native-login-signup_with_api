@@ -6,18 +6,14 @@ import firestore from '@react-native-firebase/firestore';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { AuthContext } from './Auth/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { BASE_URL } from './Auth/Config';
-import axios from 'axios';
-import Video from 'react-native-video';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
-// import  storage  from '@react-native-firebase/storage';
+import  storage  from '@react-native-firebase/storage';
 
 const ChatScreen = () => {
   const { userInfo } = useContext(AuthContext);
   const [messageList, setMessageList] = useState([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const route = useRoute();
   const navigation = useNavigation();
@@ -50,28 +46,13 @@ const ChatScreen = () => {
         sendTo: route.params.userId,
         image: imageUrl,
         createdAt: Date.parse(msg.createdAt),
-        sent: true,
-        received: false,
       };
-    } else if (videoUrl !== '') {
-      myMsg = {
-        ...msg,
-        sendBy: userInfo.data.id,
-        sendTo: route.params.userId,
-        video: videoUrl,
-        createdAt: Date.parse(msg.createdAt),
-        sent: true,
-        received: false,
-      };
-    }
-    else {
+    } else {
       myMsg = {
         ...msg,
         sendBy: userInfo.data.id,
         sendTo: route.params.userId,
         createdAt: Date.parse(msg.createdAt),
-        sent: true,
-        received: false,
       };
     }
     setImage('');
@@ -102,12 +83,6 @@ const ChatScreen = () => {
         {props.children}
       </InputToolbar>
     );
-  };
-
-  const handleProfileView = (profileId) => {
-    navigation.navigate("UserProfile", {
-      id: profileId,
-    });
   };
 
   const CustomMenuItem = ({ icon, text, onSelect }) => {
@@ -141,42 +116,30 @@ const ChatScreen = () => {
   };
 
   const uplaodImage = async (imageData) => {
-        const formData = new FormData();
-        formData.append('sendBy', userInfo.data.id);
-        formData.append('sendTo', route.params.userId);
-        formData.append('image', {
-            uri: imageData.assets[0].uri,
-            type: imageData.assets[0].type,
-            name: imageData.assets[0].fileName,
-        });
-        console.warn(formData)
-        axios.post(`${BASE_URL}/message`, formData, {
-          headers: {
-            Authorization: `Bearer ${userInfo.data.authentication_token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then(res => {
-          if (res.data.data.image.blob === "video/mp4") {
-            setVideoUrl(res.data.data.image.url)
-          } else {
-            setImageUrl(res.data.data.image.url);
-          }
-        })
-        .catch(e => {
-          console.log(`register error ${e}`);
-      });
+    try {
+      const fileName = imageData.assets[0].fileName;
+      const reference = storage().ref(`images/${fileName}`);
+      const pathToFile = imageData.assets[0].uri;
+      await reference.putFile(pathToFile);
+      const url = await reference.getDownloadURL();
+      console.log('Image uploaded successfully. Download URL:', url);
+      setImageUrl(url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
   };
 
   const pickImage = async () => {
     try {
       const options = {
         title: 'Select Image',
-        mediaType: 'image/video', 
-        storageOptions:{
-          skipBackup:true,
-          path:'images'
-        }
+        type: 'library',
+        options: {
+          selectionLimit: 1,
+          mediaType: 'photo',
+          includeBase64: false,
+        },
       }
       const images = await launchImageLibrary(options);
       if (!images.didCancel) {
@@ -262,33 +225,19 @@ const ChatScreen = () => {
     );
   };
 
-  const renderMessageImage = (props) => {
-    const { currentMessage } = props;
-      if (currentMessage.image) {
-        return (
-          <Image
-            source={{ uri: currentMessage.image }}
-            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
-          />
-        );
-      }
+  // const renderMessageImage = (props) => {
+  //   const { currentMessage } = props;
+  //     // if (currentMessage.image) {
+  //       return (
+  //         <Image
+  //           source={{ uri: currentMessage.image }}
+  //           style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
+  //         />
+  //       );
+  //     // }
 
-      return null;
-  };
-
-  const renderMessageVideo = (props) => {
-    const { currentMessage } = props;
-      if (currentMessage.video) {
-        return (
-          <Video
-            source={{ uri: currentMessage.video }}
-            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
-          />
-        );
-      }
-
-      return null;
-  };
+  //     // return null;
+  // };
 
   return (
     <MenuProvider>
@@ -297,10 +246,8 @@ const ChatScreen = () => {
           <TouchableOpacity onPress={() => navigation.navigate('Messages')}>
             <Icon name="arrow-left" size={25} color="black" style={styles.icon}/>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleProfileView(route.params.profileId)} style={styles.headerChat}>
           <Image source={{ uri: route.params.userProfile }} style={styles.profileImage} />
           <Text style={styles.userName}>{route.params.userName.charAt(0).toUpperCase() + route.params.userName.slice(1)}</Text>
-          </TouchableOpacity>
           <Menu>
             <MenuTrigger style={{padding: 20}}>
             <Icon name="ellipsis-v" size={30} color="black" style={styles.menuIcon}/>
@@ -322,14 +269,13 @@ const ChatScreen = () => {
             _id: userInfo.data.id,
             avatar: route.params.userProfile,
             image: imageUrl,
-            sent: true,
+            sent: true
           }}
           renderInputToolbar={props => customtInputToolbar(props)}
           renderSend={renderSend}
           renderBubble={renderBubble}
           alwaysShowSend
-          renderMessageVideo={(props) => renderMessageVideo(props)}
-          renderMessageImage={(props) => renderMessageImage(props)}
+          // renderMessageImage={(props) => renderMessageImage(props)}
         />
         </ImageBackground>
       </View>
@@ -369,12 +315,6 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-  },
-  headerChat: {
-    flexDirection: 'row',
-    marginRight: 'auto',
-    alignItems: 'center',
-    marginLeft: 20
   },
   profileImage: {
     marginRight: 10,
