@@ -6,13 +6,11 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity, 
-  TouchableWithoutFeedback, 
-  RefreshControl, 
-  Dimensions, 
-  Alert, 
-  ActivityIndicator, 
-  Share,
-  FlatList // Added FlatList import
+  ActivityIndicator,
+  RefreshControl,
+  Dimensions,
+  Alert,
+  Share
 } from 'react-native';
 import axios from 'axios';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
@@ -21,135 +19,31 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { AuthContext } from '../Auth/AuthContext';
 import { BASE_URL } from '../Auth/Config';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import Posts from "../explore/Posts";
+import Reels from "../explore/Reels";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const [profileDetail, setProfileDetail] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [blogData, setBlogData] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
   const { userInfo } = useContext(AuthContext);
-  const [viewType, setViewType] = useState('list');
   const navigation = useNavigation();
   const [index, setIndex] = useState(0);
 
   const PostsRoute = () => (
-    <ScrollView>
-        {viewType === 'list' ? (
-          <>
-            {blogData ? (
-              blogData.data.map((post) => (
-                <React.Fragment key={post.id}>
-                  <View 
-                    style={{
-                      borderTopLeftRadius: 30,
-                      borderTopRightRadius: 30,
-                      padding: 15,
-                      borderTopColor: '#ccc',
-                      borderTopWidth: 5,
-                      backgroundColor: 'white',
-                      elevation: 10,
-                      marginTop: "auto",
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                      <Image source={{ uri: post.profile.image.url }} style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} />
-                      <Text style={{ color: 'black' }}>{post.profile.name.charAt(0).toUpperCase() + post.profile.name.slice(1)}</Text>
-                      <Menu>
-                        <MenuTrigger style={{ padding: 5, marginLeft: '65%'  }}>
-                          <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }}/>
-                        </MenuTrigger>
-                        <MenuOptions customStyles={menuOptionsStyles} >
-                          <MenuOption onSelect={() => editPost(post.id)} text="Edit" />
-                          <MenuOption onSelect={() => showDeleteConfirmation(post.id)} text="Delete" />
-                        </MenuOptions>
-                      </Menu>
-                    </View>
-                  </View>
-                  <View 
-                    style={{
-                      backgroundColor: 'white',
-                      elevation: 10,
-                      borderBottomLeftRadius: 30,
-                      borderBottomRightRadius: 30,
-                      padding: 15,
-                      borderBottomColor: '#ccc',
-                      borderBottomWidth: 5,
-                      marginTop: "auto"
-                    }}
-                  >
-                    <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-                    <Text style={{ color: 'black' }}> {post.body}</Text>
-                    <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
-                      <TouchableOpacity onPress={() => handleLikeToggle(post.id)} style={{marginLeft: 10}}>
-                        <Icon
-                          name={post.liked ? 'heart' : 'heart-o'}
-                          size={20}
-                          color={post.liked ? 'red' : 'black'}
-                          style={styles.icon}
-                        />
-                      </TouchableOpacity>
-                      
-                      <Icon name="comment" size={20} color="black" style={styles.icon} />
-                      <Icon name="share-alt" size={20} color="black" style={styles.icon} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',marginLeft: 30, marginTop: 8 }}>
-                      {post.likes.map((like, index) => (
-                        index < 3 && (
-                          <Image key={index} source={{ uri: like.url }} style={{ height: 20, width: 20, borderRadius: 10, marginLeft: -10, marginTop: -10 }} />
-                        )
-                      ))}
-                      {post.likes_count > 0 && (
-                        <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
-                      )}
-                    </View>
-                  </View>
-                </React.Fragment>
-              ))
-            ) : (
-              <View style={styles.noData}>
-                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>No data available</Text>
-                <TouchableOpacity
-                  style={{
-                    alignItems: 'center',
-                    marginTop: 20,
-                    marginBottom: 20,
-                    borderRadius: 10,
-                    borderWidth: 2,
-                    height: 50,
-                    width: 200,
-                    backgroundColor: "#2baed6",
-                    justifyContent: 'center',
-                    borderColor: '#2baed6'
-                  }}
-                  onPress={() => navigation.navigate('Blog')}
-                >
-                  <Text style={{ color: 'white' }}>Create your post</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
-        ) : (
-          <FlatList
-            data={data ? data.blogs : []}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderGridItem}
-            numColumns={2}
-          />
-        )}
-    </ScrollView>
+    <Posts />
   );
 
   const MediaRoute = () => (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Media</Text>
-    </View>
+    <Reels />
   );
 
   const MusicRoute = () => (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Music</Text>
+      <Text>Coming soon.......</Text>
     </View>
   );
 
@@ -178,101 +72,30 @@ const Profile = () => {
   const getAPIData = async () => {
     try {
       setIsRefreshing(true);
+      setIsLoading(true); // Set loading state to true while fetching data
       const token = userInfo.data.authentication_token;
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
       setProfileDetail(response.data);
+      await AsyncStorage.removeItem('userInfo');
     } catch (error) {
       // console.error('Error fetching data:', error);
     } finally {
       setIsRefreshing(false);
+      setIsLoading(false); // Set loading state to false after data is fetched
       setLoading(false);
-    }
-  };
-
-  const getAPIBlogData = async () => {
-    try {
-      const token = userInfo.data.authentication_token;
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${BASE_URL}/user_blog`, { headers });
-      setBlogData(response.data);
-    } catch (error) {
-      // console.error('Error fetching data:', error);
     }
   };
 
   useEffect(() => {
     getAPIData();
-    getAPIBlogData();
   }, []);
 
   const onRefresh = () => {
     getAPIData();
-    getAPIBlogData();
   };
 
-  const handleLikeToggle = (postId) => {
-    // Toggle the liked status for the post
-    if (likedPosts.includes(postId)) {
-      setLikedPosts(likedPosts.filter((id) => id !== postId));
-      handleUnlike(postId);
-    } else {
-      setLikedPosts([...likedPosts, postId]);
-      handleLike(postId);
-    }
-  };
-
-  const handleLike = async (postId) => {
-    try {
-      const token = userInfo.data.authentication_token;
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(`${BASE_URL}/like/${postId}`, {}, { headers });
-      setLikedPosts([...likedPosts, postId]);
-      getAPIBlogData();
-    } catch (error) {
-      console.log(error.response.data.errors);
-    }
-  };
-
-  const handleUnlike = async (postId) => {
-    try {
-      const token = userInfo.data.authentication_token;
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(`${BASE_URL}/unlike/${postId}`, {}, { headers });
-      getAPIBlogData();
-    } catch (error) {
-      console.log(error.response.data.errors);
-    }
-  };
-
-  const deletePost = async (postId) => {
-    try {
-      const token = userInfo.data.authentication_token;
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${BASE_URL}/delete_blog/${postId}`, { headers });
-      getAPIBlogData();
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const showDeleteConfirmation = (postId) => {
-    Alert.alert(
-      'Confirm Deletion',
-      'Are you sure you want to delete this post?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', onPress: () => deletePost(postId) }
-      ],
-      { cancelable: true }
-    );
-  };
-
-  const editPost = async (postId) => {
-    console.log(postId);
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="blue" />
@@ -300,6 +123,11 @@ const Profile = () => {
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
         contentContainerStyle={styles.container}
       >
+        {isLoading && ( // Conditionally render loading indicator
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="blue" />
+          </View>
+        )}
         <View style={styles.header}>
           <Text style={styles.headerText}>Profile</Text>
           <View style={styles.headerIcons}>
@@ -320,7 +148,7 @@ const Profile = () => {
         <View style={styles.profileContainer}>
           <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
           <View style={styles.stats}>
-            <TouchableOpacity onPress={() => navigateToPosts()} style={{ padding: 5 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Posts')} style={{ padding: 5 }}>
               <Text style={styles.statText}> Posts</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Followers')} style={{ padding: 5 }}>
@@ -343,7 +171,6 @@ const Profile = () => {
           <Icon name="instagram" size={20} color="black" style={{ marginLeft: 20 }} />
         </View>
         <View style={styles.horizontalLine} />
-        {blogData && (
           <View >
             <TabView
               navigationState={{ index, routes }}
@@ -365,7 +192,6 @@ const Profile = () => {
               )}
             />
           </View>
-          )}
       </ScrollView>
     </MenuProvider>
   );
@@ -473,6 +299,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+  },
+  // Style for loading overlay
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1, // Ensure the loading indicator is above other content
   },
 });
 

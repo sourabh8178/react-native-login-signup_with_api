@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, Button, TouchableOpacity, TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl, Alert, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Modal, StyleSheet, Button, TouchableOpacity, TouchableWithoutFeedback, ScrollView, FlatList, Image, TextInput, RefreshControl, Alert, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
@@ -172,11 +172,14 @@ const HomeScreen = (props) => {
     );
   };
 
-  const openModel = (postId) => {
+  const handleCommentIconClick = (postId) => {
+    openModal(postId);
+  };
+
+  const openModal = async (postId) => {
     setShowModal(true);
-    commentPost(postId);
-    setPostIds(postId);
-  }
+    await commentPost(postId);
+  };
 
   const commentPost = async (postId) => {
     const token = userInfo.data.authentication_token;
@@ -246,7 +249,7 @@ const HomeScreen = (props) => {
               refreshing={isRefreshing}
               onRefresh={() => {
                 getAPIData();
-                refreshStory(); // Refresh the story component
+                refreshStory();
               }}
             />
           }
@@ -388,14 +391,14 @@ const HomeScreen = (props) => {
                             style={styles.icon}
                           />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => openModel(post.id)}>
+                        <TouchableOpacity onPress={() => handleCommentIconClick(post.id)}>
                           <Icon name="comment-o" size={25} color="black" style={styles.icon} />
                         </TouchableOpacity>
                         <Modal
-                            visible={showModal}
-                            transparent={true}
-                            animationType="slide"
-                            onRequestClose={closeModal}
+                          visible={showModal}
+                          transparent={true}
+                          animationType="slide"
+                          onRequestClose={closeModal}
                           >
                           <View style={styles.modalContainer}>
                             <View style={styles.modalHeader}>
@@ -424,7 +427,7 @@ const HomeScreen = (props) => {
                                     {noCommentData ? (
                                       <Text>No comments....</Text>
                                     ) : (
-                                      <Text>Loading....</Text>
+                                      <ActivityIndicator size="large" color="#0000ff" /> // Display loader while fetching comments
                                     )}
                                   </View>
                                 )}

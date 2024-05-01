@@ -1767,6 +1767,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-19.2.2.tgz#e59e21e9e9d047b9c83197a1c569be50156bfda6"
   integrity sha512-oZNamTvYH3rBneJQ+m0PZED5dzyxcEwyjzwszk/jMjJRgzUrIK3TGu65d6txxIFm6LU5MigpjyqyxrHxrT8aCg==
 
+"@react-native-firebase/storage@^19.2.2":
+  version "19.2.2"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-19.2.2.tgz#3edaffc453ccfbc3d37d755f94c65eaca7cb4718"
+  integrity sha512-wROOJSoCdE8UpVzBtN/F/kDIVKK9xJnCs+8vzD3AWirSJEy4bIj4nGQhTag2IZtabQPHXTo8w3TIYNjlYesjtQ==
+
 "@react-native-picker/picker@^2.6.1":
   version "2.6.1"
   resolved "https://registry.npmjs.org/@react-native-picker/picker/-/picker-2.6.1.tgz"
@@ -5949,7 +5954,7 @@ react-native-communications@2.2.1:
 
 react-native-flash-message@^0.4.2:
   version "0.4.2"
-  resolved "https://registry.npmjs.org/react-native-flash-message/-/react-native-flash-message-0.4.2.tgz"
+  resolved "https://registry.yarnpkg.com/react-native-flash-message/-/react-native-flash-message-0.4.2.tgz#ed8ffe60c532bc1274c3b49a60dd0bd2fca59c50"
   integrity sha512-YvdXRW9AGMTI99S3DJZhLO0mbk/ehKv/UQf4/Df+3dtGi8DlkidRbyqCQZk1WMtZ7rN85PMTGr/xEI9CF9z0YA==
   dependencies:
     prop-types "^15.8.1"

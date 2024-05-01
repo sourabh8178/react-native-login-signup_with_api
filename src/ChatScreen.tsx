@@ -6,6 +6,9 @@ import firestore from '@react-native-firebase/firestore';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { AuthContext } from './Auth/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { BASE_URL } from './Auth/Config';
+import axios from 'axios';
+import Video from 'react-native-video';
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 import  storage  from '@react-native-firebase/storage';
 
@@ -14,6 +17,7 @@ const ChatScreen = () => {
   const [messageList, setMessageList] = useState([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const route = useRoute();
   const navigation = useNavigation();
@@ -38,7 +42,6 @@ const ChatScreen = () => {
   const onSend = useCallback(async (messages = []) => {
     let myMsg = null;
     const msg = messages[0];
-    
     if (imageUrl !== '') {
       myMsg = {
         ...msg,
@@ -46,15 +49,18 @@ const ChatScreen = () => {
         sendTo: route.params.userId,
         image: imageUrl,
         createdAt: Date.parse(msg.createdAt),
+        sent: true,
       };
-    } else {
+    } 
+    else {
       myMsg = {
         ...msg,
         sendBy: userInfo.data.id,
         sendTo: route.params.userId,
         createdAt: Date.parse(msg.createdAt),
-      };
-    }
+        sent: true,
+       };
+     }
     setImage('');
     setMessageList(previousMessages =>
       GiftedChat.append(previousMessages, myMsg),
@@ -85,12 +91,17 @@ const ChatScreen = () => {
     );
   };
 
+  const handleProfileView = (profileId) => {
+    navigation.navigate("UserProfile", {
+      id: profileId,
+    });
+  };
+
   const CustomMenuItem = ({ icon, text, onSelect }) => {
     return (
       <MenuOption onSelect={onSelect}>
         <View style={styles.menuItem}>
           <Icon name={icon} size={24} color="black" style={{ marginRight: "5%"}}/>
-          {/*<FontAwesomeIcon icon={icon} size={24} color="gray" style={styles.menuItemIcon} />*/}
           <Text style={styles.menuItemText}>{text}</Text>
         </View>
       </MenuOption>
@@ -108,6 +119,7 @@ const ChatScreen = () => {
 
       if (!image.didCancel) {
         setImage(images);
+        console.warn(images)
         uplaodImage(images);
       }
     } catch (err) {
@@ -225,19 +237,20 @@ const ChatScreen = () => {
     );
   };
 
-  // const renderMessageImage = (props) => {
-  //   const { currentMessage } = props;
-  //     // if (currentMessage.image) {
-  //       return (
-  //         <Image
-  //           source={{ uri: currentMessage.image }}
-  //           style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
-  //         />
-  //       );
-  //     // }
+  const renderMessageImage = (props) => {
+    const { currentMessage } = props;
+    // console.warn(props.image)
+      // if (currentMessage.image) {
+        return (
+          <Image
+            source={{ uri: currentMessage.image }}
+            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 0, marginBottom: 0 }}
+          />
+        );
+      // }
 
-  //     // return null;
-  // };
+      return null;
+  };
 
   return (
     <MenuProvider>
@@ -246,8 +259,10 @@ const ChatScreen = () => {
           <TouchableOpacity onPress={() => navigation.navigate('Messages')}>
             <Icon name="arrow-left" size={25} color="black" style={styles.icon}/>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleProfileView(route.params.profileId)} style={styles.headerChat}>
           <Image source={{ uri: route.params.userProfile }} style={styles.profileImage} />
           <Text style={styles.userName}>{route.params.userName.charAt(0).toUpperCase() + route.params.userName.slice(1)}</Text>
+          </TouchableOpacity>
           <Menu>
             <MenuTrigger style={{padding: 20}}>
             <Icon name="ellipsis-v" size={30} color="black" style={styles.menuIcon}/>
@@ -259,9 +274,9 @@ const ChatScreen = () => {
           </Menu>
         </View>
         <ImageBackground
-      source={require('./assest/background.jpg')}
-      style={styles.backgroundImage}
-    >
+          source={require('./assest/background.jpg')}
+          style={styles.backgroundImage}
+        >
         <GiftedChat
           messages={messageList}
           onSend={messages => onSend(messages)}
@@ -269,13 +284,13 @@ const ChatScreen = () => {
             _id: userInfo.data.id,
             avatar: route.params.userProfile,
             image: imageUrl,
-            sent: true
+            // sent: true
           }}
           renderInputToolbar={props => customtInputToolbar(props)}
           renderSend={renderSend}
           renderBubble={renderBubble}
           alwaysShowSend
-          // renderMessageImage={(props) => renderMessageImage(props)}
+          renderMessageImage={(props) => renderMessageImage(props)}
         />
         </ImageBackground>
       </View>
@@ -388,6 +403,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: 8,
   },
+  headerChat: {
+    flexDirection: 'row',
+    marginRight: 'auto',
+    alignItems: 'center',
+    marginLeft: 20
+  },
+
 });
 
 export default ChatScreen;

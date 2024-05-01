@@ -87,12 +87,14 @@ const More = () => {
         </>
       ) : (
         <Text style={{
-                        alignItems: 'center',
-                        borderRadius: 20,
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        marginTop: "70%"
-                      }}>No profile details available</Text>
+            alignItems: 'center',
+            borderRadius: 20,
+            justifyContent: 'center',
+            textAlign: 'center',
+            marginTop: "70%"
+          }}>No profile details available
+          <MenuItem icon={faSignOutAlt} label="Logout" onPress={handleLogout} />
+          </Text>
       )}
     </ScrollView>
   );

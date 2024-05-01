@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   inputPost: {
     backgroundColor: 'white',
-    elevation: 10,
+    // elevation: 10,
     borderRadius: 20,
     height: 50,
     justifyContent: 'center',
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
     paddingHorizontal: 100,
-    borderColor: 'grey'
+    borderColor: 'grey',
   },
   blogImage: {
     width: '100%',

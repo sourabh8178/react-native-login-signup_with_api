@@ -26,20 +26,21 @@ import SplashScreen from './SplashScreen';
 import ProfileSetting from './Profile/ProfileSetting';
 import EditMyProfile from './Profile/EditMyProfile';
 import PreHomeScreen from './Auth/PreHomeScreen';
-import CreateStory from './Profile/CreateStory'
+import CreateStory from './Profile/CreateStory';
+import Notifications from './Notifications'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const CustomHeader = ({ title, navigation }) => {
+const CustomHeader = ({ title, navigation, iconName, anotherIcon }) => {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, height: 50 }}>
-      <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
-        <Icon name="search" size={30} color="black" />
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Icon name={iconName} size={30} color="black" />
       </TouchableOpacity>
       <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black' }}>{title}</Text>
-      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notification')}>
-        <Icon name="bell" size={30} color="black" />
+      <TouchableOpacity style={{ marginRight: 0 }} onPress={() => navigation.navigate('Notifications')}>
+        <Icon name={anotherIcon} size={30} color="black" />
       </TouchableOpacity>
     </View>
   );
@@ -89,8 +90,6 @@ const ExploreStack = () => (
     />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="BlogView" component={BlogView} />
-    {/*<Stack.Screen name="Followers" component={Followers} />*/}
-    {/*<Stack.Screen name="Following" component={Following} />*/}
   </Stack.Navigator>
 );
 
@@ -106,6 +105,7 @@ const MessageStack = () => (
         component={ChatScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="UserProfile" component={UserProfile} />
   </Stack.Navigator>
 );
 
@@ -116,14 +116,14 @@ const HomeStack = () => (
       name="AsSocial"
       component={HomeScreen}
       options={({ navigation, route }) => ({
-        header: () => <CustomHeader title="SA Social" navigation={navigation} />,
+        header: () => <CustomHeader title="SA Social"  anotherIcon="bell" navigation={navigation} />,
       })}
     />
     <Stack.Screen
       name="Blog"
       component={Blog}
       options={({ navigation, route }) => ({
-        header: () => <CustomHeader title="Create Post" navigation={navigation} />,
+        header: () => <CustomHeader title="Create Post" iconName="arrow-left" navigation={navigation} />,
       })}
     />
     <Stack.Screen
@@ -136,6 +136,7 @@ const HomeStack = () => (
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="CreateStory" component={CreateStory} />
+    <Stack.Screen name="Notifications" component={Notifications} />
   </Stack.Navigator>
 );
 
@@ -210,7 +211,13 @@ const Navigation = () => {
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       ) : userInfo !== null && Object.keys(userInfo).length !== 0 ? (
-        <AuthenticatedTabs />
+          userInfo.profile_present === false ? (
+             <Stack.Navigator>
+              <Stack.Screen name="CreateProfile" component={CreateProfile} options={{ headerShown: false }} />
+            </Stack.Navigator>
+            ) : (
+            <AuthenticatedTabs />
+            )
       ) : (
         <Stack.Navigator>
           <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
