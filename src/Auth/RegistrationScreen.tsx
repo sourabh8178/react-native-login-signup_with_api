@@ -49,11 +49,7 @@ const RegistrationScreen = ({ navigation }) => {
           secureTextEntry
         />
         <TouchableOpacity onPress={handleRegistration} style={styles.loginBtn}>
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.loginText}>Register</Text>
-          )}
+           <Text style={styles.loginText}>Register</Text>
         </TouchableOpacity>
         <View style={styles.linkContainer}>
           <Text style={styles.linkText}>Already have an account?</Text>
@@ -72,6 +68,11 @@ const RegistrationScreen = ({ navigation }) => {
           <Text style={styles.authButtonText}>Continue with AppleID</Text>
         </TouchableOpacity>
       </View>
+			{loading && (
+				<View style={styles.overlay}>
+					<ActivityIndicator size="large" color="#147a99" />
+				</View>
+			)}
     </ScrollView>
   );
 };
@@ -170,6 +171,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
+  },
+  overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
   },
 });
 

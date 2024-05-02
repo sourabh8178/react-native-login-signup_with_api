@@ -67,25 +67,25 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const logout = () => {
-  	setIsLoading(true);
-  	axios
-  	.post(`${BASE_URL}/users/logout`, {
-      },
-      {headers:  {Authorization: `Bearer ${userInfo.data.authentication_token}`},
-      },
-      )
-    .then(res => {
-      let userInfo = res.data;
-      console.log(userInfo);
-      setUserInfo(userInfo);
-      AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-      setIsLoading(false);
-    })
-    .catch(e => {
-      console.log(`Logout error ${e}`);
-      setIsLoading(false);
-    });
+  const logout = async () => {
+  	try {
+      await AsyncStorage.removeItem('userInfo');
+      setUserInfo(null);
+      showMessage({
+        message: "SUCCESS!",
+        description: "Logout Successful.",
+        type: "success",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      showMessage({
+        message: "FAILED!",
+        description: "Logout failed. Please try again.",
+        type: "danger",
+        duration: 2000,
+      });
+    }
   };
 
   const isLoggedIn = async () => {
@@ -103,27 +103,8 @@ export const AuthProvider = ({ children }) => {
   	}
   };
 
-  const updateProfile = (userInfo, editedData) => {
-    setIsLoading(true);
-    axios.put(`${BASE_URL}/update_profile`, {
-        editedData
-      },
-      { headers:
-        {Authorization: `Bearer ${userInfo.data.authentication_token}`},
-      }
-    )
-      .then(res => {
-        let profileInfo = res.data;
-        setBlogInfo(profileInfo);
-        AsyncStorage.setItem('profileInfo', JSON.stringify(profileInfo));
-        setIsLoading(false);
-        console.log(profileInfo);
-        // handleBlogView(profileInfo.id);
-      })
-      .catch(e => {
-        console.log(`register error ${e}`);
-        setIsLoading(false);
-    });
+  const createProfile = () => {
+    isLoggedIn();
   };
 
   useEffect(() => {
@@ -131,6 +112,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{login, updateProfile, splashLoading, register, isLoading, userInfo, logout}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{login, createProfile, splashLoading, register, isLoading, userInfo, logout}}>{children}</AuthContext.Provider>
   );
 };

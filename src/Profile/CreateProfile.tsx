@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { AuthContext } from "../Auth/AuthContext"
 import { BASE_URL } from "../Auth/Config";
 import axios from 'axios';
@@ -8,6 +8,7 @@ import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { showMessage } from "react-native-flash-message";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateProfile = () => {
 	const [date, setDate] = useState('');
@@ -27,8 +28,9 @@ const CreateProfile = () => {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [profileImage, setProfileImage] = useState('');
   const [backgroundImage, setBackgroundImage] = useState('');
-	const {userInfo} = useContext(AuthContext);
+	const {userInfo, createProfile} = useContext(AuthContext);
 	const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
 
 	const validateInputs = () => {
     if (!profileImage) {
@@ -63,8 +65,9 @@ const CreateProfile = () => {
 
     return true;
   };
-  const handleCreateProfile = () => {
+  const handleCreateProfile = async () => {
     if (!validateInputs()) return;
+    setIsLoading(true);
 		const formData = new FormData();
 		formData.append('name', name);
     formData.append('user_name', userName);
@@ -100,13 +103,12 @@ const CreateProfile = () => {
 	      'Content-Type': 'multipart/form-data',
 	    },
 	  })
-    .then((res) => {
-      console.log(res.data);
-      Alert.alert('Success', 'Profile created successfully.');
-      handleProfileView()
+    .then( async (res) => {
+      const updatedUserInfo = {...userInfo, profile_present: true};
+      await AsyncStorage.setItem('userInfo', JSON.stringify(updatedUserInfo))
+      await createProfile();
     })
     .catch((error) => {
-      // console.log('iiiii', error.response.data.errors);
       const errorMessage = error.response.data.errors;
       alert(errorMessage);
       setIsLoading(false);
@@ -114,12 +116,9 @@ const CreateProfile = () => {
 	  } catch (errors) {
 	    console.log('Profile creation failed:',errors);
       Alert.alert('Error', 'Failed to create profile. Please try again later.');
+      setIsLoading(false);
 	  }
 	};
-
-	const handleProfileView = () => {
-  	navigation.navigate('Profile');
-  };
 
   const pickImage = async () => {
     try {
@@ -175,6 +174,7 @@ const CreateProfile = () => {
 
 
   return (
+    <View style={styles.container}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 2, paddingBottom: 5 }}>
 	    <View style={styles.imageContainer}>
 	     {backgroundImage && <Image source={{ uri: backgroundImage.assets[0].uri }} style={styles.backgroundImage} />}
@@ -319,15 +319,21 @@ const CreateProfile = () => {
         >
           <Text style={{ color: 'white' }}>Create Profile</Text>
         </TouchableOpacity>
+        {isLoading && (
+          <View style={styles.overlay}>
+              <ActivityIndicator size="large" color="#147a99" />
+              <Text style={{color: 'black', fontSize: 20}}>Please wait Your profile is geting ready</Text>
+          </View>
+        )}
     </ScrollView>
+    </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
     backgroundColor: '#f0f0f0',
+    padding: 10
   },
   inputcontainer: {
     flexGrow: 1,
@@ -443,6 +449,12 @@ const styles = StyleSheet.create({
     width: "30%",
     // paddingTop:2
     marginTop: 10,
-  }
+  },
+  overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
 });
 export default CreateProfile;

@@ -10,9 +10,12 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { isLoading, login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
+  	setLoading(true);
     login(email, password);
+    setLoading(false);
   };
 
   return (
@@ -67,6 +70,11 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.authButtonText}>Continue with AppleID</Text>
         </TouchableOpacity>
       </View>
+      {loading && (
+				<View style={styles.overlay}>
+					<ActivityIndicator size="large" color="#147a99" />
+				</View>
+			)}
     </ScrollView>
   );
 };
@@ -174,6 +182,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
+  },
+  overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
   },
 });
 

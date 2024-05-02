@@ -14,6 +14,7 @@ const Message = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [filterText, setFilterText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,11 @@ const Message = () => {
 
   const onSearch = (text) => {
     setSearchText(text);
+    searchApi(text);
+  };
+
+  const onFilter = (text) => {
+    setFilterText(text);
     searchApi(text);
   };
 
@@ -109,11 +115,11 @@ const Message = () => {
   );
 
   const filterUsers = () => {
-    if (searchText === '') {
-      return data;
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
     } else {
       return data.filter((user) =>
-        user.name.toLowerCase().includes(searchText.toLowerCase())
+        user.name.toLowerCase().includes(filterText.toLowerCase())
       );
     }
   };
@@ -131,10 +137,10 @@ const Message = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search users..."
-            onChangeText={onSearch}
-            value={searchText}
+            onChangeText={onFilter}
+            value={filterText}
           />
-          {searchText !== '' && (
+          {filterText !== '' && (
             <TouchableOpacity onPress={clearSearch}>
               <Icon name="times" size={20} color="#555" style={styles.clearIcon} />
             </TouchableOpacity>
@@ -308,7 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white"
   },
   clearIcon: {
-    marginLeft: 10,
+    marginRight: 10,
   },
   loader: {
     marginTop: 20,

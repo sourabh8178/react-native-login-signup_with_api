@@ -132,7 +132,6 @@ const HomeStack = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen name="BlogView" component={BlogView} />
-    <Stack.Screen name="CreateProfile" component={CreateProfile} />
     <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="CreateStory" component={CreateStory} />
@@ -211,13 +210,13 @@ const Navigation = () => {
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       ) : userInfo !== null && Object.keys(userInfo).length !== 0 ? (
-          userInfo.profile_present === false ? (
-             <Stack.Navigator>
-              <Stack.Screen name="CreateProfile" component={CreateProfile} options={{ headerShown: false }} />
-            </Stack.Navigator>
-            ) : (
-            <AuthenticatedTabs />
-            )
+         userInfo.profile_present === false ? (
+          <Stack.Navigator>
+            <Stack.Screen name="CreateProfile" component={CreateProfile} />
+          </Stack.Navigator>
+          ) : (
+          <AuthenticatedTabs />
+          )
       ) : (
         <Stack.Navigator>
           <Stack.Screen name="PreHomeScreen" component={PreHomeScreen} options={{ headerShown: false }} />
