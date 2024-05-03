@@ -29,7 +29,6 @@ const Story = ({ refresh }) => {
         getUserData();
         getAPIData();
         getCurrentStory();
-        // getMyStory();
       }
       getUserData();
       getAPIData();
@@ -85,11 +84,10 @@ const Story = ({ refresh }) => {
 		};
 
     const toggleUserList = () => {
-        setShowUserList(!showUserList);
+      setShowUserList(!showUserList);
     };
 
     const openModel = (story) => {
-    	console.warn("a", story )
       setShowModal(true);
       setStoryData(story);
       const storyId = story.story_id;
@@ -105,8 +103,23 @@ const Story = ({ refresh }) => {
       const storyId = story.story_id;
       setSeenStory(prevState => [...prevState, storyId]);
       setId(storyId);
-      // setCurrentIndex(0);
-      // startSlideshow();
+      setCurrentIndex(0);
+      startSlideshowForMyStory();
+    };
+
+    const startSlideshowForMyStory = () => {
+      intervalId = setInterval(() => {
+          setCurrentIndex((prevIndex) => {
+              const nextIndex = prevIndex + 1;
+              if (nextIndex >= (storyData || []).length) {
+                  clearInterval(intervalId);
+                  setTimeout(() => {
+                      closeMyStory(); // Close my story modal after slideshow ends
+                  }, 5000);
+              }
+              return nextIndex;
+          });
+      }, 5000);
     };
 
     const seenStoryStatus = async () => {
@@ -124,6 +137,7 @@ const Story = ({ refresh }) => {
       setStoryData(null);
       seenStoryStatus();
       stopSlideshow();
+      getAPIData();
     };
 
     const closeMyStory = () => {
@@ -131,6 +145,8 @@ const Story = ({ refresh }) => {
       setStoryData(null);
       seenStoryStatus();
       stopSlideshow();
+      getCurrentStory();
+      setShowUserList(false);
     };
 
     const startSlideshow = () => {
@@ -180,60 +196,60 @@ const Story = ({ refresh }) => {
 
     const openCheckModel = (story) => {
 		    if (story.id === userInfo.data.id)
-		        openMyStoryModal(story);
+		      openMyStoryModal(story);
 		    else
-		        openModel(story);
+		      openModel(story);
 		};
 
     return (
         <View style={styles.container}>
             <ScrollView horizontal>
 			        {currentStory && currentStory.data && currentStory.data.some(story => story.id === userInfo.data.id) ? (
-                                  currentStory.data.map((story, index) => (
-			                <TouchableOpacity
-			                    key={index}
-			                    onPress={() => {
-			                        openCheckModel(story);
-			                    }}
-			                >
-			                    <View style={[
-			                        styles.profileContainer,
-			                        { borderColor: story.stories && seenStory.includes(story.stories.story_id) ? 'black' : 'red' }
-			                    ]}>
-			                        <Image source={{ uri: story.profile_image.url }} style={styles.profileImage} />
-			                    </View>
-			                    <Text>{story.name ? story.name : ''}</Text>
-			                </TouchableOpacity>
-			            ))
+                currentStory.data.map((story, index) => (
+	                <TouchableOpacity
+	                    key={index}
+	                    onPress={() => {
+	                        openCheckModel(story);
+	                    }}
+	                  >
+	                    <View style={[
+	                        styles.profileContainer,
+	                        { borderColor: story.seen === true ? 'black' : 'red' }
+	                    ]}>
+	                        <Image source={{ uri: story.profile_image.url }} style={styles.profileImage} />
+	                    </View>
+	                    <Text style={{marginLeft: 20}}>Your story</Text>
+	                </TouchableOpacity>
+			          ))
 			        ) : (
 			            profileDetail && (
-			                <View>
-                                  <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate("CreateStory")}>
-                                      <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
-                                      <Text>Your story</Text>
-                                  </TouchableOpacity>
-                                  <Icon name="plus" size={18} color="white" style={styles.plusIcon} />
-                              </View>
+		                <View>
+                        <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate("CreateStory")}>
+                          <Image source={{ uri: profileDetail.data.profile_image.url }} style={styles.profileImage} />
+                          <Text>Your story</Text>
+                        </TouchableOpacity>
+                        <Icon name="plus" size={15} color="white" style={styles.plusIcon} />
+                    </View>
 			            )
 			        )}
 			        {data && data.data && data.data.some(story => story.id !== userInfo.data.id) && (
-                                  data.data.map((story, index) => (
-                                      <TouchableOpacity
-                                          key={index}
-                                          onPress={() => {
-                                              openCheckModel(story);
-                                          }}
-                                              >
-                                          <View style={[
-                                              styles.profileContainer,
-                                              { borderColor: story.stories && seenStory.includes(story.stories.story_id) ? 'black' : 'red' }
-                                          ]}>
-                                              <Image source={{ uri: story.profile_image.url }} style={styles.profileImage} />
-                                          </View>
-                                          <Text>{story.name ? story.name : ''}</Text>
-                                      </TouchableOpacity>
-                                  ))
-                              )}
+                data.data.map((story, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                            openCheckModel(story);
+                        }}
+                            >
+                        <View style={[
+                            styles.profileContainer,
+                            { borderColor: story.seen === true ? 'black' : 'red' }
+                        ]}>
+                            <Image source={{ uri: story.profile_image.url }} style={styles.profileImage} />
+                        </View>
+                        <Text>{story.name ? story.name : ''}</Text>
+                    </TouchableOpacity>
+                ))
+            )}
 
 			    	</ScrollView>
             <Modal
@@ -244,13 +260,22 @@ const Story = ({ refresh }) => {
               >
                 <View style={styles.modalContainer}>
                     <View style={styles.overlay} />
-                    <TouchableOpacity onPress={closeModal}>
-                        <Icon name="times" size={25} color="white" style={styles.closeIcon} />
-                    </TouchableOpacity>
+                    {storyData && (
+                      <View style={{flexDirection: 'row',  alignItems: 'center'}}>
+                        <Image source={{ uri: storyData.profile_image.url }} style={styles.storyProfileImage} />
+                        <Text style={{color: 'white'}}>{storyData.name} {storyData.created_at}</Text>
+                      </View>
+                    )}
                     <View style={styles.modalContent}>
                         <View style={styles.imageContainer}>
                             <Swiper index={currentIndex} style={styles.swiper}>
-													    <Text>xxz</Text>
+													    {storyData && storyData.stories ?  (
+                                <Image source={{ uri: storyData.stories.url }} style={styles.modalImage} />
+                                ) : (
+                                <View style={styles.textOverlay}>
+                                <Text style={styles.storyText}>{storyData ? storyData.title : ''}</Text>
+                                </View>
+                              )}
 													</Swiper>
                         </View>
                     </View>
@@ -264,9 +289,12 @@ const Story = ({ refresh }) => {
               >
                 <View style={styles.modalContainer}>
                     <View style={styles.overlay} />
-                    <TouchableOpacity onPress={closeMyStory}>
-                        <Icon name="times" size={25} color="white" style={styles.closeIcon} />
-                    </TouchableOpacity>
+                    {storyData && (
+                      <View style={{flexDirection: 'row',  alignItems: 'center'}}>
+                        <Image source={{ uri: storyData.profile_image.url }} style={styles.storyProfileImage} />
+                        <Text style={{color: 'white'}}>{storyData.name} {storyData.created_at}</Text>
+                      </View>
+                    )}
                     <View style={styles.modalContent}>
                         <View style={[styles.imageContainer, showUserList ? styles.imageContainerSmall : null]}>
                             <Swiper index={currentIndex} style={styles.swiper}>
@@ -278,16 +306,15 @@ const Story = ({ refresh }) => {
 												            </View>
 														    )}
 														</Swiper>
-														{showUserList && (
-															<TouchableOpacity  onPress={toggleUserList} style={styles.eyeUpIconContainer}>
-						                  <Icon name="chevron-down" size={25} color="black" style={styles.eyeIcon} />
-						              		</TouchableOpacity>
-						              		)}
 														<TouchableOpacity  onPress={toggleUserList} style={styles.eyeIconContainer}>
-					                  <Icon name="eye" size={18} color="black" style={styles.eyeIcon} />
+					                    <Icon name="eye" size={25} color="white" style={styles.eyeIcon} />
+                              <Text style={{color: "white"}}>Activity</Text>
 					              		</TouchableOpacity>
 														{showUserList && (
                           		<View style={styles.userListContainer}>
+                              <TouchableOpacity  onPress={toggleUserList} style={styles.eyeUpIconContainer}>
+                              <Icon name="chevron-down" size={25} color="black" style={styles.eyeIcon} />
+                              </TouchableOpacity>
                           		<View style={styles.deleteButtonContainer}>
 														    <TouchableOpacity onPress={() => showDeleteConfirmation(storyData.story_id)}>
 														        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -297,7 +324,7 @@ const Story = ({ refresh }) => {
 														  </View>
 														    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
 														        <Icon name="eye" size={20} color="black" />
-														        <Text style={{ marginLeft: 5, color: 'black' }}>{storyData && storyData.seen_users ? storyData.seen_users.length : 0} Users</Text>
+														        <Text style={{ marginLeft: 5, color: 'black' }}>{storyData && storyData.seen_users ? storyData.seen_users.length : 0} Viewer</Text>
 														    </View>
 														    {storyData && storyData.seen_users && storyData.seen_users.map((user, index) => (
 														        <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 30 }}>
@@ -322,6 +349,15 @@ const styles = StyleSheet.create({
       flex: 1,
       paddingLeft: 10
     },
+    storyProfileImage: {
+      position: 'relative',
+      width: 40,
+      height: 40,
+      borderRadius: 40,
+      overflow: 'hidden',
+      marginRight: 10,
+      borderWidth: 3
+    },
     profileContainer: {
       position: 'relative',
       width: 80,
@@ -339,17 +375,19 @@ const styles = StyleSheet.create({
       position: 'absolute',
       width: 30,
       height: 30,
-      borderRadius: 40,
-      bottom: 15,
-      right: 9,
+      borderRadius: 50,
+      bottom: 9,
+      right: 6,
       backgroundColor: 'black',
       borderColor: "white",
-      borderWidth: 2,
-      padding: 7
+      borderWidth: 1,
+      // padding: 8
+      paddingLeft: 8,
+      paddingTop: 7
     },
     modalContainer: {
       flex: 1,
-      backgroundColor: 'yellow',
+      backgroundColor: 'grey',
       padding: 16,
       paddingTop: 30,
     },
@@ -398,14 +436,8 @@ const styles = StyleSheet.create({
     },
     eyeUpIconContainer: {
     	justifyContent: 'center',
-    	alignItems: 'center',
-      position: 'absolute',
-	    bottom: 375,
-	    // left: 10,
-	    height: 50,
-      width: "110%",
-      backgroundColor: 'white',
-      // borderRadius: 20,
+      alignItems: 'center',
+      paddingBottom: 20
     },
     eyeIconContainer: {
     	justifyContent: 'center',
@@ -415,9 +447,9 @@ const styles = StyleSheet.create({
 	    left: 10,
 	    height: 50,
       width: 50,
-      backgroundColor: 'white',
+      // backgroundColor: 'white',
       borderRadius: 20,
-      borderWidth: 2
+      // borderWidth: 2
     },
     eyeIcon: {
   		justifyContent: 'center',
@@ -430,16 +462,18 @@ const styles = StyleSheet.create({
       paddingVertical: 10,
       paddingHorizontal: 20,
       borderTopWidth: 1,
-      borderTopColor: '#ccc',
+      // borderTopColor: '#ccc',
       height: "50%",
       width: "110%",
+      elevation: 20
     },
     deleteButtonContainer: {
 	    flexDirection: 'row',
 	    alignItems: 'center',
-	    paddingLeft: 10,
-	    paddingRight: 10,
-	    paddingBottom: 10,
+	    // paddingLeft: 10,
+	    // paddingRight: 10,
+	    // paddingBottom: 10,
+      paddingHorizontal: 10
 		},
 });
 

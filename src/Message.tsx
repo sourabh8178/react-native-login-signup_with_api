@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, Image, RefreshControl, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
@@ -11,6 +11,7 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-
 const Message = () => {
   const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -36,8 +37,10 @@ const Message = () => {
   };
 
   useEffect(() => {
-    getAPIData();
-  }, []);
+    setSearchText('');
+    setSearchResults([]);
+    setShowModal(false);
+  }, [isFocused]);
 
   const onRefresh = () => {
     getAPIData();

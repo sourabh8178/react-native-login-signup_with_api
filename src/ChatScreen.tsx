@@ -62,6 +62,7 @@ const ChatScreen = () => {
        };
      }
     setImage('');
+    checkRoom(userInfo.data.id, route.params.userId);
     setMessageList(previousMessages =>
       GiftedChat.append(previousMessages, myMsg),
     );
@@ -71,6 +72,29 @@ const ChatScreen = () => {
       .collection('messages')
       .add(myMsg);
   }, [userInfo.data.id, route.params.userId]);
+
+  const checkRoom = (userId, senderId) => {
+    const data = {
+      sendTo: senderId,
+    }
+    try {
+      axios.post(`${BASE_URL}/room`, data, {
+        headers: {
+          Authorization: `Bearer ${userInfo.data.authentication_token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+      } catch (errors) {
+        Alert.alert('Error', 'Failed to create story. Please try again later.');
+      }
+
+  }
 
   const customtInputToolbar = props => {
     return (
@@ -211,7 +235,7 @@ const ChatScreen = () => {
 
   const renderBubble = props => {
     return (
-      <View style={{marginBottom: 10}}>
+      <View style={{marginBottom: 20}}>
         <Bubble
           {...props}
           wrapperStyle={{

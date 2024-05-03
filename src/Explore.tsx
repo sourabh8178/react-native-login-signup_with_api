@@ -3,7 +3,7 @@ import { View, TextInput, Image, StatusBar,  FlatList, Text, StyleSheet, Touchab
 import axios from 'axios';
 import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const windowWidth = Dimensions.get('window').width;
@@ -15,6 +15,7 @@ const Explore = () => {
   const [data, setData] = useState(undefined);
   const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [searchText, setSearchText] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,9 +37,11 @@ const Explore = () => {
     }
   };
 
-  useEffect(() => {
-    getAPIData();
-  }, []);
+   useEffect(() => {
+    setSearchText('');
+    setSearchResults([]);
+    setShowModal(false);
+  }, [isFocused]);
 
   const searchApi = async (term) => {
     try {
@@ -103,7 +106,7 @@ const Explore = () => {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.container}>
-      <StatusBar backgroundColor="#147a99" barStyle="light-content" />
+      <StatusBar backgroundColor="#dbd7d7" barStyle="light-content" />
         <TouchableOpacity onPress={() => setShowModal(true)}>
           <View style={styles.inputPost}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: "5%", marginRight: "5%" }}>

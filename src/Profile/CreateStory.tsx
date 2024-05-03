@@ -59,19 +59,19 @@ const CreateStory = ({ refreshStory }) => {
 
     const handleCreateStory = () => {
         if (!title && !image) {
-			    Alert.alert('Please enter title or select image.');
-			    return;
-				}
+		    Alert.alert('Please enter title or select image.');
+		    return;
+			}
 
-				const formData = new FormData();
+			const formData = new FormData();
         formData.append('title', title);
         if (image) {
-				  formData.append('story_image', {
-				    uri: image.assets[0].uri,
-				    type: image.assets[0].type,
-				    name: image.assets[0].fileName,
-				  });
-				}
+			  formData.append('story_image', {
+			    uri: image.assets[0].uri,
+			    type: image.assets[0].type,
+			    name: image.assets[0].fileName,
+			  });
+			}
 
 			try {
 			  axios.post(`${BASE_URL}/stories`, formData, {
