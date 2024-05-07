@@ -78,7 +78,7 @@ const Story = ({ refresh }) => {
             const response = await axios.get(`${BASE_URL}/my_story`, { headers });
             setCurrentStory(response.data);
         } catch (error) {
-                       setData(null);
+            setCurrentStory(null);
             console.error('Error fetching stories:', error);
         }
 		};
@@ -376,12 +376,12 @@ const styles = StyleSheet.create({
       width: 30,
       height: 30,
       borderRadius: 50,
-      bottom: 9,
-      right: 6,
+      bottom: 15,
+      right: 10,
       backgroundColor: 'black',
       borderColor: "white",
       borderWidth: 1,
-      // padding: 8
+      // padding: 8,
       paddingLeft: 8,
       paddingTop: 7
     },

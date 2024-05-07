@@ -37,6 +37,10 @@ const Message = () => {
   };
 
   useEffect(() => {
+    getAPIData();
+  }, [isFocused]);
+
+  useEffect(() => {
     setSearchText('');
     setSearchResults([]);
     setShowModal(false);

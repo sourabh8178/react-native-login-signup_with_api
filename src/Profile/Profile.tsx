@@ -77,13 +77,12 @@ const Profile = () => {
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(`${BASE_URL}/view_profile`, { headers });
       setProfileDetail(response.data);
-      await AsyncStorage.removeItem('userInfo');
     } catch (error) {
-      // console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setIsRefreshing(false);
       setIsLoading(false); // Set loading state to false after data is fetched
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -95,13 +94,13 @@ const Profile = () => {
     getAPIData();
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="blue" />
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <ActivityIndicator size="large" color="blue" />
+  //     </View>
+  //   );
+  // }
 
   if (profileDetail === null) {
     return (
@@ -123,11 +122,7 @@ const Profile = () => {
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
         contentContainerStyle={styles.container}
       >
-        {isLoading && ( // Conditionally render loading indicator
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="blue" />
-          </View>
-        )}
+        
         <View style={styles.header}>
           <Text style={styles.headerText}>Profile</Text>
           <View style={styles.headerIcons}>
@@ -192,6 +187,11 @@ const Profile = () => {
               )}
             />
           </View>
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="blue" />
+          </View>
+        )}
       </ScrollView>
     </MenuProvider>
   );
@@ -300,13 +300,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  // Style for loading overlay
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1, // Ensure the loading indicator is above other content
+    zIndex: 1,
   },
 });
 

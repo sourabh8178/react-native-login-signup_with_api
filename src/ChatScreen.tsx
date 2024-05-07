@@ -62,7 +62,7 @@ const ChatScreen = () => {
        };
      }
     setImage('');
-    checkRoom(userInfo.data.id, route.params.userId);
+    checkRoom(userInfo.data.id, route.params.userId, msg);
     setMessageList(previousMessages =>
       GiftedChat.append(previousMessages, myMsg),
     );
@@ -73,9 +73,10 @@ const ChatScreen = () => {
       .add(myMsg);
   }, [userInfo.data.id, route.params.userId]);
 
-  const checkRoom = (userId, senderId) => {
+  const checkRoom = (userId, senderId, msg) => {
     const data = {
       sendTo: senderId,
+      message: msg,
     }
     try {
       axios.post(`${BASE_URL}/room`, data, {

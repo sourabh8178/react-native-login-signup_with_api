@@ -27,7 +27,8 @@ import ProfileSetting from './Profile/ProfileSetting';
 import EditMyProfile from './Profile/EditMyProfile';
 import PreHomeScreen from './Auth/PreHomeScreen';
 import CreateStory from './Profile/CreateStory';
-import Notifications from './Notifications'
+import Notifications from './Notifications';
+import Comments from './home/Comments'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -136,6 +137,7 @@ const HomeStack = () => (
     <Stack.Screen name="UserProfile" component={UserProfile} />
     <Stack.Screen name="CreateStory" component={CreateStory} />
     <Stack.Screen name="Notifications" component={Notifications} />
+    <Stack.Screen name="Comments" component={Comments} />
   </Stack.Navigator>
 );
 

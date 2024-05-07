@@ -5,7 +5,7 @@ import { AuthContext } from './Auth/AuthContext';
 import { BASE_URL } from './Auth/Config';
 import axios from 'axios';
 import Blog from './Blog/Blog';
-import UserProfile from "./Profile/UserProfile"
+import UserProfile from "./Profile/UserProfile";
 import { useNavigation } from '@react-navigation/native';
 import BlogView from './Blog/BlogView';
 import Story from './Profile/Story';
@@ -13,6 +13,7 @@ import { showMessage } from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Video from 'react-native-video';
+import Comments from './home/Comments'
 import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
 const HomeScreen = (props) => {
@@ -24,11 +25,7 @@ const HomeScreen = (props) => {
   const navigation = useNavigation();
   const [viewType, setViewType] = useState('list');
   const [body, setBody] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [commentData, setCommentData] = useState(null);
-  const [postIds, setPostIds] = useState(null);
   const [textInputValue, setTextInputValue] = useState('');
-  const [noCommentData, setNoCommentData] = useState(null);
   const [clicked, setClicked] = useState(false);
   const [paused, setPaused] = useState(true);
   const [muted, setMuted] = useState(false);
@@ -173,56 +170,9 @@ const HomeScreen = (props) => {
   };
 
   const handleCommentIconClick = (postId) => {
-    openModal(postId);
-  };
-
-  const openModal = async (postId) => {
-    setShowModal(true);
-    await commentPost(postId);
-  };
-
-  const commentPost = async (postId) => {
-    const token = userInfo.data.authentication_token;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-    try {
-      const response = await axios.get(`${BASE_URL}/comments/${postId}`, { headers });
-      setCommentData(response.data);
-      setPostIds(postId);
-    } catch (error) {
-      console.log(error.response.data.errors);
-      setNoCommentData(error.response.data.errors);
-    }
-  };
-
-  const closeModal = () => {
-    setCommentData(null);
-    setNoCommentData(null);
-    setPostIds(null);
-    setShowModal(false);
-  };
-
-  const handleSubmit = async (postIds) => {
-    if (!textInputValue) {
-      return false;
-    }
-    const token = userInfo.data.authentication_token;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-    const data = {
-      post_id: postIds,
-      comment: textInputValue,
-    };
-    try {
-      const response = await axios.post(`${BASE_URL}/comment`, data, { headers });
-      await commentPost(postIds);
-      setTextInputValue(''); 
-    } catch (error) {
-      setShowModal(true);
-      console.log(error.response.data.errors);
-    }
+    navigation.navigate("Comments", {
+      postId: postId,
+    });
   };
 
   const handleVideoClick = (postId) => {
@@ -272,16 +222,12 @@ const HomeScreen = (props) => {
               {data ? (
                 data.data.map((post) => (
                   <React.Fragment key={post.id}>
-                  <View style={{
+                    <View style={{
                         borderTopLeftRadius: 30,
                         borderTopRightRadius: 30,
-                        padding: 15,
+                        paddingTop: 15,
                         borderTopColor: '#ccc',
-                        borderTopWidth: 5,
                         marginTop: 15,
-                        backgroundColor: 'white',
-                        elevation: 10,
-                        margin: 10
                       }}>
                       {post.is_current_user_post ? (
                         <TouchableOpacity
@@ -316,7 +262,7 @@ const HomeScreen = (props) => {
                           </Menu>
                           ) : (
                             <Menu>
-                              <MenuTrigger style={{ padding: 10, marginLeft: '75%' }}>
+                              <MenuTrigger style={{ padding: 5, marginLeft: '75%' }}>
                                 <Icon name="ellipsis-v" size={30} color="black" style={{ marginLeft: 'auto' }} />
                               </MenuTrigger>
                               <MenuOptions customStyles={menuOptionsStyles} >
@@ -327,61 +273,49 @@ const HomeScreen = (props) => {
                         )}
                       </View>
                     </View>
-                    <View style={{
-                          borderBottomLeftRadius: 30,
-                          borderBottomRightRadius: 30,
-                          padding: 15,
-                          marginTop: "auto",
-                          backgroundColor: 'white',
-                          elevation: 10,
-                          margin: 10,
-                          marginTop: -10
-                        }}
-                        >
-                        <Text style={{ color: 'black' }}> {post.title.charAt(0).toUpperCase() + post.title.slice(1)}</Text>
-                        <Text style={{ color: 'black' }}> {post.body}</Text>
-                        {post.blog_image.blob === "video/mp4" ? (
-                          <View style={styles.blogVideo}>
-                              <TouchableOpacity style={{width: "100%", height: 200}} onPress={() => handleVideoClick(post.id)}>
-                                {currentVideoId === post.id ? (
-                                  <Video
-                                    paused={paused}
-                                    source={{ uri: post.blog_image.url }}
-                                    style={styles.video}
-                                    muted={muted}
-                                  />
-                                ) : (
-                                <Image source={require("./assest/videothumb.jpeg")} style={styles.blogImage} />
-                                )}
-                              </TouchableOpacity>
-                              {clicked && currentVideoId === post.id && (
-                                <View style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  positions: "absolute",
-                                  backgroundColor: 'rbga(0,0,0,0.5)',
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  marginTop: "-50%"
-                                }}>
-                                  <View style={{flexDirection: 'row'}}>
-                                    <TouchableOpacity onPress={() => setPaused(!paused)} style={styles.touchArea}>
-                                      <View style={styles.touchAreaContainer}>
-                                        <Icon name={paused ? 'play' : 'pause'} size={30} color="white" />
-                                      </View>
-                                    </TouchableOpacity>
-                                  </View>
-                                    <TouchableOpacity onPress={() => setMuted(!muted)} style={[styles.touchArea, { marginLeft: "80%" }]}>
-                                      <View style={styles.touchAreaContainer}>
-                                        <Icon name={muted ? 'volume-off' : 'volume-up'} size={30} color="white" />
-                                      </View>
-                                    </TouchableOpacity>
+                    <View>
+                      {post.blog_image.blob === "video/mp4" ? (
+                        <View style={styles.blogVideo}>
+                            <TouchableOpacity style={{width: "100%", height: 200}} onPress={() => handleVideoClick(post.id)}>
+                              {currentVideoId === post.id ? (
+                                <Video
+                                  paused={paused}
+                                  source={{ uri: post.blog_image.url }}
+                                  style={styles.video}
+                                  muted={muted}
+                                />
+                              ) : (
+                              <Image source={require("./assest/videothumb.jpeg")} style={styles.blogImage} />
+                              )}
+                            </TouchableOpacity>
+                            {clicked && currentVideoId === post.id && (
+                              <View style={{
+                                width: "100%",
+                                height: "100%",
+                                positions: "absolute",
+                                backgroundColor: 'rbga(0,0,0,0.5)',
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: "-50%"
+                              }}>
+                                <View style={{flexDirection: 'row'}}>
+                                  <TouchableOpacity onPress={() => setPaused(!paused)} style={styles.touchArea}>
+                                    <View style={styles.touchAreaContainer}>
+                                      <Icon name={paused ? 'play' : 'pause'} size={30} color="white" />
+                                    </View>
+                                  </TouchableOpacity>
                                 </View>
-                                )}
-                          </View>
-                        ) : (
-                          <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
-                        )}
+                                  <TouchableOpacity onPress={() => setMuted(!muted)} style={[styles.touchArea, { marginLeft: "80%" }]}>
+                                    <View style={styles.touchAreaContainer}>
+                                      <Icon name={muted ? 'volume-off' : 'volume-up'} size={30} color="white" />
+                                    </View>
+                                  </TouchableOpacity>
+                              </View>
+                              )}
+                        </View>
+                      ) : (
+                        <Image source={{ uri: post.blog_image.url }} style={styles.blogImage} />
+                      )}
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, justifyContent: 'space-around' }}>
                         <TouchableOpacity onPress={() => handleLikeToggle(post.id)}>
                           <Icon
@@ -394,58 +328,6 @@ const HomeScreen = (props) => {
                         <TouchableOpacity onPress={() => handleCommentIconClick(post.id)}>
                           <Icon name="comment-o" size={25} color="black" style={styles.icon} />
                         </TouchableOpacity>
-                        <Modal
-                          visible={showModal}
-                          transparent={true}
-                          animationType="slide"
-                          onRequestClose={closeModal}
-                          >
-                          <View style={styles.modalContainer}>
-                            <View style={styles.modalHeader}>
-                              <Text style={styles.modalTitle}>Comments</Text>
-                              <TouchableOpacity onPress={closeModal}>
-                                <Icon name="times" size={25} color="black" style={styles.modalIcon} />
-                              </TouchableOpacity>
-                            </View>
-                            <ScrollView>
-                              <View style={styles.commentContainer}>
-                                {commentData ? (
-                                  commentData.data.map((comment, index) => (
-                                    <View style={styles.commentItem} key={index}>
-                                      <Image source={{ uri: comment.profile_image.url }} style={styles.profileImage} />
-                                      <View style={styles.commentHeader}>
-                                        <Text style={styles.userName}>
-                                          {comment.name}{" "}
-                                          <Text style={styles.commentDate}>{" , " + comment.created_at}</Text>
-                                        </Text>
-                                        <Text style={styles.commentText}>{comment.message}</Text>
-                                      </View>
-                                    </View>
-                                  ))
-                                ) : (
-                                  <View style={[styles.loadingContainer, { justifyContent: 'center' }]}>
-                                    {noCommentData ? (
-                                      <Text>No comments....</Text>
-                                    ) : (
-                                      <ActivityIndicator size="large" color="#0000ff" /> // Display loader while fetching comments
-                                    )}
-                                  </View>
-                                )}
-                              </View>
-                            </ScrollView>
-                            <View style={styles.inputContainer}>
-                              <TextInput
-                                value={textInputValue}
-                                style={styles.inputComment}
-                                placeholder="Add your comment..."
-                                onChangeText={(text) => setTextInputValue(text)}
-                              />
-                              <TouchableOpacity onPress={() => handleSubmit(postIds)} style={styles.createCommentButton}>
-                                <Text style={{color: 'white', fontSize: 18}}>Add Comment</Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                        </Modal>
                         <TouchableOpacity onPress={() => handleBookmarkToggle(post.id)} style={{ marginLeft: '65%' }}>
                           <Icon
                             name={post.bookmarked ? 'bookmark' : 'bookmark-o'}
@@ -465,6 +347,7 @@ const HomeScreen = (props) => {
                           <Text style={{ marginLeft: 5, color: 'black' }}>+{post.likes_count - 0} more likes</Text>
                         )}
                       </View>
+                      <Text style={{ color: 'black', margin: 10, padding: 10 }}>{post.body}</Text>
                     </View>
                   </React.Fragment>
                 ))
@@ -484,7 +367,7 @@ const HomeScreen = (props) => {
                         elevation: 10,
                       }}
                       onPress={() => navigation.navigate('Blog')}
-                    >
+                      >
                       <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Create your own post</Text>
                     </TouchableOpacity>
                   </View>
@@ -506,8 +389,8 @@ const HomeScreen = (props) => {
 
 const menuOptionsStyles = {
   optionsContainer: {
-    marginTop: -20,
-    marginLeft: '50%',
+    marginTop: -10,
+    marginLeft: '60%',
     backgroundColor: 'white',
     padding: 3,
     borderRadius: 8,
@@ -600,86 +483,10 @@ const styles = StyleSheet.create({
     marginLeft: '3%',
     width: '94%',
   },
-  createCommentButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: '#147a99',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 50,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 16,
-    paddingTop: 30,
-    marginTop: '20%',
-    borderRadius: 40,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  modalIcon: {
-    marginLeft: 'auto',
-  },
-  commentItem: {
-    justifyContent: 'flex-end',
-    flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#fff',
-    backgroundColor: '#fff',
-  },
-  profileImage: {
-    width: 40,
-    height: 30,
-    borderRadius: 25,
-  },
-  commentHeader: {
-    marginLeft: 10,
-    flex: 1,
-  },
-  userName: {
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
-  commentDate: {
-    color: '#777',
-  },
-  commentText: {
-    color: '#333',
-    fontSize: 20,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  commentContainer: {
-    flex: 1,
-    marginBottom: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 'auto',
-  },
-  inputComment: {
-    flex: 1,
-    marginRight: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: '#ccc',
   },
   backgroundVideo: {
     width: '100%',
